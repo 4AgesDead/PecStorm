@@ -8,6 +8,7 @@ __pycache__/
 
 # Псевдо-разметка (тысячи JPEG) не коммитим
 datasets/truck/pseudo/
+datasets/truck/pseudo_hard/
 
 # Веса моделей (5–140 МБ) скачиваются по имени автоматически ultralytics
 yolo*.pt
