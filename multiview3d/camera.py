@@ -54,7 +54,7 @@ def project_point(cam: CameraCalibration, X: np.ndarray) -> np.ndarray:
     if x_cam[2] <= 1e-9:
         raise ValueError("точка лежит не перед камерой (z <= 0)")
     uv = _project_with_pose(cam.K, cam.dist, x_cam.reshape(1, 3))
-    return uv[:, 0]
+    return uv[:2, 0]
 
 
 def project_points(cam: CameraCalibration, points: np.ndarray) -> np.ndarray:
@@ -66,7 +66,7 @@ def project_points(cam: CameraCalibration, points: np.ndarray) -> np.ndarray:
     out = np.full((P.shape[0], 2), np.nan)
     good = x_cam[:, 2] > 1e-9
     if good.any():
-        out[good] = _project_with_pose(cam.K, cam.dist, x_cam[good]).T
+        out[good] = _project_with_pose(cam.K, cam.dist, x_cam[good])[:2].T
     return out
 
 

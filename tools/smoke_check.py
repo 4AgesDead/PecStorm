@@ -1,7 +1,7 @@
 """Быстрая проверка работоспособности ядра multiview3d.
 
 Запуск:
-    C:\\Users\\BeGraphics\\AppData\\Local\\Programs\\Python\\Python314\\python.exe tools\\smoke_check.py
+    py tools\smoke_check.py
 
 Проверяет:
 1) импорт всех модулей пакета;

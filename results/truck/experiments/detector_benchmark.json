@@ -1,0 +1,194 @@
+{
+ "frames": [
+  0,
+  1000,
+  100
+ ],
+ "note": "detection rate — прокси recall: 2D-разметки нет, precision не измеряется; классы COCO truck,car,bus,train",
+ "runs": [
+  {
+   "model": "yolov8n.pt",
+   "imgsz": 640,
+   "conf": 0.25,
+   "frames_total": 55,
+   "seconds": 19.16,
+   "ms_per_camera_frame": 348.4,
+   "detection_rate_overall": 0.0545,
+   "per_camera": {
+    "cam1": {
+     "frames": 11,
+     "frames_with_detection": 1,
+     "detection_rate": 0.0909,
+     "score_mean": 0.4463,
+     "score_median": 0.4463
+    },
+    "cam2": {
+     "frames": 11,
+     "frames_with_detection": 0,
+     "detection_rate": 0.0,
+     "score_mean": null,
+     "score_median": null
+    },
+    "cam3": {
+     "frames": 11,
+     "frames_with_detection": 1,
+     "detection_rate": 0.0909,
+     "score_mean": 0.6933,
+     "score_median": 0.6933
+    },
+    "cam4": {
+     "frames": 11,
+     "frames_with_detection": 0,
+     "detection_rate": 0.0,
+     "score_mean": null,
+     "score_median": null
+    },
+    "cam5": {
+     "frames": 11,
+     "frames_with_detection": 1,
+     "detection_rate": 0.0909,
+     "score_mean": 0.7211,
+     "score_median": 0.7211
+    }
+   }
+  },
+  {
+   "model": "yolov8n.pt",
+   "imgsz": 960,
+   "conf": 0.25,
+   "frames_total": 55,
+   "seconds": 19.71,
+   "ms_per_camera_frame": 358.4,
+   "detection_rate_overall": 0.0545,
+   "per_camera": {
+    "cam1": {
+     "frames": 11,
+     "frames_with_detection": 1,
+     "detection_rate": 0.0909,
+     "score_mean": 0.5714,
+     "score_median": 0.5714
+    },
+    "cam2": {
+     "frames": 11,
+     "frames_with_detection": 0,
+     "detection_rate": 0.0,
+     "score_mean": null,
+     "score_median": null
+    },
+    "cam3": {
+     "frames": 11,
+     "frames_with_detection": 0,
+     "detection_rate": 0.0,
+     "score_mean": null,
+     "score_median": null
+    },
+    "cam4": {
+     "frames": 11,
+     "frames_with_detection": 0,
+     "detection_rate": 0.0,
+     "score_mean": null,
+     "score_median": null
+    },
+    "cam5": {
+     "frames": 11,
+     "frames_with_detection": 2,
+     "detection_rate": 0.1818,
+     "score_mean": 0.7372,
+     "score_median": 0.7372
+    }
+   }
+  },
+  {
+   "model": "yolov8x.pt",
+   "imgsz": 640,
+   "conf": 0.25,
+   "frames_total": 55,
+   "seconds": 36.6,
+   "ms_per_camera_frame": 665.4,
+   "detection_rate_overall": 0.2909,
+   "per_camera": {
+    "cam1": {
+     "frames": 11,
+     "frames_with_detection": 2,
+     "detection_rate": 0.1818,
+     "score_mean": 0.8992,
+     "score_median": 0.8992
+    },
+    "cam2": {
+     "frames": 11,
+     "frames_with_detection": 2,
+     "detection_rate": 0.1818,
+     "score_mean": 0.781,
+     "score_median": 0.781
+    },
+    "cam3": {
+     "frames": 11,
+     "frames_with_detection": 3,
+     "detection_rate": 0.2727,
+     "score_mean": 0.6471,
+     "score_median": 0.7547
+    },
+    "cam4": {
+     "frames": 11,
+     "frames_with_detection": 3,
+     "detection_rate": 0.2727,
+     "score_mean": 0.8248,
+     "score_median": 0.8641
+    },
+    "cam5": {
+     "frames": 11,
+     "frames_with_detection": 6,
+     "detection_rate": 0.5455,
+     "score_mean": 0.8915,
+     "score_median": 0.9211
+    }
+   }
+  },
+  {
+   "model": "yolov8x.pt",
+   "imgsz": 960,
+   "conf": 0.25,
+   "frames_total": 55,
+   "seconds": 58.96,
+   "ms_per_camera_frame": 1072.0,
+   "detection_rate_overall": 0.2909,
+   "per_camera": {
+    "cam1": {
+     "frames": 11,
+     "frames_with_detection": 2,
+     "detection_rate": 0.1818,
+     "score_mean": 0.9352,
+     "score_median": 0.9352
+    },
+    "cam2": {
+     "frames": 11,
+     "frames_with_detection": 2,
+     "detection_rate": 0.1818,
+     "score_mean": 0.8494,
+     "score_median": 0.8494
+    },
+    "cam3": {
+     "frames": 11,
+     "frames_with_detection": 3,
+     "detection_rate": 0.2727,
+     "score_mean": 0.6587,
+     "score_median": 0.6569
+    },
+    "cam4": {
+     "frames": 11,
+     "frames_with_detection": 3,
+     "detection_rate": 0.2727,
+     "score_mean": 0.861,
+     "score_median": 0.8377
+    },
+    "cam5": {
+     "frames": 11,
+     "frames_with_detection": 6,
+     "detection_rate": 0.5455,
+     "score_mean": 0.9146,
+     "score_median": 0.9245
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,142 @@
+{
+  "dataset": "pelenga_truck",
+  "root": "huniashahatona/zadania",
+  "fps": 30.0,
+  "width": 1920,
+  "height": 1080,
+  "cameras": [
+    {
+      "name": "cam1",
+      "index": 1,
+      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor1.mp4",
+      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor1.csv",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "frame_count": 1001,
+      "csv_frames": 1002,
+      "csv_first": 0,
+      "csv_last": 1001,
+      "static": true,
+      "video_bytes": 9054196,
+      "csv_bytes": 52087,
+      "video_sha256": "22c3547135027c6e531dd25f7778f43585db32861687da31558849ab1daf7b8c",
+      "camera_csv_sha256": "17becf3be3148fefc65acc96adf234039a7ac130ceedf3fc0a183de1685cff66"
+    },
+    {
+      "name": "cam2",
+      "index": 2,
+      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor2.mp4",
+      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor2.csv",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "frame_count": 1001,
+      "csv_frames": 1002,
+      "csv_first": 0,
+      "csv_last": 1001,
+      "static": true,
+      "video_bytes": 14027586,
+      "csv_bytes": 54091,
+      "video_sha256": "0aa464e21ed58229026d18ae64be89b57102365aa22f7ca609d4f800175f08c8",
+      "camera_csv_sha256": "4c44e5d92019439e42b0a64e6f7baf5c71daaed53545ad5995a31e595375bf3d"
+    },
+    {
+      "name": "cam3",
+      "index": 3,
+      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor3.mp4",
+      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor3.csv",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "frame_count": 1001,
+      "csv_frames": 1002,
+      "csv_first": 0,
+      "csv_last": 1001,
+      "static": true,
+      "video_bytes": 18045013,
+      "csv_bytes": 57097,
+      "video_sha256": "326f99f1081508513dce8358e2e8ce3474c4766d4d5705b6fef8e121f727552b",
+      "camera_csv_sha256": "7580a5a2c351c02b0eecc232dc20420f3b4d0d983f328bbc26ba20771dbecffb"
+    },
+    {
+      "name": "cam4",
+      "index": 4,
+      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor4.mp4",
+      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor4.csv",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "frame_count": 1001,
+      "csv_frames": 1002,
+      "csv_first": 0,
+      "csv_last": 1001,
+      "static": true,
+      "video_bytes": 20441942,
+      "csv_bytes": 58099,
+      "video_sha256": "e885c547f7eaa12491230525dff31e21a8074b53c3dc81ada39080446742c74a",
+      "camera_csv_sha256": "71157d386d1015ada979b27fbc005f17984846552f5dea59b39aeb80dde11749"
+    },
+    {
+      "name": "cam5",
+      "index": 5,
+      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor5.mp4",
+      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor5.csv",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "frame_count": 1001,
+      "csv_frames": 1002,
+      "csv_first": 0,
+      "csv_last": 1001,
+      "static": false,
+      "video_bytes": 46358492,
+      "csv_bytes": 60865,
+      "video_sha256": "b79302bea1e37c969db9f0be722e66a239b9181eadb367ceb02ea69be51ed729",
+      "camera_csv_sha256": "5f0ead2f5c98375a37704bd19b5a8e3789536652c5396d02afe46c1583023462"
+    }
+  ],
+  "ground_truth": {
+    "path": "huniashahatona/zadania/xyzpowcameta/object_transform_SM_AA_track.csv",
+    "frames": 1000,
+    "first": 0,
+    "last": 1001,
+    "invalid_cells": [
+      {
+        "line": 404,
+        "frame": 402,
+        "column": "Loc_X",
+        "raw_value": "авг.13"
+      },
+      {
+        "line": 693,
+        "frame": 691,
+        "column": "Loc_Y",
+        "raw_value": "июл.25"
+      }
+    ],
+    "repaired_frames": [],
+    "bytes": 33662,
+    "sha256": "20cae9e7227652c3a4b31a723018255487df260db2123f5c34013683d70746ca"
+  },
+  "common_frame_range": [
+    0,
+    1000
+  ],
+  "common_frames": 1001,
+  "bounds_note": "Обрабатывается пересечение кадров видео и строк CSV. Строка camera CSV с номером >= video_frame_count видеокадра не имеет и не обрабатывается (off-by-one исключён).",
+  "units": {
+    "camera_csv": "сантиметры UE (world)",
+    "gt_csv": "сантиметры UE (world)",
+    "library": "метры (CameraCalibration.unit == 1.0)"
+  },
+  "assumptions": [
+    "Единицы — Unreal centimeters -> meters (x0.01).",
+    "Правая система: X_ue=X_u, Y_ue=-Y_u, Z_ue=Z_u (S_FLIP, det=-1).",
+    "Локальные оси: UE X forward / Y right / Z up -> OpenCV x right, y down, z forward.",
+    "Эмпирическая поправка: знак pitch CSV зеркален относительно рендера.",
+    "Intrinsics: pinhole, fx=focal*width/sensor_w, fy=focal*height/sensor_h, principal point в центре, дисторсия 0. Не подтверждено организаторами.",
+    "Anchor детекции (bbox center) не равен actor pivot — см. docs/OPEN_QUESTIONS.md."
+  ],
+  "repairs": "datasets/truck/ground_truth_repairs.json"
+}

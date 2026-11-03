@@ -1,0 +1,1687 @@
+{
+ "step": 5,
+ "frames_analyzed": 201,
+ "frames_with_gt": 1000,
+ "cameras_per_frame_histogram": {
+  "1": 6,
+  "2": 13,
+  "3": 107,
+  "4": 75
+ },
+ "frames_with_ge2_cameras": 195,
+ "share_ge2_cameras": 0.9701492537313433,
+ "per_camera_frames_visible": {
+  "cam1": 32,
+  "cam2": 154,
+  "cam3": 111,
+  "cam4": 155,
+  "cam5": 201
+ },
+ "per_camera_share": {
+  "cam1": 0.15920398009950248,
+  "cam2": 0.7661691542288557,
+  "cam3": 0.5522388059701493,
+  "cam4": 0.7711442786069652,
+  "cam5": 1.0
+ },
+ "frames": [
+  {
+   "frame": 0,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 5,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 10,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 15,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 20,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 25,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 30,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 35,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 40,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 45,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 50,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 55,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 60,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 65,
+   "cameras": [
+    "cam1",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 70,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 75,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 80,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 85,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 90,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 95,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 100,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 105,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 110,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 115,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 120,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 125,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 130,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 135,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 140,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 145,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 150,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 155,
+   "cameras": [
+    "cam1",
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 160,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 165,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 170,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 175,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 180,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 185,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 190,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 195,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 200,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 205,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 210,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 215,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 220,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 225,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 230,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 235,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 240,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 245,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 250,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 255,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 260,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 265,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 270,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 275,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 280,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 285,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 290,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 295,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 300,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 305,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 310,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 315,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 320,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 325,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 330,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 335,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 340,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 345,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 350,
+   "cameras": [
+    "cam2",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 355,
+   "cameras": [
+    "cam2",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 360,
+   "cameras": [
+    "cam2",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 365,
+   "cameras": [
+    "cam2",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 370,
+   "cameras": [
+    "cam2",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 375,
+   "cameras": [
+    "cam2",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 380,
+   "cameras": [
+    "cam2",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 385,
+   "cameras": [
+    "cam2",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 390,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 395,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 400,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 405,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 410,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 415,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 420,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 425,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 430,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 435,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 440,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 445,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 450,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 455,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 460,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 465,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 470,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 475,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 480,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 485,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 490,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 495,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 500,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 505,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 510,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 515,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 520,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 525,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 530,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 535,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 540,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 545,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 550,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 555,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 560,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 565,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 570,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 575,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 580,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 585,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 590,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 595,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 600,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 605,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 610,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 615,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 620,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 625,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 630,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 635,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 640,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 645,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 650,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 655,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 660,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 665,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 670,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 675,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 680,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 685,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 690,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 695,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 700,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 705,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 710,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 715,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 720,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 725,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 730,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 735,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 740,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 745,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 750,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 755,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 760,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 765,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 770,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 775,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 780,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 785,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 790,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 795,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 800,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 805,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 810,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 815,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 820,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 825,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 830,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 835,
+   "cameras": [
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 840,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 845,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 850,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 855,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 860,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 865,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 870,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 875,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 880,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 885,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 890,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 895,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 900,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 905,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 910,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 915,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 920,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 925,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 930,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 935,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 940,
+   "cameras": [
+    "cam3",
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 945,
+   "cameras": [
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 950,
+   "cameras": [
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 955,
+   "cameras": [
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 960,
+   "cameras": [
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 965,
+   "cameras": [
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 970,
+   "cameras": [
+    "cam4",
+    "cam5"
+   ]
+  },
+  {
+   "frame": 975,
+   "cameras": [
+    "cam5"
+   ]
+  },
+  {
+   "frame": 980,
+   "cameras": [
+    "cam5"
+   ]
+  },
+  {
+   "frame": 985,
+   "cameras": [
+    "cam5"
+   ]
+  },
+  {
+   "frame": 990,
+   "cameras": [
+    "cam5"
+   ]
+  },
+  {
+   "frame": 995,
+   "cameras": [
+    "cam5"
+   ]
+  },
+  {
+   "frame": 1000,
+   "cameras": [
+    "cam5"
+   ]
+  }
+ ]
+}

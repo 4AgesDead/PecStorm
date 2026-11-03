@@ -55,7 +55,12 @@ class ReaderStats:
 
 
 class LatestFrameBuffer:
-    """Буфер «только последний кадр»: новые вытесняют старые."""
+    """Буфер «только последний кадр»: новые вытесняют старые.
+
+    ``get()`` отдаёт **самый свежий** элемент (политика latest, а не FIFO):
+    при просадке обработчика очередь не накапливает устаревшие кадры —
+    иначе конвейер систематически работал бы по задержанным данным.
+    """
 
     def __init__(self, maxlen: int = 2) -> None:
         self._q: queue.Queue = queue.Queue(maxsize=maxlen)
@@ -71,10 +76,24 @@ class LatestFrameBuffer:
             self._q.put_nowait(item)
 
     def get(self, timeout: float | None = None):
-        try:
-            return self._q.get(timeout=timeout)
-        except queue.Empty:
-            return None
+        """Самый новый элемент или None по таймауту/пустому буферу."""
+        deadline = None if timeout is None else time.monotonic() + max(0.0, timeout)
+        while True:
+            with self._lock:
+                item = None
+                while True:                      # вычерпываем очередь до последнего
+                    try:
+                        item = self._q.get_nowait()
+                    except queue.Empty:
+                        break
+                if item is not None:
+                    return item
+            if deadline is None:
+                return None
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return None
+            time.sleep(min(0.005, remaining))
 
 
 class OpenCvFrameSource:
@@ -179,12 +198,18 @@ def build_readers(sources: Sequence[FrameSource], names: Sequence[str] | None = 
 
 
 def read_aligned(readers: Sequence[FrameReader], *, align_tolerance: float = 0.05,
-                 timeout: float = 0.5) -> dict[str, tuple[np.ndarray, list[Detection2D] | None, float]] | None:
-    """Собирает по одному последнему кадру с каждой камеры в пределах допуска.
+                 timeout: float = 0.5, min_cameras: int | None = None,
+                 allow_partial: bool = False) -> dict[str, tuple] | None:
+    """Собирает по одному последнему кадру с камер в пределах допуска.
 
     Возвращает ``{имя: (таймкод, кадр, детекции, monotonic)}`` (4-tuple из
-    ``FrameReader.latest``) или None, если полный набор в пределах допуска не
-    собрался (часть камер считается потерянной).
+    ``FrameReader.latest``) или None.
+
+    ``allow_partial=False`` (историческое поведение) — нужен полный набор
+    камер, иначе None. ``allow_partial=True`` — достаточно ``min_cameras``
+    (по умолчанию 1): кадры камер, отставших сильнее ``align_tolerance``,
+    отбрасываются, остальные идут в результат. Так поддерживается частичная
+    доступность камер (P1.1 брифа): объект может быть виден не всеми видами.
     """
     frames: dict[str, tuple] = {}
     best_stamp = None
@@ -194,25 +219,31 @@ def read_aligned(readers: Sequence[FrameReader], *, align_tolerance: float = 0.0
             continue
         frames[r.name] = item
         best_stamp = item[0] if best_stamp is None else max(best_stamp, item[0])
-    if best_stamp is None or len(frames) < len(readers):
+    if best_stamp is None:
         return None
     aligned = {k: v for k, v in frames.items() if abs(v[0] - best_stamp) <= align_tolerance}
-    if len(aligned) < len(readers):
+    need = len(readers) if not allow_partial else int(min_cameras or 1)
+    if len(aligned) < need:
         for r in readers:
-            r.stats.frames_dropped += 1
+            if r.name not in aligned:
+                r.stats.frames_dropped += 1
         return None
     return aligned
 
 
-def read_all_offline(sources: Sequence[FrameSource], *, align_tolerance: float = 0.05):
-    """Офлайн-проход: генератор выровненных кадров до первого исчерпанного источника.
+def read_all_offline(sources: Sequence[FrameSource], *, align_tolerance: float = 0.05,
+                     max_frames: int | None = None, max_skip: int = 1000):
+    """Офлайн-проход: генератор выровненных кадров до исчерпания источников.
 
     Каждый шаг читает по одному кадру от каждого источника и выдаёт словарь
-    ``{i: (таймкод, кадр, детекции)}``; если таймкоды расходятся сильнее допуска,
-    перечитывает по кадру (камеры считаются рассинхронизированными). Завершается,
-    когда любой источник вернул None.
+    ``{i: (таймкод, кадр, детекции)}``; при расхождении таймкодов сильнее
+    допуска кадры пропускаются (счётчик ``max_skip`` защищает от бесконечного
+    пропуска). Завершается, когда любой источник вернул None или выдано
+    ``max_frames`` кадров.
     """
-    while True:
+    emitted = 0
+    skipped = 0
+    while max_frames is None or emitted < max_frames:
         items = []
         for src in sources:
             item = src.read()
@@ -221,8 +252,13 @@ def read_all_offline(sources: Sequence[FrameSource], *, align_tolerance: float =
             items.append(item)
         stamps = [it[0] for it in items]
         if max(stamps) - min(stamps) > align_tolerance:
+            skipped += 1
+            if skipped > max_skip:
+                return
             continue
+        skipped = 0
         yield {i: it for i, it in enumerate(items)}
+        emitted += 1
 
 
 def read_first_aligned(sources: Sequence[FrameSource], *, align_tolerance: float = 0.05):

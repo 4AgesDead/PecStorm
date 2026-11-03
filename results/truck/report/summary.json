@@ -1,0 +1,441 @@
+{
+  "artifacts": {
+    "detect_stats": "out/truck/detect_stats.json",
+    "anchor_offset": null,
+    "anchor_offset_views": "datasets/truck/anchor_offset_views.json",
+    "visibility": "out/experiments/visibility.json",
+    "robustness": "out/experiments/robustness.json",
+    "detector_benchmark": "out/experiments/detector_benchmark.json",
+    "evaluation": "out/truck/evaluation.json"
+  },
+  "detection": {
+    "frames_processed": 1001,
+    "frames_with_detection": 938,
+    "frame_detection_rate": 0.9370629370629371,
+    "detections_total": 1660,
+    "per_camera_frame_rate": {
+      "cam1": 0.1888111888111888,
+      "cam2": 0.23076923076923078,
+      "cam3": 0.26073926073926074,
+      "cam4": 0.3006993006993007,
+      "cam5": 0.6013986013986014
+    },
+    "ms_per_frame": 3197.0,
+    "fps_processing": 0.313
+  },
+  "anchor": null,
+  "anchor_views": {
+    "offsets_m": {
+      "cam3|cam5": [
+        4.9677,
+        -10.0125,
+        0.0514
+      ],
+      "cam4|cam5": [
+        6.7688,
+        -10.22,
+        1.8573
+      ],
+      "cam1|cam2": [
+        9.5303,
+        -4.2046,
+        -1.7665
+      ],
+      "cam2|cam5": [
+        -1.9515,
+        3.6917,
+        0.6557
+      ]
+    },
+    "min_observations": 20,
+    "per_views": {
+      "cam3|cam5": {
+        "n": 225,
+        "mae_before_m": 10.354,
+        "mae_in_sample_m": 4.503,
+        "cv_parity_mae_m": 4.506,
+        "cv_time_mae_m": 3.647
+      },
+      "cam4|cam5": {
+        "n": 208,
+        "mae_before_m": 14.446,
+        "mae_in_sample_m": 4.501,
+        "cv_parity_mae_m": 4.51,
+        "cv_time_mae_m": 2.965
+      },
+      "cam1|cam2": {
+        "n": 126,
+        "mae_before_m": 11.861,
+        "mae_in_sample_m": 2.215,
+        "cv_parity_mae_m": 2.215,
+        "cv_time_mae_m": null
+      },
+      "cam2|cam5": {
+        "n": 20,
+        "mae_before_m": 4.873,
+        "mae_in_sample_m": 2.151,
+        "cv_parity_mae_m": 2.242,
+        "cv_time_mae_m": null
+      },
+      "cam2|cam3|cam5": {
+        "n": 16,
+        "mae_before_m": 9.638,
+        "mae_in_sample_m": 1.402,
+        "cv_parity_mae_m": 1.445,
+        "cv_time_mae_m": null
+      },
+      "cam3|cam4|cam5": {
+        "n": 13,
+        "mae_before_m": 11.872,
+        "mae_in_sample_m": 0.275,
+        "cv_parity_mae_m": 0.292,
+        "cv_time_mae_m": 0.275
+      },
+      "cam2|cam3": {
+        "n": 4,
+        "mae_before_m": 10.417,
+        "mae_in_sample_m": 0.823,
+        "cv_parity_mae_m": 1.129,
+        "cv_time_mae_m": null
+      }
+    }
+  },
+  "visibility": {
+    "frames_analyzed": 201,
+    "share_ge2_cameras": 0.9701492537313433,
+    "per_camera_share": {
+      "cam1": 0.15920398009950248,
+      "cam2": 0.7661691542288557,
+      "cam3": 0.5522388059701493,
+      "cam4": 0.7711442786069652,
+      "cam5": 1.0
+    },
+    "cameras_per_frame_histogram": {
+      "1": 6,
+      "2": 13,
+      "3": 107,
+      "4": 75
+    }
+  },
+  "evaluation": {
+    "frame_range": [
+      0,
+      1000
+    ],
+    "measured": {
+      "n_points": 612,
+      "mean_mm": 4283.764,
+      "mae_mm": 4283.764,
+      "rmse_mm": 7536.128,
+      "median_mm": 2912.857,
+      "p95_mm": 11176.086,
+      "p99_mm": 12633.455,
+      "max_mm": 71837.216,
+      "per_axis_mae_mm": [
+        2969.128,
+        2172.715,
+        906.986
+      ],
+      "per_axis_rmse_mm": [
+        6465.821,
+        3659.364,
+        1263.108
+      ]
+    },
+    "predicted": {
+      "n_points": 25,
+      "mean_mm": 6411.647,
+      "mae_mm": 6411.647,
+      "rmse_mm": 7533.963,
+      "median_mm": 5422.996,
+      "p95_mm": 13049.027,
+      "p99_mm": 13434.859,
+      "max_mm": 13514.726,
+      "per_axis_mae_mm": [
+        6025.465,
+        1745.678,
+        511.422
+      ],
+      "per_axis_rmse_mm": [
+        7172.545,
+        2205.393,
+        671.888
+      ]
+    },
+    "coverage": {
+      "frames_total": 1001.0,
+      "frames_with_gt": 999.0,
+      "measured": 0.613,
+      "progress_predicted_only": 0.025,
+      "unobservable": 0.362,
+      "monocular_only": 0.0
+    },
+    "coverage_counts": {
+      "frames_total": 1001,
+      "frames_with_gt": 999,
+      "frames_measured": 614,
+      "frames_predicted_only": 25,
+      "frames_unobservable": 362,
+      "frames_monocular_only": 0
+    },
+    "per_camera_subset": {
+      "cam1|cam2": {
+        "n_points": 126,
+        "mean_mm": 2214.633,
+        "mae_mm": 2214.633,
+        "rmse_mm": 3644.741,
+        "median_mm": 633.681,
+        "p95_mm": 9503.31,
+        "p99_mm": 11105.65,
+        "max_mm": 12185.568,
+        "per_axis_mae_mm": null,
+        "per_axis_rmse_mm": null
+      },
+      "cam2|cam3": {
+        "n_points": 4,
+        "mean_mm": 10416.549,
+        "mae_mm": 10416.549,
+        "rmse_mm": 10452.735,
+        "median_mm": 10715.006,
+        "p95_mm": 11176.226,
+        "p99_mm": 11176.268,
+        "max_mm": 11176.278,
+        "per_axis_mae_mm": null,
+        "per_axis_rmse_mm": null
+      },
+      "cam2|cam3|cam5": {
+        "n_points": 16,
+        "mean_mm": 9638.39,
+        "mae_mm": 9638.39,
+        "rmse_mm": 9781.657,
+        "median_mm": 10650.189,
+        "p95_mm": 10917.952,
+        "p99_mm": 11008.717,
+        "max_mm": 11031.409,
+        "per_axis_mae_mm": null,
+        "per_axis_rmse_mm": null
+      },
+      "cam2|cam5": {
+        "n_points": 20,
+        "mean_mm": 2150.882,
+        "mae_mm": 2150.882,
+        "rmse_mm": 2689.595,
+        "median_mm": 1940.974,
+        "p95_mm": 4709.053,
+        "p99_mm": 6454.364,
+        "max_mm": 6890.692,
+        "per_axis_mae_mm": null,
+        "per_axis_rmse_mm": null
+      },
+      "cam3|cam4|cam5": {
+        "n_points": 13,
+        "mean_mm": 11871.57,
+        "mae_mm": 11871.57,
+        "rmse_mm": 11871.671,
+        "median_mm": 11866.343,
+        "p95_mm": 11959.594,
+        "p99_mm": 11974.443,
+        "max_mm": 11978.155,
+        "per_axis_mae_mm": null,
+        "per_axis_rmse_mm": null
+      },
+      "cam3|cam5": {
+        "n_points": 225,
+        "mean_mm": 4503.014,
+        "mae_mm": 4503.014,
+        "rmse_mm": 5454.098,
+        "median_mm": 3640.605,
+        "p95_mm": 10836.697,
+        "p99_mm": 12219.822,
+        "max_mm": 12651.482,
+        "per_axis_mae_mm": null,
+        "per_axis_rmse_mm": null
+      },
+      "cam4|cam5": {
+        "n_points": 208,
+        "mean_mm": 4501.026,
+        "mae_mm": 4501.026,
+        "rmse_mm": 10388.084,
+        "median_mm": 2413.401,
+        "p95_mm": 7225.202,
+        "p99_mm": 64724.404,
+        "max_mm": 71837.216,
+        "per_axis_mae_mm": null,
+        "per_axis_rmse_mm": null
+      }
+    },
+    "gt_invalid_frames": [
+      402,
+      691
+    ]
+  },
+  "robustness": {
+    "noise": [
+      {
+        "noise_px": 0.0,
+        "n": 75,
+        "mean_m": 0.0,
+        "median_m": 0.0,
+        "max_m": 0.0,
+        "rejected": 0
+      },
+      {
+        "noise_px": 0.25,
+        "n": 75,
+        "mean_m": 0.0013,
+        "median_m": 0.0012,
+        "max_m": 0.0029,
+        "rejected": 0
+      },
+      {
+        "noise_px": 0.5,
+        "n": 75,
+        "mean_m": 0.0026,
+        "median_m": 0.0023,
+        "max_m": 0.0058,
+        "rejected": 0
+      },
+      {
+        "noise_px": 1.0,
+        "n": 75,
+        "mean_m": 0.0052,
+        "median_m": 0.0047,
+        "max_m": 0.0115,
+        "rejected": 0
+      },
+      {
+        "noise_px": 2.0,
+        "n": 75,
+        "mean_m": 0.0103,
+        "median_m": 0.0093,
+        "max_m": 0.0231,
+        "rejected": 0
+      },
+      {
+        "noise_px": 5.0,
+        "n": 75,
+        "mean_m": 0.0258,
+        "median_m": 0.0233,
+        "max_m": 0.0576,
+        "rejected": 0
+      }
+    ],
+    "calibration": [
+      {
+        "case": "focal +1%",
+        "focal_scale": 1.01,
+        "n": 25,
+        "mean_m": 0.0099,
+        "max_m": 0.0124
+      },
+      {
+        "case": "focal +2%",
+        "focal_scale": 1.02,
+        "n": 25,
+        "mean_m": 0.0196,
+        "max_m": 0.0245
+      },
+      {
+        "case": "principal point +5px",
+        "pp_shift_px": 4.0,
+        "n": 25,
+        "mean_m": 0.0194,
+        "max_m": 0.0208
+      },
+      {
+        "case": "principal point +10px",
+        "pp_shift_px": 8.0,
+        "n": 25,
+        "mean_m": 0.0387,
+        "max_m": 0.0416
+      },
+      {
+        "case": "rotation 0.5°",
+        "rot_deg": 0.5,
+        "n": 25,
+        "mean_m": 0.0035,
+        "max_m": 0.0042
+      },
+      {
+        "case": "rotation 2°",
+        "rot_deg": 2.0,
+        "n": 25,
+        "mean_m": 0.0145,
+        "max_m": 0.0172
+      }
+    ],
+    "timing": [
+      {
+        "offset_ms": 0,
+        "mean_error_m": 0.0,
+        "mean_speed_m_s": 2.535
+      },
+      {
+        "offset_ms": 1,
+        "mean_error_m": 0.0024,
+        "mean_speed_m_s": 2.535
+      },
+      {
+        "offset_ms": 2,
+        "mean_error_m": 0.0049,
+        "mean_speed_m_s": 2.535
+      },
+      {
+        "offset_ms": 5,
+        "mean_error_m": 0.0122,
+        "mean_speed_m_s": 2.535
+      },
+      {
+        "offset_ms": 10,
+        "mean_error_m": 0.0244,
+        "mean_speed_m_s": 2.535
+      },
+      {
+        "offset_ms": 20,
+        "mean_error_m": 0.049,
+        "mean_speed_m_s": 2.535
+      },
+      {
+        "offset_ms": 50,
+        "mean_error_m": 0.1225,
+        "mean_speed_m_s": 2.535
+      }
+    ]
+  },
+  "detector_benchmark": [
+    {
+      "model": "yolov8n.pt",
+      "imgsz": 640,
+      "detection_rate_overall": 0.0545,
+      "ms_per_camera_frame": 348.4
+    },
+    {
+      "model": "yolov8n.pt",
+      "imgsz": 960,
+      "detection_rate_overall": 0.0545,
+      "ms_per_camera_frame": 358.4
+    },
+    {
+      "model": "yolov8x.pt",
+      "imgsz": 640,
+      "detection_rate_overall": 0.2909,
+      "ms_per_camera_frame": 665.4
+    },
+    {
+      "model": "yolov8x.pt",
+      "imgsz": 960,
+      "detection_rate_overall": 0.2909,
+      "ms_per_camera_frame": 1072.0
+    }
+  ],
+  "graphs": [
+    "error_vs_frame.png",
+    "trajectory_xy.png",
+    "components_vs_time.png",
+    "components_error_vs_time.png",
+    "components_with_path.png",
+    "components_vs_time_6lines.png",
+    "components_error_vs_time_6lines.png",
+    "coverage.png"
+  ]
+}

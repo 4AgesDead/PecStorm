@@ -1,0 +1,1259 @@
+{
+ "detections_csv": "out/truck/detections.csv",
+ "frames": [
+  0,
+  400,
+  5
+ ],
+ "anchor_offset_m": null,
+ "anchor_px_offset": null,
+ "anchor_offset_views": {
+  "cam3|cam5": [
+   4.9677,
+   -10.0125,
+   0.0514
+  ],
+  "cam4|cam5": [
+   6.6386,
+   -10.2385,
+   2.208
+  ],
+  "cam1|cam2": [
+   9.6241,
+   -4.3717,
+   -1.6975
+  ],
+  "cam2|cam5": [
+   -1.9515,
+   3.6917,
+   0.6557
+  ]
+ },
+ "note": "Свип показывает компромисс порогов на одних и тех же детекциях; это диагностика, а не подбор под hidden test.",
+ "runs": [
+  {
+   "max_reprojection_px": 10.0,
+   "min_views": 2,
+   "gate_mahalanobis": 3.0,
+   "measured": {
+    "n_points": 7,
+    "mean_mm": 22670.323,
+    "mae_mm": 22670.323,
+    "rmse_mm": 31051.014,
+    "median_mm": 11790.969,
+    "p95_mm": 59158.392,
+    "p99_mm": 64835.227,
+    "max_mm": 66254.436,
+    "per_axis_mae_mm": [
+     17731.734,
+     9365.075,
+     2289.227
+    ],
+    "per_axis_rmse_mm": [
+     28929.071,
+     10782.037,
+     3319.939
+    ]
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.099,
+    "progress_predicted_only": 0.0,
+    "unobservable": 0.901,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 7,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 64,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {
+    "cam2|cam5": {
+     "n_points": 1,
+     "mean_mm": 3962.264,
+     "mae_mm": 3962.264,
+     "rmse_mm": 3962.264,
+     "median_mm": 3962.264,
+     "p95_mm": 3962.264,
+     "p99_mm": 3962.264,
+     "max_mm": 3962.264,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam3|cam5": {
+     "n_points": 4,
+     "mean_mm": 11468.652,
+     "mae_mm": 11468.652,
+     "rmse_mm": 11499.641,
+     "median_mm": 11416.065,
+     "p95_mm": 12522.406,
+     "p99_mm": 12625.667,
+     "max_mm": 12651.483,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+     "n_points": 2,
+     "mean_mm": 54427.695,
+     "mae_mm": 54427.695,
+     "rmse_mm": 55697.808,
+     "median_mm": 54427.695,
+     "p95_mm": 65071.762,
+     "p99_mm": 66017.901,
+     "max_mm": 66254.436,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    }
+   },
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 10.0,
+   "min_views": 2,
+   "gate_mahalanobis": 5.0,
+   "measured": {
+    "n_points": 7,
+    "mean_mm": 22667.259,
+    "mae_mm": 22667.259,
+    "rmse_mm": 31049.975,
+    "median_mm": 11790.969,
+    "p95_mm": 59158.392,
+    "p99_mm": 64835.227,
+    "max_mm": 66254.436,
+    "per_axis_mae_mm": [
+     17730.975,
+     9361.992,
+     2289.558
+    ],
+    "per_axis_rmse_mm": [
+     28929.029,
+     10779.129,
+     3320.031
+    ]
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.099,
+    "progress_predicted_only": 0.0,
+    "unobservable": 0.901,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 7,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 64,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {
+    "cam2|cam5": {
+     "n_points": 1,
+     "mean_mm": 3962.264,
+     "mae_mm": 3962.264,
+     "rmse_mm": 3962.264,
+     "median_mm": 3962.264,
+     "p95_mm": 3962.264,
+     "p99_mm": 3962.264,
+     "max_mm": 3962.264,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam3|cam5": {
+     "n_points": 4,
+     "mean_mm": 11463.29,
+     "mae_mm": 11463.29,
+     "rmse_mm": 11494.73,
+     "median_mm": 11413.642,
+     "p95_mm": 12522.406,
+     "p99_mm": 12625.667,
+     "max_mm": 12651.483,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+     "n_points": 2,
+     "mean_mm": 54427.695,
+     "mae_mm": 54427.695,
+     "rmse_mm": 55697.808,
+     "median_mm": 54427.695,
+     "p95_mm": 65071.762,
+     "p99_mm": 66017.901,
+     "max_mm": 66254.436,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    }
+   },
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 10.0,
+   "min_views": 3,
+   "gate_mahalanobis": 3.0,
+   "measured": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.0,
+    "progress_predicted_only": 0.0,
+    "unobservable": 1.0,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 0,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 71,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {},
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 10.0,
+   "min_views": 3,
+   "gate_mahalanobis": 5.0,
+   "measured": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.0,
+    "progress_predicted_only": 0.0,
+    "unobservable": 1.0,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 0,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 71,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {},
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 20.0,
+   "min_views": 2,
+   "gate_mahalanobis": 3.0,
+   "measured": {
+    "n_points": 25,
+    "mean_mm": 7276.95,
+    "mae_mm": 7276.95,
+    "rmse_mm": 16546.625,
+    "median_mm": 507.805,
+    "p95_mm": 36611.06,
+    "p99_mm": 60577.6,
+    "max_mm": 66254.436,
+    "per_axis_mae_mm": [
+     5772.077,
+     2830.142,
+     778.006
+    ],
+    "per_axis_rmse_mm": [
+     15427.579,
+     5714.556,
+     1767.613
+    ]
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.352,
+    "progress_predicted_only": 0.0,
+    "unobservable": 0.648,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 25,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 46,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {
+    "cam1|cam2": {
+     "n_points": 16,
+     "mean_mm": 1341.632,
+     "mae_mm": 1341.632,
+     "rmse_mm": 2408.925,
+     "median_mm": 381.473,
+     "p95_mm": 5763.873,
+     "p99_mm": 6833.202,
+     "max_mm": 7100.534,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam2|cam5": {
+     "n_points": 3,
+     "mean_mm": 1909.216,
+     "mae_mm": 1909.216,
+     "rmse_mm": 2480.922,
+     "median_mm": 1659.573,
+     "p95_mm": 3731.995,
+     "p99_mm": 3916.21,
+     "max_mm": 3962.264,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam3|cam5": {
+     "n_points": 4,
+     "mean_mm": 11468.652,
+     "mae_mm": 11468.652,
+     "rmse_mm": 11499.641,
+     "median_mm": 11416.065,
+     "p95_mm": 12522.406,
+     "p99_mm": 12625.667,
+     "max_mm": 12651.483,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+     "n_points": 2,
+     "mean_mm": 54427.695,
+     "mae_mm": 54427.695,
+     "rmse_mm": 55697.808,
+     "median_mm": 54427.695,
+     "p95_mm": 65071.762,
+     "p99_mm": 66017.901,
+     "max_mm": 66254.436,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    }
+   },
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 20.0,
+   "min_views": 2,
+   "gate_mahalanobis": 5.0,
+   "measured": {
+    "n_points": 25,
+    "mean_mm": 7277.106,
+    "mae_mm": 7277.106,
+    "rmse_mm": 16546.527,
+    "median_mm": 507.805,
+    "p95_mm": 36611.06,
+    "p99_mm": 60577.6,
+    "max_mm": 66254.436,
+    "per_axis_mae_mm": [
+     5772.689,
+     2830.639,
+     778.232
+    ],
+    "per_axis_rmse_mm": [
+     15427.949,
+     5713.257,
+     1767.666
+    ]
+   },
+   "predicted": {
+    "n_points": 6,
+    "mean_mm": 7785.347,
+    "mae_mm": 7785.347,
+    "rmse_mm": 8485.474,
+    "median_mm": 7602.216,
+    "p95_mm": 12269.426,
+    "p99_mm": 12646.923,
+    "max_mm": 12741.297,
+    "per_axis_mae_mm": [
+     7646.185,
+     1370.448,
+     340.529
+    ],
+    "per_axis_rmse_mm": [
+     8314.618,
+     1643.085,
+     413.108
+    ]
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.352,
+    "progress_predicted_only": 0.085,
+    "unobservable": 0.563,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 25,
+    "frames_predicted_only": 6,
+    "frames_unobservable": 40,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {
+    "cam1|cam2": {
+     "n_points": 16,
+     "mean_mm": 1343.215,
+     "mae_mm": 1343.215,
+     "rmse_mm": 2413.73,
+     "median_mm": 381.473,
+     "p95_mm": 5768.78,
+     "p99_mm": 6856.732,
+     "max_mm": 7128.72,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam2|cam5": {
+     "n_points": 3,
+     "mean_mm": 1909.216,
+     "mae_mm": 1909.216,
+     "rmse_mm": 2480.922,
+     "median_mm": 1659.573,
+     "p95_mm": 3731.995,
+     "p99_mm": 3916.21,
+     "max_mm": 3962.264,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam3|cam5": {
+     "n_points": 4,
+     "mean_mm": 11463.29,
+     "mae_mm": 11463.29,
+     "rmse_mm": 11494.73,
+     "median_mm": 11413.642,
+     "p95_mm": 12522.406,
+     "p99_mm": 12625.667,
+     "max_mm": 12651.483,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+     "n_points": 2,
+     "mean_mm": 54427.695,
+     "mae_mm": 54427.695,
+     "rmse_mm": 55697.808,
+     "median_mm": 54427.695,
+     "p95_mm": 65071.762,
+     "p99_mm": 66017.901,
+     "max_mm": 66254.436,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    }
+   },
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 20.0,
+   "min_views": 3,
+   "gate_mahalanobis": 3.0,
+   "measured": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.0,
+    "progress_predicted_only": 0.0,
+    "unobservable": 1.0,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 0,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 71,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {},
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 20.0,
+   "min_views": 3,
+   "gate_mahalanobis": 5.0,
+   "measured": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.0,
+    "progress_predicted_only": 0.0,
+    "unobservable": 1.0,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 0,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 71,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {},
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 30.0,
+   "min_views": 2,
+   "gate_mahalanobis": 3.0,
+   "measured": {
+    "n_points": 33,
+    "mean_mm": 6735.109,
+    "mae_mm": 6735.109,
+    "rmse_mm": 14780.495,
+    "median_mm": 1341.763,
+    "p95_mm": 24631.271,
+    "p99_mm": 58685.322,
+    "max_mm": 66254.436,
+    "per_axis_mae_mm": [
+     5542.672,
+     2353.814,
+     703.664
+    ],
+    "per_axis_rmse_mm": [
+     13820.903,
+     5000.864,
+     1561.101
+    ]
+   },
+   "predicted": {
+    "n_points": 3,
+    "mean_mm": 17426.183,
+    "mae_mm": 17426.183,
+    "rmse_mm": 17636.804,
+    "median_mm": 18492.077,
+    "p95_mm": 19931.067,
+    "p99_mm": 20058.978,
+    "max_mm": 20090.955,
+    "per_axis_mae_mm": [
+     17161.047,
+     2854.318,
+     1005.314
+    ],
+    "per_axis_rmse_mm": [
+     17365.689,
+     2905.542,
+     1023.497
+    ]
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.465,
+    "progress_predicted_only": 0.042,
+    "unobservable": 0.493,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 33,
+    "frames_predicted_only": 3,
+    "frames_unobservable": 35,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {
+    "cam1|cam2": {
+     "n_points": 22,
+     "mean_mm": 2539.317,
+     "mae_mm": 2539.317,
+     "rmse_mm": 4443.84,
+     "median_mm": 455.987,
+     "p95_mm": 10412.255,
+     "p99_mm": 11765.182,
+     "max_mm": 12106.272,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam2|cam5": {
+     "n_points": 5,
+     "mean_mm": 2332.728,
+     "mae_mm": 2332.728,
+     "rmse_mm": 2876.532,
+     "median_mm": 1659.573,
+     "p95_mm": 4467.836,
+     "p99_mm": 4568.951,
+     "max_mm": 4594.23,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam3|cam5": {
+     "n_points": 4,
+     "mean_mm": 11468.652,
+     "mae_mm": 11468.652,
+     "rmse_mm": 11499.641,
+     "median_mm": 11416.065,
+     "p95_mm": 12522.406,
+     "p99_mm": 12625.667,
+     "max_mm": 12651.483,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+     "n_points": 2,
+     "mean_mm": 54427.695,
+     "mae_mm": 54427.695,
+     "rmse_mm": 55697.808,
+     "median_mm": 54427.695,
+     "p95_mm": 65071.762,
+     "p99_mm": 66017.901,
+     "max_mm": 66254.436,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    }
+   },
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 30.0,
+   "min_views": 2,
+   "gate_mahalanobis": 5.0,
+   "measured": {
+    "n_points": 33,
+    "mean_mm": 6736.29,
+    "mae_mm": 6736.29,
+    "rmse_mm": 14781.464,
+    "median_mm": 1341.763,
+    "p95_mm": 24631.271,
+    "p99_mm": 58685.322,
+    "max_mm": 66254.436,
+    "per_axis_mae_mm": [
+     5544.072,
+     2355.576,
+     704.113
+    ],
+    "per_axis_rmse_mm": [
+     13822.163,
+     5000.217,
+     1561.187
+    ]
+   },
+   "predicted": {
+    "n_points": 6,
+    "mean_mm": 11041.263,
+    "mae_mm": 11041.263,
+    "rmse_mm": 12959.194,
+    "median_mm": 9890.46,
+    "p95_mm": 19772.118,
+    "p99_mm": 20094.506,
+    "max_mm": 20175.103,
+    "per_axis_mae_mm": [
+     10894.625,
+     1656.181,
+     594.799
+    ],
+    "per_axis_rmse_mm": [
+     12772.249,
+     2066.623,
+     734.462
+    ]
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.465,
+    "progress_predicted_only": 0.085,
+    "unobservable": 0.451,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 33,
+    "frames_predicted_only": 6,
+    "frames_unobservable": 32,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {
+    "cam1|cam2": {
+     "n_points": 22,
+     "mean_mm": 2542.597,
+     "mae_mm": 2542.597,
+     "rmse_mm": 4451.237,
+     "median_mm": 455.987,
+     "p95_mm": 10450.57,
+     "p99_mm": 11788.063,
+     "max_mm": 12124.344,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam2|cam5": {
+     "n_points": 5,
+     "mean_mm": 2330.379,
+     "mae_mm": 2330.379,
+     "rmse_mm": 2874.754,
+     "median_mm": 1643.832,
+     "p95_mm": 4467.836,
+     "p99_mm": 4568.951,
+     "max_mm": 4594.23,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam3|cam5": {
+     "n_points": 4,
+     "mean_mm": 11463.29,
+     "mae_mm": 11463.29,
+     "rmse_mm": 11494.73,
+     "median_mm": 11413.642,
+     "p95_mm": 12522.406,
+     "p99_mm": 12625.667,
+     "max_mm": 12651.483,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+     "n_points": 2,
+     "mean_mm": 54427.695,
+     "mae_mm": 54427.695,
+     "rmse_mm": 55697.808,
+     "median_mm": 54427.695,
+     "p95_mm": 65071.762,
+     "p99_mm": 66017.901,
+     "max_mm": 66254.436,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    }
+   },
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 30.0,
+   "min_views": 3,
+   "gate_mahalanobis": 3.0,
+   "measured": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.0,
+    "progress_predicted_only": 0.0,
+    "unobservable": 1.0,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 0,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 71,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {},
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 30.0,
+   "min_views": 3,
+   "gate_mahalanobis": 5.0,
+   "measured": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.0,
+    "progress_predicted_only": 0.0,
+    "unobservable": 1.0,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 0,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 71,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {},
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 50.0,
+   "min_views": 2,
+   "gate_mahalanobis": 3.0,
+   "measured": {
+    "n_points": 37,
+    "mean_mm": 6273.243,
+    "mae_mm": 6273.243,
+    "rmse_mm": 13985.77,
+    "median_mm": 1490.081,
+    "p95_mm": 18641.377,
+    "p99_mm": 57739.183,
+    "max_mm": 66254.436,
+    "per_axis_mae_mm": [
+     5007.133,
+     2273.663,
+     806.038
+    ],
+    "per_axis_rmse_mm": [
+     13054.034,
+     4765.493,
+     1576.081
+    ]
+   },
+   "predicted": {
+    "n_points": 3,
+    "mean_mm": 17426.183,
+    "mae_mm": 17426.183,
+    "rmse_mm": 17636.804,
+    "median_mm": 18492.077,
+    "p95_mm": 19931.067,
+    "p99_mm": 20058.978,
+    "max_mm": 20090.955,
+    "per_axis_mae_mm": [
+     17161.047,
+     2854.318,
+     1005.314
+    ],
+    "per_axis_rmse_mm": [
+     17365.689,
+     2905.542,
+     1023.497
+    ]
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.521,
+    "progress_predicted_only": 0.042,
+    "unobservable": 0.437,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 37,
+    "frames_predicted_only": 3,
+    "frames_unobservable": 31,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {
+    "cam1|cam2": {
+     "n_points": 26,
+     "mean_mm": 2527.552,
+     "mae_mm": 2527.552,
+     "rmse_mm": 4217.338,
+     "median_mm": 783.615,
+     "p95_mm": 10133.143,
+     "p99_mm": 11700.212,
+     "max_mm": 12106.272,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam2|cam5": {
+     "n_points": 5,
+     "mean_mm": 2332.728,
+     "mae_mm": 2332.728,
+     "rmse_mm": 2876.532,
+     "median_mm": 1659.573,
+     "p95_mm": 4467.836,
+     "p99_mm": 4568.951,
+     "max_mm": 4594.23,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam3|cam5": {
+     "n_points": 4,
+     "mean_mm": 11468.652,
+     "mae_mm": 11468.652,
+     "rmse_mm": 11499.641,
+     "median_mm": 11416.065,
+     "p95_mm": 12522.406,
+     "p99_mm": 12625.667,
+     "max_mm": 12651.483,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+     "n_points": 2,
+     "mean_mm": 54427.695,
+     "mae_mm": 54427.695,
+     "rmse_mm": 55697.808,
+     "median_mm": 54427.695,
+     "p95_mm": 65071.762,
+     "p99_mm": 66017.901,
+     "max_mm": 66254.436,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    }
+   },
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 50.0,
+   "min_views": 2,
+   "gate_mahalanobis": 5.0,
+   "measured": {
+    "n_points": 37,
+    "mean_mm": 6274.296,
+    "mae_mm": 6274.296,
+    "rmse_mm": 13986.683,
+    "median_mm": 1490.081,
+    "p95_mm": 18641.377,
+    "p99_mm": 57739.183,
+    "max_mm": 66254.436,
+    "per_axis_mae_mm": [
+     5008.382,
+     2275.235,
+     806.438
+    ],
+    "per_axis_rmse_mm": [
+     13055.224,
+     4764.887,
+     1576.158
+    ]
+   },
+   "predicted": {
+    "n_points": 6,
+    "mean_mm": 11041.263,
+    "mae_mm": 11041.263,
+    "rmse_mm": 12959.194,
+    "median_mm": 9890.46,
+    "p95_mm": 19772.118,
+    "p99_mm": 20094.506,
+    "max_mm": 20175.103,
+    "per_axis_mae_mm": [
+     10894.625,
+     1656.181,
+     594.799
+    ],
+    "per_axis_rmse_mm": [
+     12772.249,
+     2066.623,
+     734.462
+    ]
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.521,
+    "progress_predicted_only": 0.085,
+    "unobservable": 0.394,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 37,
+    "frames_predicted_only": 6,
+    "frames_unobservable": 28,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {
+    "cam1|cam2": {
+     "n_points": 26,
+     "mean_mm": 2530.328,
+     "mae_mm": 2530.328,
+     "rmse_mm": 4223.933,
+     "median_mm": 783.615,
+     "p95_mm": 10160.821,
+     "p99_mm": 11724.01,
+     "max_mm": 12124.344,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam2|cam5": {
+     "n_points": 5,
+     "mean_mm": 2330.379,
+     "mae_mm": 2330.379,
+     "rmse_mm": 2874.754,
+     "median_mm": 1643.832,
+     "p95_mm": 4467.836,
+     "p99_mm": 4568.951,
+     "max_mm": 4594.23,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam3|cam5": {
+     "n_points": 4,
+     "mean_mm": 11463.29,
+     "mae_mm": 11463.29,
+     "rmse_mm": 11494.73,
+     "median_mm": 11413.642,
+     "p95_mm": 12522.406,
+     "p99_mm": 12625.667,
+     "max_mm": 12651.483,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+     "n_points": 2,
+     "mean_mm": 54427.695,
+     "mae_mm": 54427.695,
+     "rmse_mm": 55697.808,
+     "median_mm": 54427.695,
+     "p95_mm": 65071.762,
+     "p99_mm": 66017.901,
+     "max_mm": 66254.436,
+     "per_axis_mae_mm": null,
+     "per_axis_rmse_mm": null
+    }
+   },
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 50.0,
+   "min_views": 3,
+   "gate_mahalanobis": 3.0,
+   "measured": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.0,
+    "progress_predicted_only": 0.0,
+    "unobservable": 1.0,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 0,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 71,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {},
+   "gt_invalid_frames": []
+  },
+  {
+   "max_reprojection_px": 50.0,
+   "min_views": 3,
+   "gate_mahalanobis": 5.0,
+   "measured": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "predicted": {
+    "n_points": 0,
+    "mean_mm": null,
+    "mae_mm": null,
+    "rmse_mm": null,
+    "median_mm": null,
+    "p95_mm": null,
+    "p99_mm": null,
+    "max_mm": null,
+    "per_axis_mae_mm": null,
+    "per_axis_rmse_mm": null
+   },
+   "coverage": {
+    "frames_total": 71.0,
+    "frames_with_gt": 71.0,
+    "measured": 0.0,
+    "progress_predicted_only": 0.0,
+    "unobservable": 1.0,
+    "monocular_only": 0.0
+   },
+   "coverage_counts": {
+    "frames_total": 71,
+    "frames_with_gt": 71,
+    "frames_measured": 0,
+    "frames_predicted_only": 0,
+    "frames_unobservable": 71,
+    "frames_monocular_only": 0
+   },
+   "per_camera_subset": {},
+   "gt_invalid_frames": []
+  }
+ ]
+}

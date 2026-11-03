@@ -1,0 +1,48 @@
+{
+ "detections_csv": "out/truck/detections.csv",
+ "step": 10,
+ "metric": "||bbox_center - project(pivot_gt)||, px",
+ "note": "Проверка трансформации координат, а не точности трекера: bbox center != actor pivot по определению.",
+ "per_camera": {
+  "cam1": {
+   "n": 20,
+   "mean_px": 182.75,
+   "median_px": 169.85,
+   "p90_px": 249.8,
+   "max_px": 319.62,
+   "offscreen_projections": 0
+  },
+  "cam2": {
+   "n": 24,
+   "mean_px": 64.26,
+   "median_px": 57.31,
+   "p90_px": 95.8,
+   "max_px": 98.02,
+   "offscreen_projections": 0
+  },
+  "cam3": {
+   "n": 25,
+   "mean_px": 117.92,
+   "median_px": 115.72,
+   "p90_px": 175.78,
+   "max_px": 209.42,
+   "offscreen_projections": 0
+  },
+  "cam4": {
+   "n": 30,
+   "mean_px": 131.61,
+   "median_px": 112.93,
+   "p90_px": 224.87,
+   "max_px": 271.78,
+   "offscreen_projections": 0
+  },
+  "cam5": {
+   "n": 61,
+   "mean_px": 210.52,
+   "median_px": 229.28,
+   "p90_px": 367.09,
+   "max_px": 434.62,
+   "offscreen_projections": 0
+  }
+ }
+}

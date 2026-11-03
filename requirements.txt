@@ -5,6 +5,10 @@ scipy==1.18.1
 matplotlib==3.11.2
 onnxruntime==1.31.1
 
-# Опционально (ML-детекторы; HANDOFF §P3 — по согласованию, крупные загрузки):
-# ultralytics        # для YoloDetector (потянет torch)
-# onnx               # только для генерации тестовых ONNX-моделей
+# ML-детектор для реальных данных (truck-workflow): YoloDetector, класс COCO truck.
+# Проверено запуском: ultralytics 8.4.201 + torch 2.15.0 (CPU), модель yolov8x.pt.
+ultralytics==8.4.201
+torch==2.15.0
+
+# Опционально: только для генерации тестовых ONNX-моделей
+# onnx

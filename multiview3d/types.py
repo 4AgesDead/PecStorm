@@ -103,17 +103,59 @@ class Detection2D:
             raise ValueError("center должен содержать 2 координаты (x, y)")
 
 
+MEASURED = "MEASURED"
+"""3D получен по >=2 видам (триангуляция) — измерение, а не прогноз."""
+MONOCULAR = "MONOCULAR"
+"""Один вид: метрическая глубина без 3D-модели/опор невозможна (см. §2.6 брифа)."""
+PREDICTED_ONLY = "PREDICTED_ONLY"
+"""Измерения на кадре нет; позиция — прогноз фильтра Калмана."""
+UNOBSERVABLE = "UNOBSERVABLE"
+"""Нет валидного 3D-наблюдения и прогноз не выдаётся."""
+
+METHOD_TRIANGULATION = "triangulation"
+METHOD_MONOCULAR = "monocular_pnp"
+METHOD_PREDICTED = "predicted_only"
+METHOD_NONE = "none"
+
+
 @dataclass
 class Observation3D:
-    """Триангулированная точка в мировой системе координат (в метрах)."""
+    """Триангулированная точка в мировой системе координат (в метрах).
+
+    Поля ``frame``/``method``/``status``/``confidence``/``uncertainty_xyz``
+    реализуют DTO из §11 брифа: статус и метод обязательны для корректной
+    оценки (нельзя смешивать измерения и прогнозы).
+    """
 
     timestamp: float
     position: np.ndarray
     views: list[str] = field(default_factory=list)
     mean_reproj_px: float = float("nan")
+    frame: int | None = None
+    method: str = METHOD_TRIANGULATION
+    status: str = MEASURED
+    confidence: float = float("nan")
+    uncertainty_xyz: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         self.position = np.asarray(self.position, dtype=np.float64).ravel()
+        if self.uncertainty_xyz is not None:
+            self.uncertainty_xyz = np.asarray(self.uncertainty_xyz, dtype=np.float64).ravel()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "frame_id": self.frame,
+            "timestamp": float(self.timestamp),
+            "position_xyz_m": [float(v) for v in self.position],
+            "views": list(self.views),
+            "camera_ids": list(self.views),
+            "method": self.method,
+            "status": self.status,
+            "reprojection_error_px": _finite_or_none(self.mean_reproj_px),
+            "confidence": _finite_or_none(self.confidence),
+            "uncertainty_xyz": (None if self.uncertainty_xyz is None
+                                else [float(v) for v in self.uncertainty_xyz]),
+        }
 
 
 @dataclass
@@ -125,6 +167,14 @@ class TrackPoint:
     velocity: np.ndarray
     views: list[str] = field(default_factory=list)
     mean_reproj_px: float = float("nan")
+    frame: int | None = None
+    method: str = METHOD_TRIANGULATION
+    status: str = MEASURED
+    confidence: float = float("nan")
+
+
+def _finite_or_none(value: float) -> float | None:
+    return float(value) if np.isfinite(value) else None
 
 
 @dataclass
@@ -140,10 +190,15 @@ class Track:
             "points": [
                 {
                     "timestamp": p.timestamp,
+                    "frame_id": p.frame,
                     "position": [float(v) for v in p.position],
                     "velocity": [float(v) for v in p.velocity],
                     "views": list(p.views),
-                    "mean_reproj_px": p.mean_reproj_px,
+                    "camera_ids": list(p.views),
+                    "method": p.method,
+                    "status": p.status,
+                    "confidence": _finite_or_none(p.confidence),
+                    "mean_reproj_px": _finite_or_none(p.mean_reproj_px),
                 }
                 for p in self.points
             ],

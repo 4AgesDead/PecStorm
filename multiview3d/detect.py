@@ -49,19 +49,40 @@ def nms(boxes: np.ndarray, scores: np.ndarray, iou_threshold: float = 0.45) -> l
 
 
 class YoloDetector:
-    """YOLO через ultralytics (pip install ultralytics)."""
+    """YOLO через ultralytics (pip install ultralytics).
+
+    ``class_names`` — список имён классов модели (например, ``["truck", "car",
+    "bus"]``), транслируется в индексы после загрузки модели; ``classes`` —
+    готовые индексы. ``imgsz`` — сторона входа модели (влияет на recall мелких
+    объектов и на скорость: 960 даёт заметно лучший recall на 1080p).
+    """
 
     def __init__(self, model: str = "yolov8n.pt", *, conf: float = 0.35,
-                 classes: list[int] | None = None, device: str = "cpu"):
+                 classes: list[int] | None = None, device: str = "cpu",
+                 imgsz: int = 640, class_names: list[str] | None = None,
+                 agnostic_nms: bool = False):
         from ultralytics import YOLO  # ленивый импорт: без torch не ломает пакет
         self.model = YOLO(model)
         self.conf = conf
-        self.classes = classes
         self.device = device
+        self.imgsz = int(imgsz)
+        self.agnostic_nms = bool(agnostic_nms)
+        names = getattr(self.model, "names", {}) or {}
+        if class_names:
+            name_to_id = {str(v): int(k) for k, v in names.items()}
+            missing = [n for n in class_names if n not in name_to_id]
+            if missing:
+                raise ValueError(
+                    f"в модели {model!r} нет классов {missing}; доступны: "
+                    f"{sorted(name_to_id)[:20]}")
+            self.classes = [name_to_id[n] for n in class_names]
+        else:
+            self.classes = classes
 
     def detect(self, frame_bgr: np.ndarray) -> list[Detection2D]:
         results = self.model.predict(frame_bgr, conf=self.conf, verbose=False,
-                                     classes=self.classes, device=self.device)
+                                     classes=self.classes, device=self.device,
+                                     imgsz=self.imgsz, agnostic_nms=self.agnostic_nms)
         detections: list[Detection2D] = []
         for res in results:
             boxes = getattr(res, "boxes", None)
@@ -230,6 +251,9 @@ def build_detector(spec: dict) -> Detector:
             conf=float(spec.get("conf", 0.35)),
             classes=spec.get("classes"),
             device=str(spec.get("device", "cpu")),
+            imgsz=int(spec.get("imgsz", 640)),
+            class_names=spec.get("class_names"),
+            agnostic_nms=bool(spec.get("agnostic_nms", False)),
         )
     if kind == "onnx":
         return OnnxDetector(

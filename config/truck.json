@@ -1,0 +1,42 @@
+{
+  "truck": {
+    "root": "huniashahatona/zadania",
+    "repairs": "datasets/truck/ground_truth_repairs.json",
+    "fps": 30.0,
+    "frame_start": 0,
+    "frame_end": 1000
+  },
+  "detector": {
+    "kind": "yolo",
+    "model": "yolov8x.pt",
+    "conf": 0.25,
+    "imgsz": 960,
+    "device": "cpu",
+    "class_names": ["truck", "car", "bus", "train"],
+    "agnostic_nms": false
+  },
+  "fusion": {
+    "association_mode": "single_target",
+    "epipolar_threshold_px": 40.0,
+    "max_reprojection_px": 50.0,
+    "min_views": 2,
+    "gate_mahalanobis": 3.0,
+    "max_missing": 3,
+    "position_noise": 0.05,
+    "velocity_noise": 1.2,
+    "measurement_noise": 0.1,
+    "anchor_offset_m": null
+  },
+  "align_tolerance": 0.05,
+  "target_fps": null,
+  "stall_seconds": 5.0,
+  "partial_cameras": true,
+  "min_cameras_live": 1,
+  "streams": [
+    { "kind": "truck", "name": "cam1" },
+    { "kind": "truck", "name": "cam2" },
+    { "kind": "truck", "name": "cam3" },
+    { "kind": "truck", "name": "cam4" },
+    { "kind": "truck", "name": "cam5" }
+  ]
+}

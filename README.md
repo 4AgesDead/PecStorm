@@ -10,10 +10,11 @@
 
 > **Статус: проект завершён, сквозной прогон работает.** Реализованы и проверены
 > запуском все модули ядра (12), конвейер `pipeline.py`, метрики, визуализация,
-> CLI-приложения (`apps/`), конфиг и тесты (23 теста `unittest`, все зелёные).
+> CLI-приложения (`apps/`), конфиг и тесты (70 тестов `unittest`, все зелёные).
 > Критерий приёмки выполнен: синтетика 3 камеры / 2 объекта / 25 fps → ровно
 > 2 трека, средняя ошибка 3D после RTS-сглаживания ≤ 30 мм (факт. 10.1 мм).
 > Исторический разбор исходного состояния — в [HANDOFF.md](HANDOFF.md).
+> Быстрый гайд «что запускать» — [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
 ## Что проверено запуском (2026-11-03)
 
@@ -26,7 +27,7 @@
 | Калибровка по синтетической шахматной доске (8 ракурсов, OpenCV 5) | RMS 0.07 px; fx/fy восстановлены в пределах 0.3%, cx/cy — в 2 px |
 | Сквозной офлайн-прогон (oracle-детектор, 3 камеры, 2 объекта, 2 с, seed=7) | 2 трека, ID-switch 0, среднее 10.14 мм, p95 27.3 мм, max 42.8 мм (90 точек) |
 | Демо-прогон `apps.sim_dataset` (blob-детектор, 3 камеры, 2 объекта, 6 с, seed=7) | 2 трека, полнота 1.0/1.0, ID-switch 0, среднее 7.48 мм (300 точек), ~260 fps обработки |
-| `python -m unittest discover -s tests` | 23 теста, OK |
+| `python -m unittest discover -s tests` | 70 тестов, OK |
 
 Эталонный критерий приёмки (HANDOFF, P0): **3 камеры, 2 объекта, 25 fps →
 2 трека, средняя ошибка ≤ 30 мм** — выполнен с запасом.
@@ -127,18 +128,24 @@ ray = back_project_ray(cam, pixels[0])              # пиксель -> един
 | `sim.py` | синтетический полигон: камеры с известными K/R/t/дисторсией, рендер, ground truth, `SimSource`, `OracleSimSource` | готово |
 | `fusion.py` | сопоставление видов (венгерский алгоритм по эпиполярным стоимостям), триангуляция + уточнение LM, 3D-трекинг | готово, проверено сквозными тестами |
 | `pipeline.py` | оркестрация, JSON-конфиг (`PipelineConfig`), офлайн/реалтайм режимы, история состояний для RTS | готово |
-| `metrics.py` | ошибки в мм, полнота/точность треков, ID-switch, частота обработки | готово |
-| `visualize.py` | 3D-графики траекторий, наложение треков на кадр, CSV/JSON экспорт-импорт | готово |
+| `metrics.py` | ошибки в мм, полнота/точность треков, ID-switch, частота обработки; `evaluate_truck` — MAE/RMSE/P95/P99 + покрытие по статусам | готово |
+| `visualize.py` | 3D-графики траекторий, наложение треков на кадр, CSV/JSON экспорт-импорт; `plot_components_vs_time` — график X/Y/Z «эталон vs оценка» | готово |
+| `sources.py` | `DetectingFrameSource` — детектор поверх любого `FrameSource` (дефект P0.3) | готово |
+| `detect.py` | `YoloDetector` (ultralytics YOLOv8, классы COCO `truck/car/bus/train`) | готово, полный прогон 5005 кадро-камер |
+| `unreal_camera.py` | импорт CSV Unreal (CP1251), конверсия единиц/осей, GT с `invalid_cells` и sidecar-репарами | готово |
+| `camera_provider.py` | `CameraStateProvider`: поза камеры по номеру кадра, статичные cam1–4, вращение cam5 | готово |
+| `truck_dataset.py` | датасет «Пеленга»: discover/manifest/общая область кадров/`TruckVideoSource` | готово |
+| `truck_pipeline.py` | стадии truck-workflow: детекция → CSV → реконструкция → CSV/JSON оценок | готово |
 
 ## Команды (реализованы, проверены)
 
 ```
-python tools/smoke_check.py                                # быстрая проверка ядра
-python -m unittest discover -s tests                       # тесты (pytest не требуется)
-python -m apps.sim_dataset --config config/demo.json --out out          # синтетика -> треки/метрики/графики
-python -m apps.evaluate  --tracks out/tracks.csv --truth out/truth.csv  # оценка по CSV
-python -m apps.calibrate --images data/board --pattern 9x6 --square 30 --out config/calib.json
-python -m apps.live      --config config/demo.json --record out/tracks.csv
+py tools/smoke_check.py                                # быстрая проверка ядра
+py -m unittest discover -s tests                       # тесты (pytest не требуется)
+py -m apps.sim_dataset --config config/demo.json --out out          # синтетика -> треки/метрики/графики
+py -m apps.evaluate  --tracks out/tracks.csv --truth out/truth.csv  # оценка по CSV
+py -m apps.calibrate --images data/board --pattern 9x6 --square 30 --out config/calib.json
+py -m apps.live      --config config/demo.json --record out/tracks.csv
 ```
 
 `apps.sim_dataset` пишет `tracks.csv`, `tracks.json`, `truth.csv`, `metrics.json`
@@ -147,15 +154,72 @@ python -m apps.live      --config config/demo.json --record out/tracks.csv
 `calibrate`/`live` — запуск с `--help` (импорт и аргументы валидны; для
 полного прогона нужны реальные изображения полигона / камеры).
 
+## Реальные данные «Пеленга» (truck-workflow)
+
+Помимо синтетики, пакет обрабатывает выданный набор: 5 MP4 (1920×1080, 30 fps,
+кадры 0..1000), 5 camera CSV (Unreal, CP1251) и GT-траектория цели.
+Подробности формата, конверсии и ограничений — [docs/TRUCK_DATASET.md](docs/TRUCK_DATASET.md);
+вопросы организаторам — [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md).
+
+```
+py apps/import_truck_dataset.py                        # manifest + отчёт о расхождениях
+py apps/detect_truck.py --start 0 --end 1000 --step 1 `
+    --model yolov8x.pt --conf 0.25 --imgsz 960             # ML-детектор (YOLO, класс truck)
+py tools/anchor_fit_views.py --detections out/truck/detections.csv `
+    --max-reprojection-px 50                               # калибровка якоря по наборам видов
+py apps/reconstruct_truck.py --detections out/truck/detections.csv
+py apps/evaluate_truck.py --estimates out/truck/estimates.csv
+py apps/visualize_truck.py --estimates out/truck/estimates.csv `
+    --frames 83,190,400,600,834,924 --out out/truck/viz --video
+py tools/plot_components.py --estimates out/truck/estimates.csv  # график X/Y/Z: эталон vs оценка
+py tools/make_report.py                                # сводка + все графики
+```
+
+Графики: `out/truck/report/components_vs_time.png` («Итоговый результат»:
+`X_t`/`Y_t`/`Z_t` сплошными, `X_det`/`Y_det`/`Z_det` штриховыми),
+`components_error_vs_time.png` (то же + расхождение «оценка − эталон» по осям),
+`error_vs_frame.png`, `trajectory_xy.png`, `coverage.png`.
+
+Итоговые числа полного прогона — [docs/RESULTS.md](docs/RESULTS.md)
+(детекция 93.7 % кадров, покрытие 61.3 %, MAE 4.28 м при медиане 2.9 м;
+in-sample по калибровке якоря, parity-CV — 4.5 м).
+
+Что важно знать перед чтением результатов:
+
+* позы камер обновляются **на каждом кадре** (cam5 вращается), статичные
+  cam1–4 кэшируются;
+* детектор — ML (YOLOv8, класс COCO `truck`), фоновое вычитание как основной
+  детектор не используется;
+* 2D-якорь (центр bbox) не равен GT-pivot: расхождение 57–229 px по камерам.
+  Компенсируется 3D-сдвигом **на набор видов** (`anchor_offset_views`,
+  `tools/anchor_fit_views.py`); он проверен разбиением чётные/нечётные кадры и
+  по времени. Общий сдвиг `anchor_offset_m` и 2D-сдвиг по камерам
+  (`anchor_offset_px`) реализованы, но на holdout не переносятся — см. §5
+  `docs/RESULTS.md`;
+* оценки 3D содержат `status`/`method`/`camera_ids` (DTO §11), а ошибка и
+  покрытие считаются раздельно (§7.6): «точность только на лёгких кадрах» не
+  выдаётся за общий результат;
+* GT-кадры 402 и 691 исключены (испорченные Excel-ячейки), исходные файлы не
+  изменяются.
+
+Эксперименты: `experiments/visibility_analysis.py` (видимость по камерам),
+`projection_sanity.py` (проекция GT-пивота vs детекции),
+`detector_benchmark.py` (модель/imgsz → detection rate и время),
+`geometry_sweep.py` (пороги слияния → MAE vs coverage),
+`robustness_benchmark.py` (шум 2D, ошибки калибровки, сдвиг времени).
+
 ## Как измеряется точность
 
 * **Синтетика** — единственный режим, где возможна ошибка в миллиметрах: 3D-пути
   объектов заданы аналитически, камеры имеют точные K/R/t и дисторсию, кадры
   рендерятся той же моделью проекции. Сравнение восстановленных траекторий с
   ground truth даёт среднюю/максимальную ошибку в метрах.
-* **Реальные видео** — ground truth нет, поэтому доступны только косвенные метрики:
-  ошибка репроекции в пикселях, эпиполярные невязки, стабильность трека, частота и
-  задержка обработки.
+* **Реальные видео** без разметки — ground truth нет, поэтому доступны только
+  косвенные метрики: ошибка репроекции в пикселях, эпиполярные невязки,
+  стабильность трека, частота и задержка обработки.
+* **Датасет «Пеленга»** — GT есть (pivot актора, `xyzpowcameta`), поэтому MAE
+  считается в метрах; но он ограничен расхождением «центр bbox ↔ pivot»
+  (140 px медиана), см. `docs/RESULTS.md`.
 
 Синтетика проверяет геометрию, сопоставление видов и фильтр, но **не** заменяет
 проверку на реальном оборудовании: она ничего не говорит о качестве реального
@@ -189,14 +253,20 @@ python -m apps.live      --config config/demo.json --record out/tracks.csv
 ## Структура репозитория
 
 ```
-multiview3d/          библиотека (12 модулей)
-apps/                 CLI: sim_dataset, evaluate, calibrate, live
-config/demo.json      демо-конфиг конвейера
-tests/                23 теста unittest (геометрия, калибрация, fusion, pipeline)
-tools/smoke_check.py  проверка импорта, синтетики, детектора, FrameReader и приёмки
+multiview3d/          библиотека (ядро + truck-workflow: detect, truck_dataset,
+                      truck_pipeline, camera_provider, unreal_camera, sources)
+apps/                 CLI: import/detect/reconstruct/evaluate/visualize_truck,
+                      плюс sim_dataset, evaluate, calibrate, live (синтетика)
+config/truck.json     конфиг truck-workflow (5 камер, детектор, пороги слияния)
+datasets/truck/       manifest, калибровка якоря, sidecar-репары GT
+docs/                 QUICKSTART, TRUCK_DATASET, RESULTS, DETECTION, OPEN_QUESTIONS
+experiments/          видимость, проекция, свип порогов, робастность, бенчмарк
+tools/                калибровки якоря, отчёт и графики, вспомогательные скрипты
+tests/                70 тестов unittest (геометрия, калибровка, fusion,
+                      pipeline, truck-workflow, экспорт, графики)
 requirements.txt      зафиксированные версии проверенных пакетов
 README.md             этот файл
-HANDOFF.md            исходное состояние проекта, исторические дефекты, план
+HANDOFF.md            состояние работ, история, грабли инструментов
 ```
 
 ## Лицензия и авторство

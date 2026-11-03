@@ -1,0 +1,200 @@
+{
+  "offset_m": [
+    9.333534641699204,
+    -3.5792444740521816,
+    -0.3326000121304494
+  ],
+  "delta_pivot_to_bbox_m": [
+    -9.333534641699204,
+    3.5792444740521816,
+    0.3326000121304494
+  ],
+  "method": "least_squares soft_l1: project(pivot_gt + delta) ≈ bbox_center; offset_m = -delta — сдвиг, который прибавляется к триангулированной точке, чтобы перейти к pivot",
+  "anchor": "center",
+  "detector": {
+    "model": "yolov8x.pt",
+    "conf": 0.25,
+    "imgsz": 960,
+    "class_names": [
+      "truck",
+      "car",
+      "bus",
+      "train"
+    ]
+  },
+  "train": {
+    "frames": [
+      0,
+      500,
+      1
+    ],
+    "n_observations": 713,
+    "px_mean": 46.98,
+    "px_median": 38.83,
+    "px_p90": 104.95,
+    "px_max": 188.6
+  },
+  "train_before": {
+    "n_observations": 713,
+    "px_mean": 99.75,
+    "px_median": 86.89,
+    "px_p90": 181.55,
+    "px_max": 322.69
+  },
+  "holdout": {
+    "frames": [
+      600,
+      1000,
+      1
+    ],
+    "n_observations": 672,
+    "px_mean": 112.33,
+    "px_median": 103.87,
+    "px_p90": 170.51,
+    "px_max": 236.02
+  },
+  "holdout_before": {
+    "n_observations": 672,
+    "px_mean": 198.34,
+    "px_median": 212.78,
+    "px_p90": 318.91,
+    "px_max": 434.62
+  },
+  "per_camera_holdout": {
+    "cam1": {
+      "n": 0
+    },
+    "cam2": {
+      "n": 0
+    },
+    "cam3": {
+      "n_observations": 56,
+      "px_mean": 40.3,
+      "px_median": 41.77,
+      "px_p90": 48.01,
+      "px_max": 48.95
+    },
+    "cam4": {
+      "n_observations": 294,
+      "px_mean": 113.52,
+      "px_median": 104.82,
+      "px_p90": 170.94,
+      "px_max": 197.81
+    },
+    "cam5": {
+      "n_observations": 322,
+      "px_mean": 123.78,
+      "px_median": 132.42,
+      "px_p90": 171.16,
+      "px_max": 236.02
+    }
+  },
+  "leave_one_camera_out": {
+    "cam1": {
+      "train_observations": 1196,
+      "test_observations": 189,
+      "offset_m": [
+        7.0841,
+        -8.1459,
+        0.6068
+      ],
+      "delta_pivot_to_bbox_m": [
+        -7.0841,
+        8.1459,
+        -0.6068
+      ],
+      "test_px": {
+        "n_observations": 189,
+        "px_mean": 32.3,
+        "px_median": 24.08,
+        "px_p90": 61.37,
+        "px_max": 140.73
+      }
+    },
+    "cam2": {
+      "train_observations": 1154,
+      "test_observations": 231,
+      "offset_m": [
+        7.3683,
+        -9.154,
+        0.8067
+      ],
+      "delta_pivot_to_bbox_m": [
+        -7.3683,
+        9.154,
+        -0.8067
+      ],
+      "test_px": {
+        "n_observations": 231,
+        "px_mean": 118.57,
+        "px_median": 102.27,
+        "px_p90": 172.31,
+        "px_max": 280.32
+      }
+    },
+    "cam3": {
+      "train_observations": 1222,
+      "test_observations": 163,
+      "offset_m": [
+        7.9996,
+        -8.1813,
+        0.4782
+      ],
+      "delta_pivot_to_bbox_m": [
+        -7.9996,
+        8.1813,
+        -0.4782
+      ],
+      "test_px": {
+        "n_observations": 163,
+        "px_mean": 61.03,
+        "px_median": 49.6,
+        "px_p90": 155.82,
+        "px_max": 210.21
+      }
+    },
+    "cam4": {
+      "train_observations": 1085,
+      "test_observations": 300,
+      "offset_m": [
+        9.3906,
+        -5.4097,
+        0.5828
+      ],
+      "delta_pivot_to_bbox_m": [
+        -9.3906,
+        5.4097,
+        -0.5828
+      ],
+      "test_px": {
+        "n_observations": 300,
+        "px_mean": 91.89,
+        "px_median": 84.19,
+        "px_p90": 146.62,
+        "px_max": 172.15
+      }
+    },
+    "cam5": {
+      "train_observations": 883,
+      "test_observations": 502,
+      "offset_m": [
+        6.6632,
+        -7.6525,
+        -0.6962
+      ],
+      "delta_pivot_to_bbox_m": [
+        -6.6632,
+        7.6525,
+        0.6962
+      ],
+      "test_px": {
+        "n_observations": 502,
+        "px_mean": 92.81,
+        "px_median": 88.17,
+        "px_p90": 140.27,
+        "px_max": 156.31
+      }
+    }
+  },
+  "note": "Постоянный сдвиг оценён на обучающих кадрах; на проверочных не подбирался. Это калибровка якоря (bbox center != actor pivot), а не подгонка траектории. Остаточные десятки пикселей означают неточность intrinsics/extrinsics и неизвестный anchor."
+}

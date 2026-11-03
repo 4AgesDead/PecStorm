@@ -1,0 +1,23 @@
+{
+  "source_file": "huniashahatona\\zadania\\xyzpowcameta\\object_transform_SM_AA_track.csv",
+  "accept_unverified": false,
+  "note": "Гипотезы восстановления Excel date coercion. Требуется подтверждение организаторами.",
+  "repairs": [
+    {
+      "frame": 402,
+      "column": "Loc_X",
+      "source_raw_value": "авг.13",
+      "proposed_value": 8.13,
+      "reason": "Excel date coercion: «авг.13» = 8.13 по формату mm.dd; гипотеза, не подтверждена",
+      "verified_by_organizer": false
+    },
+    {
+      "frame": 691,
+      "column": "Loc_Y",
+      "source_raw_value": "июл.25",
+      "proposed_value": 7.25,
+      "reason": "Excel date coercion: «июл.25» = 7.25 по формату mm.dd; гипотеза, не подтверждена",
+      "verified_by_organizer": false
+    }
+  ]
+}

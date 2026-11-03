@@ -1,0 +1,159 @@
+{
+  "method": "median(bbox_center - project(pivot_gt)) по камерам на train-кадрах",
+  "offsets_px": {
+    "cam1": [
+      -169.341,
+      -12.03
+    ],
+    "cam2": [
+      -55.571,
+      11.374
+    ],
+    "cam3": [
+      144.731,
+      1.371
+    ],
+    "cam5": [
+      -14.587,
+      12.398
+    ]
+  },
+  "camera_names": [
+    "cam1",
+    "cam2",
+    "cam3",
+    "cam4",
+    "cam5"
+  ],
+  "train": {
+    "frames": [
+      0,
+      500
+    ]
+  },
+  "holdout": {
+    "frames": [
+      600,
+      1000
+    ]
+  },
+  "per_camera": {
+    "cam1": {
+      "train": {
+        "n": 189,
+        "mean_px": 178.86,
+        "median_px": 169.8,
+        "p90_px": 241.04,
+        "max_px": 322.69
+      },
+      "holdout_before": {
+        "n": 0
+      },
+      "holdout_after": {
+        "n": 0
+      },
+      "offset_px": [
+        -169.341,
+        -12.03
+      ]
+    },
+    "cam2": {
+      "train": {
+        "n": 231,
+        "mean_px": 66.38,
+        "median_px": 60.67,
+        "p90_px": 95.82,
+        "max_px": 100.2
+      },
+      "holdout_before": {
+        "n": 0
+      },
+      "holdout_after": {
+        "n": 0
+      },
+      "offset_px": [
+        -55.571,
+        11.374
+      ]
+    },
+    "cam3": {
+      "train": {
+        "n": 107,
+        "mean_px": 123.82,
+        "median_px": 144.8,
+        "p90_px": 181.35,
+        "max_px": 209.42
+      },
+      "holdout_before": {
+        "n": 56,
+        "mean_px": 85.63,
+        "median_px": 84.6,
+        "p90_px": 92.02,
+        "max_px": 94.94
+      },
+      "holdout_after": {
+        "n": 56,
+        "mean_px": 59.27,
+        "median_px": 60.35,
+        "p90_px": 64.63,
+        "max_px": 65.1
+      },
+      "offset_px": [
+        144.731,
+        1.371
+      ]
+    },
+    "cam4": {
+      "train": {
+        "n": 6,
+        "mean_px": 144.87,
+        "median_px": 145.03,
+        "p90_px": 145.7,
+        "max_px": 146.18
+      },
+      "holdout_before": {
+        "n": 294,
+        "mean_px": 127.98,
+        "median_px": 110.09,
+        "p90_px": 224.25,
+        "max_px": 271.78
+      },
+      "holdout_after": {
+        "n": 294,
+        "mean_px": 127.98,
+        "median_px": 110.09,
+        "p90_px": 224.25,
+        "max_px": 271.78
+      },
+      "offset_px": null
+    },
+    "cam5": {
+      "train": {
+        "n": 180,
+        "mean_px": 43.69,
+        "median_px": 34.68,
+        "p90_px": 82.66,
+        "max_px": 138.23
+      },
+      "holdout_before": {
+        "n": 322,
+        "mean_px": 282.18,
+        "median_px": 272.59,
+        "p90_px": 383.04,
+        "max_px": 434.62
+      },
+      "holdout_after": {
+        "n": 322,
+        "mean_px": 294.72,
+        "median_px": 282.17,
+        "p90_px": 400.09,
+        "max_px": 452.3
+      },
+      "offset_px": [
+        -14.587,
+        12.398
+      ]
+    }
+  },
+  "note": "Сдвиг — приближение: смещение bbox↔pivot зависит от ракурса и дистанции. Оценён на train, на holdout только проверен."
+}

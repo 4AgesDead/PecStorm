@@ -49,6 +49,123 @@ def plot_tracks_3d(tracks: list[Track],
     return fig
 
 
+def plot_components_vs_time(frames, gt_xyz, meas_xyz, pred_xyz=None, *,
+                            path: str | Path | None = None,
+                            error_path: str | Path | None = None,
+                            path_panel_path: str | Path | None = None,
+                            title: str = "Компоненты положения: эталон vs оценка",
+                            fps: float = 30.0) -> dict:
+    """График X/Y/Z от времени: эталон (сплошные) и оценка (штриховые).
+
+    ``gt_xyz``, ``meas_xyz``, ``pred_xyz`` — массивы (N, 3); отсутствующее
+    значение — ``NaN``. Выходы: ``path`` — фигура в стиле «Итоговый результат»
+    (одна панель); ``error_path`` — компоненты + «оценка − эталон» по осям;
+    ``path_panel_path`` — компоненты + траектория в плане (X vs Y), чтобы было
+    видно, как цель двигалась. Возвращает сводку: MAE и max по осям (только по
+    строкам, где есть и эталон, и измерение).
+
+    Стиль повторяет «Итоговый результат» из брифа: ``X_t``/``Y_t``/``Z_t`` —
+    сплошные линии, ``X_det``/``Y_det``/``Z_det`` — штриховые с точками.
+    """
+    plt = _matplotlib()
+    frames = np.asarray(frames, dtype=float)
+    gt = np.asarray(gt_xyz, dtype=float).reshape(-1, 3)
+    meas = np.asarray(meas_xyz, dtype=float).reshape(-1, 3)
+    pred = (np.zeros_like(meas) + np.nan) if pred_xyz is None else \
+        np.asarray(pred_xyz, dtype=float).reshape(-1, 3)
+    t = frames / float(fps)
+    axis_names = ("X", "Y", "Z")
+    colors = ("#1f77b4", "#ff7f0e", "#7f7f7f")
+
+    def draw(ax, xlabel: str | None = None) -> None:
+        for i, (name, color) in enumerate(zip(axis_names, colors)):
+            ax.plot(t, gt[:, i], color=color, linewidth=1.6, label=f"{name}_t")
+        for i, (name, color) in enumerate(zip(axis_names, colors)):
+            ax.plot(t, meas[:, i], color=color, linewidth=1.2, linestyle="--",
+                    marker=".", markersize=3, label=f"{name}_det")
+        for i, (name, color) in enumerate(zip(axis_names, colors)):
+            ax.plot(t, pred[:, i], color=color, linewidth=1.0, linestyle=":",
+                    marker="o", markersize=2.5, markerfacecolor="none", alpha=0.75,
+                    label=f"{name}_pred" if np.isfinite(pred[:, i]).any() else None)
+        ax.set_ylabel("положение, м")
+        ax.set_title(title)
+        ax.grid(True, alpha=0.3)
+        handles, labels = ax.get_legend_handles_labels()
+        keep = [(h, l) for h, l in zip(handles, labels) if l]
+        ax.legend([k[0] for k in keep], [k[1] for k in keep], loc="best",
+                  fontsize=8, ncol=3)
+        if xlabel:
+            ax.set_xlabel(xlabel)
+
+    mask = np.isfinite(gt).all(axis=1) & np.isfinite(meas).all(axis=1)
+    stats: dict = {"n": int(mask.sum()), "fps": float(fps)}
+    if mask.any():
+        err = np.abs(meas[mask] - gt[mask])
+        stats["mae_m"] = {n: round(float(err[:, i].mean()), 3)
+                          for i, n in enumerate(axis_names)}
+        stats["max_abs_m"] = {n: round(float(err[:, i].max()), 3)
+                              for i, n in enumerate(axis_names)}
+        stats["mae_total_m"] = round(
+            float(np.linalg.norm(meas[mask] - gt[mask], axis=1).mean()), 3)
+
+    if path is not None:
+        fig, ax = plt.subplots(figsize=(11, 6))
+        draw(ax, xlabel="время, с")
+        fig.savefig(path, dpi=140, bbox_inches="tight")
+        plt.close(fig)
+
+    if error_path is not None:
+        fig, (ax, ax_err) = plt.subplots(
+            2, 1, figsize=(11, 8.5), sharex=True,
+            gridspec_kw={"height_ratios": [2.2, 1]})
+        draw(ax)
+        for i, (name, color) in enumerate(zip(axis_names, colors)):
+            d = np.where(mask, meas[:, i] - gt[:, i], np.nan)
+            ax_err.plot(t, d, color=color, linewidth=1.1, label=f"Δ{name}")
+        ax_err.axhline(0.0, color="black", linewidth=0.8, alpha=0.6)
+        ax_err.set_xlabel("время, с")
+        ax_err.set_ylabel("оценка − эталон, м")
+        ax_err.grid(True, alpha=0.3)
+        ax_err.legend(loc="best", fontsize=8, ncol=3)
+        ax_err.set_title("Расхождение с эталоном по осям (MEASURED)")
+        fig.savefig(error_path, dpi=140, bbox_inches="tight")
+        plt.close(fig)
+
+    if path_panel_path is not None:
+        fig, (ax, ax_xy) = plt.subplots(
+            2, 1, figsize=(10, 12), gridspec_kw={"height_ratios": [1.1, 1]})
+        draw(ax, xlabel="время, с")
+        ax_xy.plot(gt[:, 0], gt[:, 1], color="black", linewidth=1.7,
+                   label="эталон (pivot)")
+        m = np.isfinite(meas).all(axis=1)
+        if m.any():
+            ax_xy.scatter(meas[m, 0], meas[m, 1], s=16, color="#1b7f3b",
+                          label=f"MEASURED ({int(m.sum())})")
+        pr = np.isfinite(pred).all(axis=1)
+        if pr.any():
+            ax_xy.scatter(pred[pr, 0], pred[pr, 1], s=16, facecolors="none",
+                          edgecolors="#d17b00", label=f"PREDICTED_ONLY ({int(pr.sum())})")
+        g = np.isfinite(gt).all(axis=1)
+        if g.any():
+            first, last = gt[g][0], gt[g][-1]
+            ax_xy.scatter([first[0]], [first[1]], marker="o", s=70,
+                          facecolors="none", edgecolors="black", linewidths=1.5,
+                          label="старт GT")
+            ax_xy.scatter([last[0]], [last[1]], marker="s", s=70,
+                          facecolors="none", edgecolors="black", linewidths=1.5,
+                          label="финиш GT")
+        ax_xy.set_xlabel("X, м")
+        ax_xy.set_ylabel("Y, м")
+        ax_xy.set_title("Как ехала цель: траектория в плане")
+        ax_xy.set_aspect("equal", adjustable="box")
+        ax_xy.grid(True, alpha=0.3)
+        ax_xy.legend(loc="best", fontsize=8)
+        fig.savefig(path_panel_path, dpi=140, bbox_inches="tight")
+        plt.close(fig)
+
+    return stats
+
+
 def overlay_track_on_frame(frame: np.ndarray, cam: CameraCalibration,
                            positions: list[np.ndarray], color=(0, 255, 0)) -> np.ndarray:
     """Наложение: репроекция позиций трека на кадр камеры (копия кадра с отметками)."""
