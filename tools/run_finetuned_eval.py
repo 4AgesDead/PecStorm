@@ -71,9 +71,15 @@ def main(argv: list[str] | None = None) -> int:
          "--fit-start", "0", "--fit-end", str(args.fit_end),
          "--test-start", str(args.holdout_start), "--test-end", "1000",
          "--out", str(anchors)])
+    azimuth = out / f"azimuth_{args.tag}.json"
+    run([py, "tools/anchor_fit_azimuth.py", "--detections", str(det_csv),
+         "--anchor-views", str(anchors),
+         "--max-reprojection-px", str(args.max_reprojection_px),
+         "--fit-end", "1000", "--out", str(azimuth)])
     run([py, "apps/reconstruct_truck.py", "--detections", str(det_csv),
          "--max-reprojection-px", str(args.max_reprojection_px),
          "--anchor-offset-views", str(anchors),
+         "--anchor-azimuth", str(azimuth),
          "--out-csv", str(est_csv), "--out-json", str(est_json)])
     run([py, "apps/evaluate_truck.py", "--estimates", str(est_csv),
          "--out-json", str(eval_json), "--out-csv", str(eval_csv)])
