@@ -1,0 +1,52 @@
+{
+  "dataset": "pelenga_truck",
+  "detector": {
+    "kind": "yolo",
+    "model": "yolo26x.pt",
+    "conf": 0.25,
+    "imgsz": 960,
+    "device": "cpu",
+    "class_names": [
+      "truck",
+      "car",
+      "bus",
+      "train"
+    ]
+  },
+  "frames_requested": 21,
+  "frame_range": [
+    0,
+    1000
+  ],
+  "step": 50,
+  "frames_processed": 21,
+  "frames_with_detection": 18,
+  "frame_detection_rate": 0.8571428571428571,
+  "detections_total": 35,
+  "detections_per_frame": 1.6666666666666667,
+  "per_camera_detections": {
+    "cam1": 4,
+    "cam2": 3,
+    "cam3": 8,
+    "cam4": 8,
+    "cam5": 12
+  },
+  "per_camera_frames_with_detection": {
+    "cam1": 4,
+    "cam2": 3,
+    "cam3": 6,
+    "cam4": 7,
+    "cam5": 12
+  },
+  "per_camera_frame_rate": {
+    "cam1": 0.19047619047619047,
+    "cam2": 0.14285714285714285,
+    "cam3": 0.2857142857142857,
+    "cam4": 0.3333333333333333,
+    "cam5": 0.5714285714285714
+  },
+  "seconds": 85.17,
+  "ms_per_frame": 4055.6,
+  "fps_processing": 0.247,
+  "detections_csv": "out/truck/det_yolo26x.csv"
+}

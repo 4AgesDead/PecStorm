@@ -1,0 +1,56 @@
+{
+ "frames": [
+  0,
+  1000,
+  50
+ ],
+ "note": "detection rate — прокси recall: 2D-разметки нет, precision не измеряется; классы COCO truck,car,bus,train",
+ "runs": [
+  {
+   "model": "yolov8x.pt",
+   "imgsz": 1280,
+   "conf": 0.25,
+   "frames_total": 105,
+   "seconds": 167.11,
+   "ms_per_camera_frame": 1591.5,
+   "detection_rate_overall": 0.3333,
+   "per_camera": {
+    "cam1": {
+     "frames": 21,
+     "frames_with_detection": 4,
+     "detection_rate": 0.1905,
+     "score_mean": 0.9344,
+     "score_median": 0.9349
+    },
+    "cam2": {
+     "frames": 21,
+     "frames_with_detection": 6,
+     "detection_rate": 0.2857,
+     "score_mean": 0.6811,
+     "score_median": 0.7323
+    },
+    "cam3": {
+     "frames": 21,
+     "frames_with_detection": 7,
+     "detection_rate": 0.3333,
+     "score_mean": 0.6434,
+     "score_median": 0.5515
+    },
+    "cam4": {
+     "frames": 21,
+     "frames_with_detection": 7,
+     "detection_rate": 0.3333,
+     "score_mean": 0.7157,
+     "score_median": 0.8483
+    },
+    "cam5": {
+     "frames": 21,
+     "frames_with_detection": 11,
+     "detection_rate": 0.5238,
+     "score_mean": 0.8834,
+     "score_median": 0.9056
+    }
+   }
+  }
+ ]
+}

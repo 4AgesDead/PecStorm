@@ -15,7 +15,7 @@
 | `evaluation.json` | MAE/RMSE/median/P95/P99/max + покрытие по статусам |
 | `eval_per_frame.csv` | построчно: оценка, GT, ошибка, статус по кадрам |
 | `anchors_rejected/` | калибровки, которые **не переносятся** на holdout: общий 3D-сдвиг и 2D-сдвиг по камерам (негативные результаты, §5 RESULTS) |
-| `experiments/` | видимость, проверка проекции bbox↔pivot, свип порогов, робастность, бенчмарк детектора |
+| `experiments/` | видимость, проверка проекции bbox↔pivot, свип порогов, робастность, бенчмарк детектора, прокси-recall по пивоту (`hitrate_*.json`) |
 | `report/` | графики и сводка: `components_vs_time.png` (X/Y/Z эталон vs оценка), `components_error_vs_time.png` (+ ошибка по осям), `components_with_path.png` (+ траектория в плане), `components_vs_time_6lines.png` (6 линий, как в презентации), `trajectory_xy.png`, `error_vs_frame.png`, `coverage.png`, `summary.json` |
 
 ## Ключевые числа (источник — `truck/evaluation.json`)

@@ -4,9 +4,9 @@ __pycache__/
 *.pyc
 .venv/
 
-# Весa моделей (≈130 МБ) скачиваются по имени автоматически ultralytics
-yolov8*.pt
-yolov8*.onnx
+# Веса моделей (5–140 МБ) скачиваются по имени автоматически ultralytics
+yolo*.pt
+yolo*.onnx
 
 # Временные lock-файлы Office (~$...)
 ~$*
