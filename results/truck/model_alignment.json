@@ -1,0 +1,34 @@
+{
+  "model": "models/CargoTruck.fbx",
+  "model_size_m": {
+    "X": 1.6777,
+    "Y": 2.4238,
+    "Z": 6.6849
+  },
+  "axes": {
+    "up": "Y",
+    "forward": "Z",
+    "forward_sign": 1.0
+  },
+  "offset_m": [
+    -7.9997,
+    4.0385,
+    0.5836
+  ],
+  "dyaw_deg": -2.577,
+  "scale": 3.16838,
+  "iou_mean": 0.5362,
+  "iou_per_camera": {
+    "cam1": 0.737,
+    "cam2": 0.465,
+    "cam3": 0.564,
+    "cam5": 0.399
+  },
+  "observations": 150,
+  "train_frames": [
+    0,
+    500
+  ],
+  "detections_csv": "out/truck/detections.csv",
+  "note": "Сдвиг — положение начала координат модели относительно GT-pivot; курс взят из разности GT-позиций (ориентации в GT нет). IoU считается по проекции 8 углов 3D-бокса модели."
+}

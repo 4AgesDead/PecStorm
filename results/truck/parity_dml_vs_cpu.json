@@ -1,0 +1,20 @@
+{
+  "method": "ONNX+DML против ultralytics CPU на одних кадрах (шаг 50, 21 кадр x 5 камер)",
+  "frames": 21,
+  "cpu_csv": "out/truck/detections.csv",
+  "dml_csv": "out/truck/det_y8x_dml.csv",
+  "boxes_cpu": 35,
+  "boxes_dml": 36,
+  "matched_iou_0.5": 35,
+  "share_dml_matched": 0.972,
+  "share_cpu_matched": 1.0,
+  "iou_median": 0.997,
+  "iou_min": 0.977,
+  "dcx_px_median": 0.06,
+  "dcx_px_p95": 0.63,
+  "dcy_px_median": 0.1,
+  "dcy_px_p95": 1.39,
+  "dscore_median": 0.0136,
+  "dscore_max": 0.0888,
+  "note": "Боксы DML и CPU численно эквивалентны; при переходе на DML якоря перекалиброваны (anchor_offset_views_dml.json)."
+}

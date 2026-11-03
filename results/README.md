@@ -11,7 +11,12 @@
 |---|---|
 | `detections.csv` | 2D-детекции YOLO (`yolov8x.pt`, `imgsz=960`, `conf=0.25`): 1660 строк, 938 кадров |
 | `detect_stats.json` | статистика детекции: время, доля кадров по камерам, итоги |
+| `detections_dml.csv` / `detect_stats_dml.json` | полный прогон детекции на GPU (ONNX + DirectML): 1001 кадр за 208.8 с, 1609 детекций |
 | `estimates.csv` / `.json` | 3D-оценки (DTO §11): `frame`, `x,y,z`, `vx,vy,vz`, `status`, `method`, `views`, `confidence` |
+| `eval_dml.json`, `evalpf_dml.csv` | точность/покрытие варианта DirectML (MAE 4.11 м, покрытие 60.2 %) |
+| `parity_dml_vs_cpu.json` | сверка боксов DirectML против CPU (медиана IoU 0.997) |
+| `anchor_offset_views_dml.json` | калибровка якоря под DirectML-детекции |
+| `model_alignment.json` | подгонка 3D-модели `CargoTruck.fbx` к bbox (масштаб 3.168, IoU 0.536) |
 | `evaluation.json` | MAE/RMSE/median/P95/P99/max + покрытие по статусам |
 | `eval_per_frame.csv` | построчно: оценка, GT, ошибка, статус по кадрам |
 | `anchors_rejected/` | калибровки, которые **не переносятся** на holdout: общий 3D-сдвиг и 2D-сдвиг по камерам (негативные результаты, §5 RESULTS) |

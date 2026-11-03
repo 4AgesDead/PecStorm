@@ -148,6 +148,127 @@ class OnnxDetector:
         return detections
 
 
+class YoloOnnxDetector:
+    """ONNX-экспорт ultralytics YOLO (``model.export(format="onnx")``).
+
+    Зачем: на Windows без CUDA единственный быстрый GPU-путь для AMD —
+    ``onnxruntime`` с ``DmlExecutionProvider`` (DirectML). Замер на
+    RX 7900 XT: yolov8n @960 — 45 мс (CPU) против 5 мс (DML), ≈9×.
+
+    Вход — ``[1, 3, S, S]`` RGB/255; выход ultralytics — ``[1, 4+nc, N]``
+    (без objectness), приводится к строкам ``cx, cy, w, h, scores...``.
+    Имена классов берутся из метаданных ONNX (``names``), иначе COCO.
+    """
+
+    COCO_NAMES = {2: "car", 5: "bus", 6: "train", 7: "truck"}
+
+    def __init__(self, model_path: str, *, imgsz: int = 960, conf: float = 0.25,
+                 providers: list[str] | None = None, class_names: list[str] | None = None,
+                 iou: float = 0.45, pad_value: int = 114):
+        import onnxruntime as ort  # ленивый импорт
+
+        opts = ort.SessionOptions()
+        opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        requested = list(providers or ["CPUExecutionProvider"])
+        if "CPUExecutionProvider" not in requested:
+            requested.append("CPUExecutionProvider")
+        self.sess = ort.InferenceSession(model_path, sess_options=opts,
+                                         providers=requested)
+        self.providers = self.sess.get_providers()
+        self.input_name = self.sess.get_inputs()[0].name
+        self.output_name = self.sess.get_outputs()[0].name
+        self.imgsz = int(imgsz)
+        self.conf = float(conf)
+        self.iou = float(iou)
+        self.pad_value = int(pad_value)
+
+        names = None
+        try:
+            meta = self.sess.get_modelmeta().custom_metadata_map or {}
+            if "names" in meta:
+                import ast
+                parsed = ast.literal_eval(meta["names"])
+                if isinstance(parsed, dict):
+                    names = {int(k): str(v) for k, v in parsed.items()}
+        except Exception:
+            names = None
+        self.names = names or dict(self.COCO_NAMES)
+        if class_names:
+            name_to_id = {v: k for k, v in self.names.items()}
+            missing = [n for n in class_names if n not in name_to_id]
+            if missing:
+                raise ValueError(f"в ONNX нет классов {missing}; доступны: "
+                                 f"{sorted(name_to_id)[:20]}")
+            self.classes = [name_to_id[n] for n in class_names]
+        else:
+            self.classes = None
+
+    def _letterbox(self, frame_bgr: np.ndarray):
+        h, w = frame_bgr.shape[:2]
+        scale = min(self.imgsz / w, self.imgsz / h)
+        new_w, new_h = int(round(w * scale)), int(round(h * scale))
+        dw = (self.imgsz - new_w) / 2.0
+        dh = (self.imgsz - new_h) / 2.0
+        resized = cv2.resize(frame_bgr, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+        canvas = np.full((self.imgsz, self.imgsz, 3), self.pad_value, np.uint8)
+        top, left = int(round(dh - 0.1)), int(round(dw - 0.1))
+        canvas[top:top + new_h, left:left + new_w] = resized
+        return canvas, scale, left, top
+
+    def detect(self, frame_bgr: np.ndarray) -> list[Detection2D]:
+        canvas, scale, pad_x, pad_y = self._letterbox(frame_bgr)
+        # BGR -> RGB, HWC -> CHW, [0,1], батч 1: ultralytics ждёт NCHW
+        blob = np.ascontiguousarray(
+            canvas[:, :, ::-1].transpose(2, 0, 1).astype(np.float32)[None] / 255.0)
+        out = self.sess.run([self.output_name],
+                            {self.input_name: np.ascontiguousarray(blob)})[0]
+        arr = np.asarray(out)[0]
+        if arr.ndim != 2:
+            return []
+        if arr.shape[0] < arr.shape[1]:      # [4+nc, N] -> [N, 4+nc]
+            arr = arr.T
+        if arr.shape[1] < 5:
+            return []
+        boxes_xywh = arr[:, :4]
+        class_scores = arr[:, 4:]
+        cls = np.argmax(class_scores, axis=1)
+        scores = class_scores[np.arange(len(arr)), cls]
+        keep = scores >= self.conf
+        if self.classes is not None:
+            keep &= np.isin(cls, self.classes)
+        if not keep.any():
+            return []
+        xywh = boxes_xywh[keep]
+        scores = scores[keep].astype(float)
+        cls = cls[keep]
+
+        boxes = np.empty_like(xywh)
+        boxes[:, 0] = xywh[:, 0] - xywh[:, 2] / 2  # x1
+        boxes[:, 1] = xywh[:, 1] - xywh[:, 3] / 2  # y1
+        boxes[:, 2] = xywh[:, 0] + xywh[:, 2] / 2  # x2
+        boxes[:, 3] = xywh[:, 1] + xywh[:, 3] / 2  # y2
+
+        detections: list[Detection2D] = []
+        h, w = frame_bgr.shape[:2]
+        for c in np.unique(cls):             # NMS по классам, как в ultralytics
+            m = cls == c
+            for i in nms(boxes[m], scores[m], self.iou):
+                x1, y1, x2, y2 = boxes[m][i]
+                x1 = (x1 - pad_x) / scale
+                x2 = (x2 - pad_x) / scale
+                y1 = (y1 - pad_y) / scale
+                y2 = (y2 - pad_y) / scale
+                x1, x2 = max(0.0, min(x1, w - 1)), max(0.0, min(x2, w - 1))
+                y1, y2 = max(0.0, min(y1, h - 1)), max(0.0, min(y2, h - 1))
+                detections.append(Detection2D(
+                    camera="", timestamp=0.0,
+                    center=np.array([(x1 + x2) / 2, (y1 + y2) / 2]),
+                    score=float(scores[m][i]),
+                    bbox=(float(x1), float(y1), float(x2), float(y2)),
+                    label=str(int(c))))
+        return detections
+
+
 class ColorBlobDetector:
     """Детектор цветных круглых меток (HSV-пороги + контуры).
 
@@ -254,6 +375,15 @@ def build_detector(spec: dict) -> Detector:
             imgsz=int(spec.get("imgsz", 640)),
             class_names=spec.get("class_names"),
             agnostic_nms=bool(spec.get("agnostic_nms", False)),
+        )
+    if kind in ("yolo-onnx", "onnx-yolo"):
+        return YoloOnnxDetector(
+            str(spec.get("model_path") or spec["model"]),
+            imgsz=int(spec.get("imgsz", 960)),
+            conf=float(spec.get("conf", 0.25)),
+            providers=spec.get("providers"),
+            class_names=spec.get("class_names"),
+            iou=float(spec.get("iou", 0.45)),
         )
     if kind == "onnx":
         return OnnxDetector(

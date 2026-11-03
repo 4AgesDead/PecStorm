@@ -44,6 +44,18 @@ py apps/detect_truck.py --start 0 --end 1000 --step 1 `
     --model yolov8x.pt --conf 0.25 --imgsz 960 `
     --out out/truck/detections.csv --stats out/truck/detect_stats.json
 
+# 2a. То же на GPU (AMD/Windows через DirectML): ≈3.5 мин вместо 53
+#     нужны yolov8x.onnx (YOLO('yolov8x.pt').export(format='onnx', imgsz=960))
+#     и pip install onnxruntime-directml
+py apps/detect_truck.py --start 0 --end 1000 --step 1 `
+    --model yolov8x.onnx --provider dml --conf 0.25 --imgsz 960 `
+    --out out/truck/detections_dml.csv --stats out/truck/detect_stats_dml.json
+
+# 2b. Калибровка якоря — под тот CSV, на котором считаете (после смены бэкенда
+#     боксы чуть другие, якоря надо пересчитать)
+py tools/anchor_fit_views.py --detections out/truck/detections_dml.csv `
+    --max-reprojection-px 50
+
 # 3. Калибровка якоря по наборам видов (секунды; файл уже в репозитории)
 py tools/anchor_fit_views.py --detections out/truck/detections.csv `
     --max-reprojection-px 50

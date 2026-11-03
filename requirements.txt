@@ -10,5 +10,9 @@ onnxruntime==1.31.1
 ultralytics==8.4.201
 torch==2.15.0
 
+# Опционально: GPU-инференс ONNX на AMD/Windows (DirectML) — заменяет onnxruntime.
+# Проверено: RX 7900 XT, полный прогон 5005 камеро-кадров за 209 с вместо 3200 с.
+# onnxruntime-directml==1.24.4
+
 # Опционально: только для генерации тестовых ONNX-моделей
 # onnx

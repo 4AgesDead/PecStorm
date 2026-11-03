@@ -48,6 +48,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--class-names", default="truck,car,bus,train",
                     help="имена классов COCO через запятую (пусто — все классы)")
+    ap.add_argument("--provider", default="auto",
+                    choices=["auto", "cpu", "dml"],
+                    help="провайдер onnxruntime для .onnx-модели: auto — dml, "
+                         "если доступен (DirectML/AMD GPU)")
     ap.add_argument("--out", default="out/truck/detections.csv")
     ap.add_argument("--stats", default="out/truck/detect_stats.json")
     ap.add_argument("--log-every", type=int, default=50)
@@ -59,12 +63,32 @@ def main(argv: list[str] | None = None) -> int:
     if args.max_frames:
         frames = frames[:args.max_frames]
     names = [n.strip() for n in args.class_names.split(",") if n.strip()]
-    spec = {"kind": "yolo", "model": args.model, "conf": args.conf,
-            "imgsz": args.imgsz, "device": args.device,
-            "class_names": names or None}
+    if args.model.lower().endswith(".onnx"):
+        providers = {"cpu": ["CPUExecutionProvider"]}.get(args.provider)
+        if providers is None:
+            try:
+                import onnxruntime as ort
+                avail = ort.get_available_providers()
+            except Exception:
+                avail = []
+            providers = (["DmlExecutionProvider", "CPUExecutionProvider"]
+                         if "DmlExecutionProvider" in avail
+                         else ["CPUExecutionProvider"])
+            if args.provider == "dml" and "DmlExecutionProvider" not in avail:
+                print("ВНИМАНИЕ: DmlExecutionProvider недоступен "
+                      "(pip install onnxruntime-directml) — работаем на CPU",
+                      file=sys.stderr)
+        spec = {"kind": "yolo-onnx", "model_path": args.model, "conf": args.conf,
+                "imgsz": args.imgsz, "providers": providers,
+                "class_names": names or None}
+    else:
+        spec = {"kind": "yolo", "model": args.model, "conf": args.conf,
+                "imgsz": args.imgsz, "device": args.device,
+                "class_names": names or None}
     detector = build_detector(spec)
 
-    print(f"Детектор: {args.model} (conf={args.conf}, imgsz={args.imgsz}, классы={names or 'все'})")
+    print(f"Детектор: {args.model} (conf={args.conf}, imgsz={args.imgsz}, "
+          f"классы={names or 'все'}, kind={spec['kind']})")
     print(f"Кадры: {frames[0]}..{frames[-1]} шаг {args.step} -> {len(frames)} кадров × "
           f"{len(ds.cameras)} камер")
     t0 = time.perf_counter()

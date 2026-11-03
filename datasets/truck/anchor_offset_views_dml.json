@@ -1,0 +1,131 @@
+{
+  "method": "median(estimate - gt) покоординатно по набору видов, знак инвертирован: offset_m прибавляется к оценке (переход к pivot); канонический ключ — отсортированные имена камер",
+  "offsets_m": {
+    "cam3|cam5": [
+      4.9678,
+      -10.117,
+      0.069
+    ],
+    "cam4|cam5": [
+      6.858,
+      -10.1569,
+      1.753
+    ],
+    "cam1|cam2": [
+      9.5309,
+      -4.2206,
+      -1.7651
+    ]
+  },
+  "min_observations": 20,
+  "fit_frames": [
+    0,
+    1000
+  ],
+  "test_frames": [
+    600,
+    1000
+  ],
+  "detections_csv": "out/truck/detections_dml.csv",
+  "per_views": {
+    "cam3|cam5": {
+      "n": 227,
+      "offset_m": [
+        4.9678,
+        -10.117,
+        0.069
+      ],
+      "mae_before_m": 10.364,
+      "mae_in_sample_m": 4.534,
+      "cv_parity_mae_m": 4.533,
+      "cv_time_mae_m": 3.61,
+      "cv_time_before_m": 12.169,
+      "cv_time_n": 42
+    },
+    "cam4|cam5": {
+      "n": 201,
+      "offset_m": [
+        6.858,
+        -10.1569,
+        1.753
+      ],
+      "mae_before_m": 13.771,
+      "mae_in_sample_m": 3.75,
+      "cv_parity_mae_m": 3.751,
+      "cv_time_mae_m": 2.939,
+      "cv_time_before_m": 12.982,
+      "cv_time_n": 197
+    },
+    "cam1|cam2": {
+      "n": 124,
+      "offset_m": [
+        9.5309,
+        -4.2206,
+        -1.7651
+      ],
+      "mae_before_m": 11.795,
+      "mae_in_sample_m": 2.125,
+      "cv_parity_mae_m": 2.126,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    },
+    "cam2|cam5": {
+      "n": 16,
+      "offset_m": [
+        -2.2642,
+        3.6395,
+        0.6655
+      ],
+      "mae_before_m": 5.059,
+      "mae_in_sample_m": 2.523,
+      "cv_parity_mae_m": 2.587,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    },
+    "cam2|cam3|cam5": {
+      "n": 16,
+      "offset_m": [
+        8.905,
+        -5.468,
+        1.1208
+      ],
+      "mae_before_m": 9.633,
+      "mae_in_sample_m": 1.396,
+      "cv_parity_mae_m": 1.44,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    },
+    "cam3|cam4|cam5": {
+      "n": 11,
+      "offset_m": [
+        7.3115,
+        -9.3467,
+        -0.0273
+      ],
+      "mae_before_m": 11.87,
+      "mae_in_sample_m": 0.274,
+      "cv_parity_mae_m": 0.281,
+      "cv_time_mae_m": 0.274,
+      "cv_time_before_m": 11.87,
+      "cv_time_n": 11
+    },
+    "cam2|cam3": {
+      "n": 6,
+      "offset_m": [
+        8.9485,
+        -4.0338,
+        0.3198
+      ],
+      "mae_before_m": 9.91,
+      "mae_in_sample_m": 0.886,
+      "cv_parity_mae_m": 1.183,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    }
+  },
+  "note": "mae_in_sample_m — на тех же кадрах, что и фит (не оценка точности). Честная проверка переноса — cv_parity_mae_m и cv_time_mae_m; если они не лучше mae_before_m, сдвиг для этого набора видов не применять."
+}
