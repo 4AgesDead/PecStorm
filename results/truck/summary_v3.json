@@ -1,0 +1,69 @@
+{
+  "tag": "v3",
+  "model": "runs\\detect\\out\\train\\scene_v3_hard\\weights\\best.pt",
+  "measured": {
+    "n_points": 770,
+    "mean_mm": 2594.75,
+    "mae_mm": 2594.75,
+    "rmse_mm": 5173.243,
+    "median_mm": 1261.468,
+    "p95_mm": 7614.599,
+    "p99_mm": 20951.476,
+    "max_mm": 63527.12,
+    "per_axis_mae_mm": [
+      1952.303,
+      1101.247,
+      405.94
+    ],
+    "per_axis_rmse_mm": [
+      4588.728,
+      2137.56,
+      1066.235
+    ]
+  },
+  "coverage": {
+    "frames_total": 1001.0,
+    "frames_with_gt": 999.0,
+    "measured": 0.77,
+    "progress_predicted_only": 0.02,
+    "unobservable": 0.21,
+    "monocular_only": 0.0
+  },
+  "holdout": {
+    "n_points": 132,
+    "mean_mm": 3238.191,
+    "mae_mm": 3238.191,
+    "rmse_mm": 8309.899,
+    "median_mm": 1590.406,
+    "p95_mm": 5073.139,
+    "p99_mm": 46412.927,
+    "max_mm": 63527.12,
+    "per_axis_mae_mm": [
+      2756.6,
+      1019.133,
+      758.696
+    ],
+    "per_axis_rmse_mm": [
+      7488.734,
+      2820.716,
+      2239.832
+    ]
+  },
+  "holdout_coverage": {
+    "frames_total": 301.0,
+    "frames_with_gt": 301.0,
+    "measured": 0.439,
+    "progress_predicted_only": 0.033,
+    "unobservable": 0.528,
+    "monocular_only": 0.0
+  },
+  "hitrate": {
+    "frames_pivot_in_view": 3188,
+    "frames_with_detection": 2225,
+    "frames_pivot_in_box": 1873,
+    "detections": 2262,
+    "recall_proxy": 0.5875,
+    "precision_proxy": 0.8373,
+    "dist_center_to_pivot_px_median": 84.75
+  }
+}
