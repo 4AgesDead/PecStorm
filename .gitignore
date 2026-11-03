@@ -2,7 +2,12 @@
 out/
 __pycache__/
 *.pyc
+# Окружения Python не коммитим
 .venv/
+.venv-rocm/
+
+# Псевдо-разметка (тысячи JPEG) не коммитим
+datasets/truck/pseudo/
 
 # Веса моделей (5–140 МБ) скачиваются по имени автоматически ultralytics
 yolo*.pt

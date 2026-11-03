@@ -293,11 +293,61 @@ forward=Z+):
 | масштаб модели | **3.168** (длина в единицах сцены ≈21.2 м) |
 | IoU проекции с bbox | **0.536** (cam1 0.737, cam2 0.465, cam3 0.564, cam5 0.399) |
 
-Главный вывод: геометрия модели согласуется с объектом, но **масштаб сцены
-≈3.2× больше физических метров** (6.685 м × 3.168 ≈ 21 м). То есть числа датасета
-(позиции, камеры) самосогласованы, но 1 «метр» датасета ≈ 3.2 физических метра;
-поэтому MAE 4.1 «м датасета» ≈ 1.3 физических метра. Это ещё один аргумент к
-вопросу №5/№4 организаторам (`docs/OPEN_QUESTIONS.md`).
+Главный вывод: **геометрия модели согласуется с объектом** (на cam1 проекция
+ложится на грузовик с прицепом почти вплотную), а масштаб подгонки 3.168
+означает, что модель габаритом 6.685 в единицах FBX соответствует объекту
+длиной ≈21.2 **единицы сцены**. Если FBX действительно в сантиметрах (6.685 м),
+то 1 единица датасета ≈3.17 м; но это допущение о единицах модели, а не
+установленный факт (организатор единицы не подтверждал). Поэтому пересчёт
+«MAE 4.1 единицы ≈1.3 физического метра» — **гипотеза**, её нельзя выдавать за
+измерение.
+
+Практическая польза от модели: из неё получается псевдо-разметка
+(`tools/make_pseudo_labels.py`): 3044 бокса на 5 камер (train 2144, val 900) —
+это готовый датасет для дообучения детектора на этой сцене.
+
+## 8d. ROCm-PyTorch нативно на Windows (без WSL) — работает
+
+Проверено экспериментально на этой машине (Windows 11 26200, RX 7900 XT,
+`gfx1100`):
+
+| шаг | факт |
+|---|---|
+| Python 3.12 | установлен только для этого (`Python312`), 3.14 не подходит |
+| колёса AMD | `rocm_sdk_*` 7.2.1 + `torch 2.9.1+rocm7.2.1` (только `cp312`) |
+| venv | `.venv-rocm` (изолирован от основного окружения) |
+| `torch.version.hip` | `7.2.53211-158bd99533` |
+| `torch.cuda.is_available()` | **True** |
+| устройство | `AMD Radeon RX 7900 XT`, 20.0 ГБ, 42 CU |
+| matmul 4096² | CPU 5969 мс → **GPU 7.7 мс (≈780×)** |
+
+Важные детали:
+
+* официальный индекс PyTorch (`download.pytorch.org/whl/rocm*`) Windows-колёс не
+  содержит — колёса AMD раздаёт со своего `repo.radeon.com`;
+* AMD требует **Python 3.12** и драйвер Adrenalin 26.2.2; колесо `cp314`
+  не существует (404), `cp312` — 783 МБ;
+* в официальной матрице «PyTorch on Windows» перечислена RX 7900 **XTX**, а
+  RX 7900 **XT** — нет; на практике заработало, но это неподтверждённая
+  конфигурация;
+* WSL не нужен: ROCDXG-путь в ROCm 7.2.1 заявлен для Ryzen APU, а не Radeon.
+
+Установка (для повторения):
+
+```powershell
+winget install -e --id Python.Python.3.12 --silent
+py -3.12 -m venv .venv-rocm
+.\.venv-rocm\Scripts\python.exe -m pip install --no-cache-dir `
+  https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm_sdk_core-7.2.1-py3-none-win_amd64.whl `
+  https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm_sdk_devel-7.2.1-py3-none-win_amd64.whl `
+  https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm_sdk_libraries_custom-7.2.1-py3-none-win_amd64.whl `
+  https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm-7.2.1.tar.gz `
+  https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/torch-2.9.1%2Brocm7.2.1-cp312-cp312-win_amd64.whl `
+  https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/torchaudio-2.9.1%2Brocm7.2.1-cp312-cp312-win_amd64.whl `
+  https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/torchvision-0.24.1%2Brocm7.2.1-cp312-cp312-win_amd64.whl
+.\.venv-rocm\Scripts\python.exe -m pip install ultralytics==8.4.201
+.\.venv-rocm\Scripts\python.exe tools\check_torch_backend.py
+```
 
 ## 9. Визуальная проверка и «итоговый» график
 
