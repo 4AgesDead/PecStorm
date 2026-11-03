@@ -136,7 +136,8 @@ def main(argv: list[str] | None = None) -> int:
             (lbl_dir / f"{stem}.txt").write_text(
                 f"0 {cx:.6f} {cy:.6f} {bw:.6f} {bh:.6f}\n", encoding="utf-8")
             n_lab += 1
-            (train_list if f <= args.train_end else val_list).append(stem)
+            (train_list if f <= args.train_end else val_list).append(
+                (img_dir / f"{stem}.jpg").resolve().as_posix())
 
             if cap is not None:
                 cap.set(cv2.CAP_PROP_POS_FRAMES, f)
