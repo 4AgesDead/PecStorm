@@ -1,0 +1,180 @@
+{
+  "dataset": "pelenga_truck",
+  "estimates_csv": "out/truck/est_c10_az.csv",
+  "frame_range": [
+    0,
+    1000
+  ],
+  "fps": 30.0,
+  "repairs_applied": false,
+  "measured": {
+    "n_points": 867,
+    "mean_mm": 2862.798,
+    "mae_mm": 2862.798,
+    "rmse_mm": 4161.367,
+    "median_mm": 1892.379,
+    "p95_mm": 10096.577,
+    "p99_mm": 13236.929,
+    "max_mm": 22277.601,
+    "per_axis_mae_mm": [
+      2292.306,
+      1155.04,
+      453.336
+    ],
+    "per_axis_rmse_mm": [
+      3578.355,
+      2005.699,
+      699.66
+    ]
+  },
+  "predicted": {
+    "n_points": 13,
+    "mean_mm": 6753.347,
+    "mae_mm": 6753.347,
+    "rmse_mm": 10899.662,
+    "median_mm": 2042.69,
+    "p95_mm": 22499.583,
+    "p99_mm": 22612.45,
+    "max_mm": 22640.667,
+    "per_axis_mae_mm": [
+      5694.968,
+      2961.269,
+      1134.208
+    ],
+    "per_axis_rmse_mm": [
+      9378.562,
+      5393.422,
+      1325.225
+    ]
+  },
+  "coverage": {
+    "frames_total": 1001.0,
+    "frames_with_gt": 999.0,
+    "measured": 0.868,
+    "progress_predicted_only": 0.013,
+    "unobservable": 0.119,
+    "monocular_only": 0.0
+  },
+  "coverage_counts": {
+    "frames_total": 1001,
+    "frames_with_gt": 999,
+    "frames_measured": 869,
+    "frames_predicted_only": 13,
+    "frames_unobservable": 119,
+    "frames_monocular_only": 0
+  },
+  "per_camera_subset": {
+    "cam1|cam2|cam5": {
+      "n_points": 151,
+      "mean_mm": 2671.733,
+      "mae_mm": 2671.733,
+      "rmse_mm": 3356.594,
+      "median_mm": 1872.482,
+      "p95_mm": 6283.577,
+      "p99_mm": 9620.508,
+      "max_mm": 11539.199,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam1|cam4|cam5": {
+      "n_points": 27,
+      "mean_mm": 432.18,
+      "mae_mm": 432.18,
+      "rmse_mm": 554.761,
+      "median_mm": 317.974,
+      "p95_mm": 1089.443,
+      "p99_mm": 1152.275,
+      "max_mm": 1169.687,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam1|cam5": {
+      "n_points": 18,
+      "mean_mm": 10935.758,
+      "mae_mm": 10935.758,
+      "rmse_mm": 10942.06,
+      "median_mm": 10892.421,
+      "p95_mm": 11540.159,
+      "p99_mm": 11543.221,
+      "max_mm": 11543.987,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam2|cam3|cam4|cam5": {
+      "n_points": 228,
+      "mean_mm": 3254.649,
+      "mae_mm": 3254.649,
+      "rmse_mm": 5308.005,
+      "median_mm": 1580.524,
+      "p95_mm": 12250.94,
+      "p99_mm": 20646.899,
+      "max_mm": 22277.601,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam2|cam3|cam5": {
+      "n_points": 74,
+      "mean_mm": 1505.636,
+      "mae_mm": 1505.636,
+      "rmse_mm": 1990.028,
+      "median_mm": 1136.907,
+      "p95_mm": 4283.516,
+      "p99_mm": 5308.314,
+      "max_mm": 5589.665,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam2|cam4|cam5": {
+      "n_points": 176,
+      "mean_mm": 3684.653,
+      "mae_mm": 3684.653,
+      "rmse_mm": 4407.944,
+      "median_mm": 3130.572,
+      "p95_mm": 8803.612,
+      "p99_mm": 10091.097,
+      "max_mm": 10500.643,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam2|cam5": {
+      "n_points": 14,
+      "mean_mm": 2780.535,
+      "mae_mm": 2780.535,
+      "rmse_mm": 2865.026,
+      "median_mm": 2696.399,
+      "p95_mm": 3814.355,
+      "p99_mm": 3952.382,
+      "max_mm": 3986.889,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam3|cam4|cam5": {
+      "n_points": 71,
+      "mean_mm": 1499.362,
+      "mae_mm": 1499.362,
+      "rmse_mm": 1848.79,
+      "median_mm": 1340.413,
+      "p95_mm": 3601.063,
+      "p99_mm": 3967.646,
+      "max_mm": 4093.617,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+      "n_points": 108,
+      "mean_mm": 2062.438,
+      "mae_mm": 2062.438,
+      "rmse_mm": 2462.512,
+      "median_mm": 1785.835,
+      "p95_mm": 3418.084,
+      "p99_mm": 6782.408,
+      "max_mm": 12344.858,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    }
+  },
+  "gt_invalid_frames": [
+    402,
+    691
+  ]
+}

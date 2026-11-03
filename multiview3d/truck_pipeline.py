@@ -223,9 +223,15 @@ def run_reconstruction(dataset: TruckDataset, detections: dict[int, dict[str, li
                        anchor_offset_m: Sequence[float] | None = None,
                        anchor_px_offset: dict[str, Sequence[float]] | None = None,
                        anchor_offset_views: dict[str, Sequence[float]] | None = None,
+                       anchor_azimuth: dict | str | None = None,
                        frames: Sequence[int] | None = None,
                        log_every: int = 0) -> ReconstructionResult:
-    """Покадровое слияние: обновляет позы камер, строит 3D-треки и статусы."""
+    """Покадровое слияние: обновляет позы камер, строит 3D-треки и статусы.
+
+    ``anchor_azimuth`` — коэффициенты поправки «от ракурса» (dict набор видов →
+    матрица 5×3) или путь к JSON. Применяется **после** трекинга: курс берётся
+    из соседних точек трека, азимут — из положения камеры первого вида.
+    """
     pipe = build_pipeline(dataset, fusion=fusion, anchor_offset_m=anchor_offset_m,
                           anchor_px_offset=anchor_px_offset,
                           anchor_offset_views=anchor_offset_views)
@@ -236,6 +242,26 @@ def run_reconstruction(dataset: TruckDataset, detections: dict[int, dict[str, li
         pipe.step(frame / dataset.fps, per_cam, frame=frame)
         if log_every and (i + 1) % log_every == 0:
             print(f"  реконструкция {i + 1}/{len(order)}")
+
+    if anchor_azimuth is not None:
+        from .anchor_azimuth import apply_to_track, load_coefficients
+        coefs = (load_coefficients(anchor_azimuth) if isinstance(anchor_azimuth, (str, Path))
+                 else {k: np.asarray(v, dtype=float).reshape(5, 3)
+                       for k, v in anchor_azimuth.items()})
+        cache: dict[int, dict] = {}
+
+        def camera_at(frame: int, name: str):
+            cams = cache.get(frame)
+            if cams is None:
+                cams = dataset.provider.calibrations_at(frame, nearest=True)
+                cache[frame] = cams
+            return cams.get(name)
+
+        corrected = 0
+        for track in pipe.all_tracks():
+            corrected += apply_to_track(track, coefs, camera_at)
+        print(f"  азимутальный якорь: поправлено точек {corrected}")
+
     dt = time.perf_counter() - t0
     return ReconstructionResult(pipeline=pipe, frames=order, seconds=dt,
                                 seconds_per_frame=dt / max(len(order), 1))

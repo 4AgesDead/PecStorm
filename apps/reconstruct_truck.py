@@ -59,9 +59,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--anchor-offset", default="datasets/truck/anchor_offset.json")
     ap.add_argument("--anchor-px-offset", default="datasets/truck/anchor_px_offset.json")
     ap.add_argument("--anchor-offset-views", default="datasets/truck/anchor_offset_views.json")
+    ap.add_argument("--anchor-azimuth", default="datasets/truck/anchor_azimuth.json")
     ap.add_argument("--no-anchor-offset", action="store_true")
     ap.add_argument("--no-anchor-px-offset", action="store_true")
     ap.add_argument("--no-anchor-offset-views", action="store_true")
+    ap.add_argument("--no-anchor-azimuth", action="store_true")
     ap.add_argument("--association-mode", default="single_target",
                     choices=["single_target", "epipolar"])
     ap.add_argument("--min-views", type=int, default=2)
@@ -72,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--gate", type=float, default=10.0,
                     help="гейт махаланобиса (sigma); 10 подобран по свипу: "
                          "фрагментация треков падает с 486 до ~45 без потери "
-                         "точности измерений (docs/RESULTS.md §8e)")
+                         "точности измерений (docs/RESULTS.md §8g)")
     ap.add_argument("--max-missing", type=int, default=3)
     ap.add_argument("--start", type=int, default=None)
     ap.add_argument("--end", type=int, default=None)
@@ -120,6 +122,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Сдвиг якоря по наборам видов (м): {pretty} "
                   f"(из {args.anchor_offset_views})")
 
+    azimuth = None
+    if not args.no_anchor_azimuth:
+        az_path = Path(args.anchor_azimuth)
+        if az_path.exists():
+            azimuth = str(az_path)
+            print(f"Азимутальный якорь: {az_path} (поправка после трекинга)")
+        else:
+            print(f"ВНИМАНИЕ: {az_path} не найден — азимутальная поправка не "
+                  f"применяется (см. tools/anchor_fit_azimuth.py)")
+
     fusion = FusionConfig(
         association_mode=args.association_mode,
         min_views=args.min_views,
@@ -130,6 +142,7 @@ def main(argv: list[str] | None = None) -> int:
     result = run_reconstruction(ds, detections, fusion=fusion, anchor_offset_m=offset,
                                 anchor_px_offset=px_offset,
                                 anchor_offset_views=views_offset,
+                                anchor_azimuth=azimuth,
                                 frames=frames, log_every=args.log_every)
     pts = estimate_points(result)
     n_csv = export_estimates(result, args.out_csv)
@@ -141,6 +154,7 @@ def main(argv: list[str] | None = None) -> int:
         "anchor_offset_m": offset,
         "anchor_px_offset": px_offset,
         "anchor_offset_views": views_offset,
+        "anchor_azimuth": azimuth,
         "fusion": {
             "association_mode": fusion.association_mode,
             "min_views": fusion.min_views,
