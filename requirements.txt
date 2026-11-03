@@ -1,0 +1,10 @@
+# multiview3d — проверенные версии (Windows, Python 3.14.10)
+numpy==2.5.4
+opencv-python-headless==5.0.0
+scipy==1.18.1
+matplotlib==3.11.2
+onnxruntime==1.31.1
+
+# Опционально (ML-детекторы; HANDOFF §P3 — по согласованию, крупные загрузки):
+# ultralytics        # для YoloDetector (потянет torch)
+# onnx               # только для генерации тестовых ONNX-моделей
