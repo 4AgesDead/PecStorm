@@ -61,6 +61,7 @@ def main(argv: list[str] | None = None) -> int:
     sign = float(align["axes"]["forward_sign"])
     cam_shift = {k: np.asarray(v, dtype=float)
                  for k, v in (align.get("camera_shift_px") or {}).items()}
+    beta = float(align.get("pivot_frac", 0.0))
     print(f"модель: масштаб {align['scale']:.3f} -> габариты "
           f"{np.round(size, 2)} м (в единицах сцены); "
           f"попиксельные сдвиги по камерам: {len(cam_shift)}")
@@ -97,7 +98,8 @@ def main(argv: list[str] | None = None) -> int:
             if calib is None:
                 continue
             center = np.asarray(gt[f], dtype=float) + offset
-            pts = corners_world(size, center, yaw_gt[f] + dyaw, up, fwd, sign)
+            pts = corners_world(size, center, yaw_gt[f] + dyaw, up, fwd, sign,
+                                pivot_frac=beta)
             uv = []
             ok = True
             for p in pts:

@@ -71,11 +71,17 @@ def heading_from_gt(gt: dict[int, np.ndarray]) -> dict[int, float]:
 
 
 def corners_world(size: np.ndarray, center: np.ndarray, yaw: float,
-                  up_axis: str, fwd_axis: str, fwd_sign: float) -> np.ndarray:
-    """8 углов 3D-бокса модели в мировых координатах (мир Unreal: Z вверх)."""
+                  up_axis: str, fwd_axis: str, fwd_sign: float,
+                  pivot_frac: float = 0.0) -> np.ndarray:
+    """8 углов 3D-бокса модели в мировых координатах (мир Unreal: Z вверх).
+
+    ``pivot_frac`` — где относительно бокса находится GT-pivot: 0 — центр
+    бокса, 0.5 — передний бампер (бокс целиком позади pivot). Именно этот
+    параметр, а не постоянный мировой сдвиг, объясняет смещение рамок на
+    камерах с разным направлением движения.
+    """
     sx, sy, sz = size
     half = {"X": sx / 2, "Y": sy / 2, "Z": sz / 2}
-    axes = {"X": "XYZ"[0], "Y": "XYZ"[1], "Z": "XYZ"[2]}
     # локальные оси: up (мировая Z), forward (горизонт по yaw), lateral
     up = half[up_axis] * 2
     fwd = half[fwd_axis] * 2 * fwd_sign
@@ -85,7 +91,7 @@ def corners_world(size: np.ndarray, center: np.ndarray, yaw: float,
     pts = []
     for du, df, dh in itertools.product((-0.5, 0.5), repeat=3):
         lateral = du * lat
-        forward = df * fwd
+        forward = (df - pivot_frac) * fwd
         height = dh * up
         wx = center[0] + lateral * (-sf) + forward * cf
         wy = center[1] + lateral * cf + forward * sf
@@ -164,13 +170,13 @@ def main(argv: list[str] | None = None) -> int:
     print(f"наблюдений для фита: {len(obs)}")
 
     def mean_iou(up_axis, fwd_axis, fwd_sign, params) -> float:
-        dx, dy, dz, dyaw, scale = params
+        dx, dy, dz, dyaw, scale, beta = params
         vals = []
         for o in obs:
             f = o["frame"]
             c = np.asarray(gt[f], dtype=float) + np.array([dx, dy, dz])
             pts = corners_world(size * scale, c, yaw_gt[f] + np.deg2rad(dyaw),
-                                up_axis, fwd_axis, fwd_sign)
+                                up_axis, fwd_axis, fwd_sign, pivot_frac=beta)
             box = project_box(o["cam"], pts)
             if box is None:
                 continue
@@ -187,7 +193,7 @@ def main(argv: list[str] | None = None) -> int:
     for up_axis, fwd_axis in ([] if best else itertools.permutations("XYZ", 2)):
         for fwd_sign in (1.0, -1.0):
             for dyaw in (0, 90, -90, 180):
-                score = mean_iou(up_axis, fwd_axis, fwd_sign, (0, 0, 0, dyaw, 1.0))
+                score = mean_iou(up_axis, fwd_axis, fwd_sign, (0, 0, 0, dyaw, 1.0, 0.4))
                 if best is None or score > best[0]:
                     best = (score, up_axis, fwd_axis, fwd_sign, dyaw)
     score, up_axis, fwd_axis, fwd_sign, dyaw0 = best
@@ -195,18 +201,18 @@ def main(argv: list[str] | None = None) -> int:
         print(f"лучший грубый вариант: up={up_axis}, forward={fwd_axis}"
               f"{'+' if fwd_sign > 0 else '-'}, dyaw={dyaw0}°, IoU={score:.3f}")
 
-    # 2) непрерывная подгонка с физическими границами (масштаб мира датасета
-    # может отличаться от «метров» модели: сцена Unreal самосогласована, но её
-    # масштаб произволен — поэтому scale ищем в широком диапазоне)
-    x0 = np.array([0.0, 0.0, 0.0, float(dyaw0), 2.0])
-    bounds = [(-8.0, 8.0), (-8.0, 8.0), (-4.0, 8.0), (-180.0, 180.0), (1.0, 6.0)]
+    # 2) непрерывная подгонка: сдвиг, доворот курса, масштаб и положение pivot
+    # вдоль корпуса (beta). Beta объясняет разъезд рамок между камерами.
+    x0 = np.array([0.0, 0.0, 0.0, float(dyaw0), 2.0, 0.4])
+    bounds = [(-8.0, 8.0), (-8.0, 8.0), (-4.0, 8.0), (-180.0, 180.0),
+              (1.0, 6.0), (0.0, 0.6)]
     res = minimize(lambda p: -mean_iou(up_axis, fwd_axis, fwd_sign, p),
                    x0=x0, method="Powell", bounds=bounds,
-                   options={"maxiter": 3000, "xtol": 1e-3, "ftol": 1e-5})
+                   options={"maxiter": 4000, "xtol": 1e-3, "ftol": 1e-5})
     p = res.x
     final = -float(res.fun)
     print(f"после фита: IoU={final:.3f}; сдвиг=({p[0]:+.2f}, {p[1]:+.2f}, {p[2]:+.2f}) м, "
-          f"dyaw={p[3]:+.1f}°, scale={p[4]:.3f}")
+          f"dyaw={p[3]:+.1f}°, scale={p[4]:.3f}, pivot_frac={p[5]:.3f}")
 
     per_cam = {}
     for cam in ds.names:
@@ -227,6 +233,7 @@ def main(argv: list[str] | None = None) -> int:
         "offset_m": [round(float(v), 4) for v in p[:3]],
         "dyaw_deg": round(float(p[3]), 3),
         "scale": round(float(p[4]), 5),
+        "pivot_frac": round(float(p[5]), 4),
         "iou_mean": round(final, 4),
         "iou_per_camera": per_cam,
         "observations": len(obs),

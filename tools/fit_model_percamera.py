@@ -40,6 +40,7 @@ def main(argv: list[str] | None = None) -> int:
     size = fbx_size(args.model) * float(align["scale"])
     offset = np.asarray(align["offset_m"], dtype=float)
     dyaw = np.deg2rad(float(align["dyaw_deg"]))
+    beta = float(align.get("pivot_frac", 0.0))
     up, fwd = align["axes"]["up"], align["axes"]["forward"]
     sign = float(align["axes"]["forward_sign"])
 
@@ -72,7 +73,7 @@ def main(argv: list[str] | None = None) -> int:
         boxes = []
         for f, cam, box in obs:
             pts = corners_world(size, np.asarray(gt[f], dtype=float) + offset,
-                                yaw_gt[f] + dyaw, up, fwd, sign)
+                                yaw_gt[f] + dyaw, up, fwd, sign, pivot_frac=beta)
             pb = project_box(cam, pts)
             if pb is not None:
                 boxes.append((pb, box))
@@ -81,10 +82,9 @@ def main(argv: list[str] | None = None) -> int:
             continue
 
         def score(dx, dy):
-            return float(np.mean([iou((b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy), b[1 + 0])
-                                  for b, _ in []]) if False else
-                         np.mean([iou((pb[0] + dx, pb[1] + dy, pb[2] + dx, pb[3] + dy), box)
-                                  for pb, box in boxes]))
+            return float(np.mean(
+                [iou((pb[0] + dx, pb[1] + dy, pb[2] + dx, pb[3] + dy), box)
+                 for pb, box in boxes]))
 
         best = (score(0.0, 0.0), 0.0, 0.0)
         for dx in range(-150, 151, 15):
