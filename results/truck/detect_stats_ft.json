@@ -1,0 +1,49 @@
+{
+  "dataset": "pelenga_truck",
+  "detector": {
+    "kind": "yolo",
+    "model": "runs\\detect\\out\\train\\scene_v1\\weights\\best.pt",
+    "conf": 0.25,
+    "imgsz": 960,
+    "device": "0",
+    "class_names": [
+      "truck"
+    ]
+  },
+  "frames_requested": 1001,
+  "frame_range": [
+    0,
+    1000
+  ],
+  "step": 1,
+  "frames_processed": 1001,
+  "frames_with_detection": 1001,
+  "frame_detection_rate": 1.0,
+  "detections_total": 2231,
+  "detections_per_frame": 2.2287712287712287,
+  "per_camera_detections": {
+    "cam1": 193,
+    "cam2": 500,
+    "cam3": 391,
+    "cam4": 481,
+    "cam5": 666
+  },
+  "per_camera_frames_with_detection": {
+    "cam1": 192,
+    "cam2": 488,
+    "cam3": 391,
+    "cam4": 467,
+    "cam5": 652
+  },
+  "per_camera_frame_rate": {
+    "cam1": 0.1918081918081918,
+    "cam2": 0.4875124875124875,
+    "cam3": 0.3906093906093906,
+    "cam4": 0.46653346653346656,
+    "cam5": 0.6513486513486514
+  },
+  "seconds": 60.48,
+  "ms_per_frame": 60.4,
+  "fps_processing": 16.551,
+  "detections_csv": "out/truck/detections_ft.csv"
+}

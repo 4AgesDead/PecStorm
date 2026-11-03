@@ -12,6 +12,10 @@
 | `detections.csv` | 2D-детекции YOLO (`yolov8x.pt`, `imgsz=960`, `conf=0.25`): 1660 строк, 938 кадров |
 | `detect_stats.json` | статистика детекции: время, доля кадров по камерам, итоги |
 | `detections_dml.csv` / `detect_stats_dml.json` | полный прогон детекции на GPU (ONNX + DirectML): 1001 кадр за 208.8 с, 1609 детекций |
+| `detections_ft.csv` / `detect_stats_ft.json` | детекция **дообученной** модели (yolov8s, ROCm): 2231 детекция за 60.5 с |
+| `eval_ft.json`, `eval_ft_holdout.json` | точность/покрытие дообученной модели: MAE 1.86 м (все кадры), 2.11 м (holdout 700..1000) |
+| `anchor_offset_views_ft.json` | калибровка якоря под дообученную модель |
+| `train_results_scene_v1.csv` | журнал обучения (24 эпохи, лучшая 16) |
 | `estimates.csv` / `.json` | 3D-оценки (DTO §11): `frame`, `x,y,z`, `vx,vy,vz`, `status`, `method`, `views`, `confidence` |
 | `eval_dml.json`, `evalpf_dml.csv` | точность/покрытие варианта DirectML (MAE 4.11 м, покрытие 60.2 %) |
 | `parity_dml_vs_cpu.json` | сверка боксов DirectML против CPU (медиана IoU 0.997) |
