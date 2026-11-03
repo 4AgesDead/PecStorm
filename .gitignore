@@ -19,3 +19,6 @@ yolo*.onnx
 
 # Логи обучения ultralytics
 runs/
+
+# Видео с наложением (большие MP4)
+out/truck/videos

@@ -109,7 +109,6 @@ py tools/plot_components.py --estimates out/truck/estimates.csv
   Поэтому «идеально ровной» линии на графике не будет без 3D-модели объекта.
 
 ## 4a. Дообучение детектора на этой сцене (GPU, ROCm)
-
 Псевдо-разметка из GT + 3D-модели (учитель), затем обучение в `.venv-rocm`:
 
 ```powershell
@@ -131,6 +130,20 @@ py tools/make_hard_negatives.py --detections out/truck/detections_ft.csv
 
 Данные для обучения пишутся в `datasets/truck/pseudo/` (в git не входят, это
 тысячи JPEG). Метрики последнего прогона — `docs/RESULTS.md` §8d.
+
+## 4b. Видео с наложением трекинга
+
+```powershell
+py tools/render_tracking_video.py `
+    --detections out/truck/detections_ens.csv `
+    --estimates out/truck/est_ens.csv `
+    --out out/truck/videos            # по одному MP4 на камеру
+    # --step 2 --fps 15 --cameras cam3,cam5 --scale 0.5  — короче/легче
+```
+
+На кадр накладываются: голубые боксы детекций (со score), зелёный
+квадрат+крест с подписью `3D <status> (<views>)` — проекция 3D-оценки,
+жёлтый крест — GT-пивот, HUD с номером кадра и временем.
 
 ## 5. Если данных станет больше / другая сцена
 
