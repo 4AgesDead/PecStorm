@@ -69,7 +69,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="порог средней невязки триангуляции; для bbox-якорей "
                          "десятки px — норма (разные точки объекта в видах); "
                          "50 px выбран по experiments/geometry_sweep.py")
-    ap.add_argument("--gate", type=float, default=3.0, help="гейт махаланобиса (sigma)")
+    ap.add_argument("--gate", type=float, default=10.0,
+                    help="гейт махаланобиса (sigma); 10 подобран по свипу: "
+                         "фрагментация треков падает с 486 до ~45 без потери "
+                         "точности измерений (docs/RESULTS.md §8e)")
     ap.add_argument("--max-missing", type=int, default=3)
     ap.add_argument("--start", type=int, default=None)
     ap.add_argument("--end", type=int, default=None)

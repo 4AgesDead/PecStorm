@@ -20,7 +20,7 @@
     "epipolar_threshold_px": 40.0,
     "max_reprojection_px": 50.0,
     "min_views": 2,
-    "gate_mahalanobis": 3.0,
+    "gate_mahalanobis": 10.0,
     "max_missing": 3,
     "position_noise": 0.05,
     "velocity_noise": 1.2,
