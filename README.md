@@ -33,10 +33,7 @@
 
 ## Установка
 
-Проверено на Windows, Python **3.14.10**, интерпретатор:
-`C:\Users\BeGraphics\AppData\Local\Programs\Python\Python314\python.exe`
-(алиас из Microsoft Store не использовать — он падает с «Python was not found»).
-
+Проверено на Windows, Python **3.14.10**, интерпретатор
 Фактически установленные и проверенные версии:
 
 | Пакет | Версия |
@@ -57,7 +54,7 @@ ML-бэкенды: `YoloDetector` требует `ultralytics` (+ `torch`) — *
 Проверка ядра одной командой:
 
 ```powershell
-& "C:\Users\BeGraphics\AppData\Local\Programs\Python\Python314\python.exe" tools\smoke_check.py
+& path python tools\smoke_check.py
 ```
 
 Скрипт печатает статус импорта всех модулей, проверяет рендер синтетики,
