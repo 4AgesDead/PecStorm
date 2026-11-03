@@ -15,3 +15,6 @@ yolo*.onnx
 
 # Временные lock-файлы Office (~$...)
 ~$*
+
+# Логи обучения ultralytics
+runs/
