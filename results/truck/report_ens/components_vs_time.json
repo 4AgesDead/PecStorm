@@ -1,0 +1,30 @@
+{
+  "estimates_csv": "out/truck/est_ens.csv",
+  "frames": [
+    0,
+    1001
+  ],
+  "fps": 30.0,
+  "measured_rows": 781,
+  "predicted_rows": 11,
+  "gt_rows": 1000,
+  "stats": {
+    "n": 780,
+    "fps": 30.0,
+    "mae_m": {
+      "X": 1.583,
+      "Y": 0.9,
+      "Z": 0.289
+    },
+    "max_abs_m": {
+      "X": 13.733,
+      "Y": 4.502,
+      "Z": 2.288
+    },
+    "mae_total_m": 2.021
+  },
+  "note": "Значения — в метрах; ось времени в секундах (кадр = t · fps). Разрывы штриховых линий — кадры без оценки. Расхождения считаны только там, где есть и эталон, и измерение.",
+  "png": "out/truck/report_ens/components_with_path.png",
+  "png_error": "out/truck/report_ens/components_error_vs_time.png",
+  "png_with_path": "out/truck/report/components_with_path.png"
+}
