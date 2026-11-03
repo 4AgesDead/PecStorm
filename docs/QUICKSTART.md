@@ -108,6 +108,30 @@ py tools/plot_components.py --estimates out/truck/estimates.csv
 * GT — pivot актора, детектор — центр bbox: расхождение 57–229 px по камерам.
   Поэтому «идеально ровной» линии на графике не будет без 3D-модели объекта.
 
+## 4a. Дообучение детектора на этой сцене (GPU, ROCm)
+
+Псевдо-разметка из GT + 3D-модели (учитель), затем обучение в `.venv-rocm`:
+
+```powershell
+# 1. разметка (боксы из модели + GT), картинки выгружаются один раз
+py tools/make_pseudo_labels.py --out datasets/truck/pseudo --extract-images
+
+# 2. (опционально) hard-negative кадры: ложные срабатывания там, где цели нет
+py tools/make_hard_negatives.py --detections out/truck/detections_ft.csv
+
+# 3. обучение (GPU; для CPU уберите --device 0)
+.\.venv-rocm\Scripts\python.exe tools\train_truck_detector.py `
+    --model yolov8s.pt --epochs 30 --imgsz 960 --batch 8 --device 0 `
+    --patience 8 --name scene_v1
+
+# 4. полный цикл оценки: детекция -> якоря -> 3D -> MAE/покрытие/recall-прокси
+.\.venv-rocm\Scripts\python.exe tools/run_finetuned_eval.py `
+    --model runs/detect/out/train/scene_v1/weights/best.pt --tag v1 --device 0
+```
+
+Данные для обучения пишутся в `datasets/truck/pseudo/` (в git не входят, это
+тысячи JPEG). Метрики последнего прогона — `docs/RESULTS.md` §8d.
+
 ## 5. Если данных станет больше / другая сцена
 
 1. Положить новые MP4 и camera CSV в те же подпапки `huniashahatona/zadania/`.
