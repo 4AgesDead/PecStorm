@@ -33,6 +33,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--device", default="cpu", help="cpu | 0 (CUDA/HIP)")
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--patience", type=int, default=5)
+    ap.add_argument("--lr0", type=float, default=0.01,
+                    help="стартовый learning rate (для дообучения с best.pt — 0.001..0.003)")
     ap.add_argument("--name", default="truck_scene")
     ap.add_argument("--project", default="out/train")
     ap.add_argument("--time-limit", type=float, default=None,
@@ -52,7 +54,7 @@ def main(argv: list[str] | None = None) -> int:
         data=args.data, epochs=args.epochs, imgsz=args.imgsz,
         batch=args.batch, device=args.device, workers=args.workers,
         patience=args.patience, project=args.project, name=args.name,
-        exist_ok=True, verbose=True,
+        lr0=args.lr0, exist_ok=True, verbose=True,
         time=(args.time_limit / 3600.0) if args.time_limit else None,
         amp=args.device != "cpu",
         plots=False,
