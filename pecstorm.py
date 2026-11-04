@@ -40,6 +40,7 @@ COMMANDS: dict[str, tuple[str, str]] = {
     "video": ("tools/render_tracking_video.py", "MP4 в стиле пульта: путь, прогноз, план X–Y"),
     "dashboard-video": ("tools/render_dashboard_video.py", "запись 5 камер + план X–Y + таблица"),
     "dashboard-report": ("tools/dashboard_report.py", "таблица прогона веб-пульта"),
+    "coords-table": ("tools/make_coords_table.py", "CSV координат оценки vs эталона по пробегу"),
     "plot-gt": ("tools/plot_vs_gt.py", "график «оценка vs эталон» (GT)"),
     "report": ("tools/make_report.py", "сводка и графики по прогону"),
     "charts": ("tools/make_comparison_charts.py", "сравнительные графики конфигураций"),

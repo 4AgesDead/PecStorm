@@ -9,7 +9,8 @@ class TestPecstormCLI(unittest.TestCase):
     def test_commands_declared(self):
         for name in ("detect", "reconstruct", "evaluate", "train", "charts",
                      "merge", "labels", "video", "dashboard-video",
-                     "dashboard-report", "plot-gt", "report", "status"):
+                     "dashboard-report", "coords-table", "plot-gt", "report",
+                     "status"):
             self.assertIn(name, pecstorm.COMMANDS)
             script = pecstorm.COMMANDS[name][0]
             if script:
