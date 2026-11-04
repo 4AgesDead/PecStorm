@@ -19,7 +19,7 @@
 Проверка, что ядро живо (≈3 с):
 
 ```powershell
-py -m unittest discover -s tests     # сейчас 74 теста, OK
+py -m unittest discover -s tests     # сейчас 89 тестов, OK
 ```
 
 ## 1. Данные
@@ -48,7 +48,7 @@ pecstorm detect --start 0 --end 100 --step 20
 pecstorm reconstruct --detections out/truck/detections.csv
 pecstorm evaluate --estimates out/truck/estimates.csv
 pecstorm visualize --estimates out/truck/estimates.csv --frames 400,600
-pecstorm video --detections out/truck/detections_ens.csv `
+pecstorm video --detections out/truck/det_ens_v4b_v2v1.csv `
     --estimates out/truck/est_ens_v4b_v2v1.csv
 pecstorm report                 # сводка + графики
 pecstorm charts                 # сравнительные графики конфигураций
@@ -169,18 +169,22 @@ py tools/make_hard_negatives.py --detections out/truck/detections_ft.csv
 Данные для обучения пишутся в `datasets/truck/pseudo/` (в git не входят, это
 тысячи JPEG). Метрики последнего прогона — `docs/RESULTS.md` §8d.
 
-## 4b. Видео с наложением трекинга
+## 4b. Видео с наложением трекинга — как на пульте
 ```powershell
 py tools/render_tracking_video.py `
-    --detections out/truck/detections_ens.csv `
-    --estimates out/truck/est_ens.csv `
-    --out out/truck/videos            # по одному MP4 на камеру
+    --detections out/truck/det_ens_v4b_v2v1.csv `
+    --estimates out/truck/est_ens_v4b_v2v1.csv `
+    --out out/truck/videos
     # --step 2 --fps 15 --cameras cam3,cam5 --scale 0.5  — короче/легче
+    # --gt — добавить жёлтый GT-пивот; --no-map — без map_plan.mp4
 ```
 
-На кадр накладываются: голубые боксы детекций (со score), зелёный
-квадрат+крест с подписью `3D <status> (<views>)` — проекция 3D-оценки,
-жёлтый крест — GT-пивот, HUD с номером кадра и временем.
+Пишется по MP4 на камеру **плюс** `map_plan.mp4` — панель «план X–Y (мир)».
+Оформление повторяет веб-пульт: голубые боксы детекций, толстый сглаженный путь
+(зелёный — измерения, оранжевый — прогноз/достройка), белый пунктир — прогноз
+вперёд, серый пунктир — пропадание данных, 3D-маркер со статусом, HUD и легенда.
+Стиль задаётся флагами `--trail 160 --smooth 5 --forecast-s 3 --bridge-s 3`
+(значения по умолчанию совпадают с пультом).
 
 ## 4c. Веб-пульт и трекинг в реальном времени
 

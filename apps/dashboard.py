@@ -40,6 +40,11 @@ from multiview3d.camera import project_points
 from multiview3d.detect import YoloDetector
 from multiview3d.fusion import FusionConfig
 from multiview3d.pipeline import MultiViewPipeline, PipelineConfig
+from multiview3d.trail_render import (JUMP as _JUMP, STYLES_VIDEO, build_trail,
+                                      dashed_line, draw_legend, draw_path,
+                                      extrapolate, forecast as build_forecast,
+                                      gap_pairs, path_runs, render_map_panel,
+                                      smooth_run as _smooth_run)
 from multiview3d.truck_dataset import DEFAULT_REPAIRS, DEFAULT_ROOT, TruckDataset
 from multiview3d.truck_pipeline import load_anchor_offset_views
 
@@ -90,46 +95,6 @@ setInterval(tick, 700); tick();
 </script></body></html>"""
 
 
-_SG_CACHE: dict[int, np.ndarray] = {}
-_JUMP = object()        # разрыв пути из-за скачка трека (не соединять)
-
-
-def _sg_kernel(k: int, order: int = 2) -> np.ndarray:
-    """Коэффициенты Савицкого–Голея: сглаживание без сдвига фазы."""
-    k = max(int(k), 1)
-    if k not in _SG_CACHE:
-        x = np.arange(-k, k + 1, dtype=float)
-        a = np.vander(x, min(order, 2 * k) + 1, increasing=True)
-        _SG_CACHE[k] = np.linalg.pinv(a)[0]
-    return _SG_CACHE[k]
-
-
-def _smooth_run(arr: np.ndarray, k: int) -> np.ndarray:
-    """Сгладить участок пути локальным полиномом 2-й степени по окну ±k.
-
-    Отражение на краях не сдвигает линию: при равномерном движении
-    сглаженная точка совпадает с исходной, поэтому «хвост» не отстаёт.
-    """
-    k = int(k)
-    if k <= 0 or len(arr) < 5:
-        return arr
-    k = min(k, (len(arr) - 1) // 2)
-    if k <= 0:
-        return arr
-    # линейное продолжение за края: прямая линия сглаживается без сдвига
-    n = len(arr)
-    pad = np.empty((n + 2 * k, arr.shape[1]), dtype=float)
-    pad[k:k + n] = arr
-    for i in range(k):
-        pad[k - 1 - i] = 2.0 * arr[0] - arr[i + 1]
-        pad[k + n + i] = 2.0 * arr[-1] - arr[-2 - i]
-    kern = _sg_kernel(k)
-    out = np.empty_like(arr)
-    for d in range(arr.shape[1]):
-        out[:, d] = np.convolve(pad[:, d], kern, mode="valid")
-    return out
-
-
 class Tracker:
     """Фоновый поток: чтение кадров, детекция, слияние, отрисовка."""
 
@@ -165,7 +130,7 @@ class Tracker:
         self.stop = False
         self.finished = False
         self.history: list = []
-        self._map_span = None
+        self._map_view = None
         self.conf = float(args.conf)
         self.fps_now = 0.0
         self.conf_history = []
@@ -197,199 +162,15 @@ class Tracker:
                 best, key_best = track, key
         return best
 
-    @staticmethod
-    def _path_runs(trail):
-        """Непрерывные участки пути: список (статус, [точки]) без разрывов."""
-        runs: list = []
-        cur: list = []
-        st_cur = None
-        for item in trail:
-            if item is None or item is _JUMP:
-                if cur:
-                    runs.append((st_cur, cur))
-                cur, st_cur = [], None
-                continue
-            p, st = item
-            if cur and st != st_cur:            # смена статуса — новый отрезок
-                runs.append((st_cur, cur))
-                cur = [cur[-1]]                 # сшить без визуального разрыва
-            cur.append(np.asarray(p, dtype=float))
-            st_cur = st
-        if cur:
-            runs.append((st_cur, cur))
-        return runs
-
-    @staticmethod
-    def _dashed_line(canvas, a, b, color, thick=2, dash=9, step=15):
-        """Пунктир между двумя пиксельными точками."""
-        a = np.asarray(a, dtype=float)
-        b = np.asarray(b, dtype=float)
-        dist = float(np.linalg.norm(b - a))
-        if dist < 1.0:
-            return
-        u = (b - a) / dist
-        s = 0.0
-        while s < dist:
-            e = min(s + dash, dist)
-            p0 = tuple(np.round(a + u * s).astype(int))
-            p1 = tuple(np.round(a + u * e).astype(int))
-            cv2.line(canvas, p0, p1, color, thick, cv2.LINE_AA)
-            s += step
-
-    @staticmethod
-    def _gap_pairs(trail):
-        """Пары точек до/после пропадания (None), но не после скачка трека."""
-        prev, pending = None, False
-        for item in trail:
-            if item is None:
-                pending = True
-                continue
-            if item is _JUMP:
-                pending, prev = False, None
-                continue
-            p = np.asarray(item[0], dtype=float)
-            if pending and prev is not None:
-                yield prev, p
-            pending, prev = False, p
-
-    @staticmethod
-    def _draw_path(canvas, trail, to_pixels, styles, max_gap_m=120.0):
-        """Нарисовать путь полилиниями (ореол + ядро) вместо тысяч cv2.line."""
-        for st, pts in Tracker._path_runs(trail):
-            if len(pts) < 2:
-                continue
-            uv = np.asarray(to_pixels(np.stack(pts)), dtype=float)
-            halo, hth, core, cth = styles["measured" if st == "MEASURED"
-                                           else "predicted"]
-            ok = np.isfinite(uv).all(axis=1)
-            i = 0
-            while i < len(uv):
-                if not ok[i]:
-                    i += 1
-                    continue
-                j = i
-                while j < len(uv) and ok[j]:
-                    j += 1
-                if j - i >= 2:
-                    poly = np.round(uv[i:j]).astype(np.int32).reshape(-1, 1, 2)
-                    cv2.polylines(canvas, [poly], False, halo, hth, cv2.LINE_AA)
-                    cv2.polylines(canvas, [poly], False, core, cth, cv2.LINE_AA)
-                i = j
-        # пропадание измерения: серый пунктир «здесь данных нет», путь не рвётся
-        for a_world, b_world in Tracker._gap_pairs(trail):
-            if float(np.linalg.norm(b_world - a_world)) > max_gap_m:
-                continue
-            uv = np.asarray(to_pixels(np.stack([a_world, b_world])), dtype=float)
-            if not np.isfinite(uv).all():
-                continue
-            Tracker._dashed_line(canvas, uv[0], uv[1], (145, 145, 145), 2)
+    # оставлены как методы: на них опираются тесты
+    _path_runs = staticmethod(path_runs)
+    _gap_pairs = staticmethod(gap_pairs)
 
     def _render_map(self, trail, forecast, position, status, t):
         """Отдельная панель: путь объекта в мировых координатах X–Y (план)."""
-        W, H = 900, 640
-        canvas = np.full((H, W, 3), (18, 20, 24), np.uint8)
-
-        pts = []
-        if trail:
-            pts += [np.asarray(item[0][:2], dtype=float) for item in trail
-                    if isinstance(item, tuple)]
-        if position is not None:
-            pts.append(np.asarray(position[:2], dtype=float))
-
-        if len(pts) >= 5:
-            P = np.vstack(pts)
-            # 2–98 %: случайный выброс триангуляции не должен «раздувать» карту
-            lo = np.percentile(P, 2, axis=0)
-            hi = np.percentile(P, 98, axis=0)
-            cx, cy = (lo + hi) / 2
-            span = max(float(hi[0] - lo[0]), float(hi[1] - lo[1]), 60.0) * 1.3
-        elif pts:
-            P = np.vstack(pts)
-            cx, cy = P.mean(axis=0)
-            span = max(float(np.ptp(P[:, 0])), float(np.ptp(P[:, 1])), 60.0) * 1.3
-        else:
-            cx, cy = 0.0, 0.0
-            span = 120.0
-
-        # окно расширяется сразу, а сжимается плавно — карта не «дёргается»
-        if getattr(self, "_map_span", None) is None:
-            self._map_span = span
-            self._map_cx, self._map_cy = float(cx), float(cy)
-        else:
-            self._map_span = max(0.85 * self._map_span + 0.15 * span, span)
-            self._map_cx = 0.8 * self._map_cx + 0.2 * float(cx)
-            self._map_cy = 0.8 * self._map_cy + 0.2 * float(cy)
-
-        scale = min((W - 80) / self._map_span, (H - 80) / self._map_span)
-
-        def to_px(p):
-            x = (float(p[0]) - self._map_cx) * scale + W / 2
-            y = H / 2 - (float(p[1]) - self._map_cy) * scale
-            return int(round(x)), int(round(y))
-
-        def to_px_batch(P):
-            P = np.asarray(P, dtype=float)
-            x = (P[:, 0] - self._map_cx) * scale + W / 2
-            y = H / 2 - (P[:, 1] - self._map_cy) * scale
-            return np.stack((x, y), axis=1)
-
-        # сетка с шагом, зависящим от масштаба
-        step = 50.0 if self._map_span > 300 else (25.0 if self._map_span > 120 else 10.0)
-        x0 = np.floor((self._map_cx - self._map_span / 2) / step) * step
-        x1 = self._map_cx + self._map_span / 2
-        while x0 <= x1:
-            p0, p1 = to_px((x0, self._map_cy - self._map_span)), \
-                to_px((x0, self._map_cy + self._map_span))
-            cv2.line(canvas, p0, p1, (40, 44, 50), 1)
-            cv2.putText(canvas, f"{x0:.0f}", (p0[0] + 2, H - 8),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (120, 130, 140), 1, cv2.LINE_AA)
-            x0 += step
-        y0 = np.floor((self._map_cy - self._map_span / 2) / step) * step
-        y1 = self._map_cy + self._map_span / 2
-        while y0 <= y1:
-            p0, p1 = to_px((self._map_cx - self._map_span, y0)), \
-                to_px((self._map_cx + self._map_span, y0))
-            cv2.line(canvas, p0, p1, (40, 44, 50), 1)
-            cv2.putText(canvas, f"{y0:.0f}", (6, p0[1] - 2),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (120, 130, 140), 1, cv2.LINE_AA)
-            y0 += step
-        cv2.line(canvas, (W // 2, 0), (W // 2, H), (60, 66, 74), 1)
-        cv2.line(canvas, (0, H // 2), (W, H // 2), (60, 66, 74), 1)
-        cv2.putText(canvas, "X, м", (W - 60, H // 2 - 8),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (150, 160, 170), 1, cv2.LINE_AA)
-        cv2.putText(canvas, "Y, м", (W // 2 + 8, 18),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (150, 160, 170), 1, cv2.LINE_AA)
-
-        # путь
-        if trail:
-            styles = {"measured": ((20, 90, 20), 8, (80, 255, 80), 4),
-                      "predicted": ((0, 80, 140), 6, (0, 175, 255), 3)}
-            self._draw_path(canvas, trail, to_px_batch, styles)
-            first = next((np.asarray(it[0]) for it in trail
-                          if isinstance(it, tuple)), None)
-            if first is not None:
-                fp = to_px(first)
-                cv2.circle(canvas, fp, 5, (200, 200, 200), -1)
-                cv2.putText(canvas, "старт", (fp[0] + 8, fp[1] + 4),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.42, (200, 200, 200), 1,
-                            cv2.LINE_AA)
-        if forecast:
-            a = to_px(forecast[0])
-            b = to_px(forecast[-1])
-            self._dashed_line(canvas, a, b, (245, 245, 245), 2, dash=7, step=14)
-        if position is not None:
-            p = to_px(position)
-            col = (80, 255, 80) if status == "MEASURED" else (0, 175, 255)
-            cv2.drawMarker(canvas, p, col, cv2.MARKER_SQUARE, 16, 2)
-            cv2.putText(canvas, f"({position[0]:.0f}, {position[1]:.0f})  {status}",
-                        (p[0] + 12, p[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                        col, 1, cv2.LINE_AA)
-
-        cv2.rectangle(canvas, (0, 0), (W, 30), (0, 0, 0), -1)
-        cv2.putText(canvas, f"план X–Y (мир)   f={self.frame_idx}  t={t:6.2f} s",
-                    (8, 21), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (235, 235, 235), 1, cv2.LINE_AA)
-        cv2.putText(canvas, "серый пунктир — разрыв данных", (560, 21),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (170, 170, 170), 1, cv2.LINE_AA)
+        canvas, self._map_view = render_map_panel(
+            trail, forecast, position, status, t, self.frame_idx,
+            getattr(self, "_map_view", None))
         return canvas
 
     def _render(self, name, img, dets, position, status, views, t,
@@ -404,16 +185,14 @@ class Tracker:
         cam = self.ds.provider.calibrations_at(self.frame_idx, nearest=True).get(name)
         if cam is not None and trail:
             # Траектория: толстая зелёная — измерения, оранжевая — прогноз
-            styles = {"measured": ((20, 90, 20), 8, (80, 255, 80), 4),
-                      "predicted": ((0, 80, 140), 6, (0, 175, 255), 3)}
-            self._draw_path(img, trail, lambda P: project_points(cam, P), styles)            # Прогноз вперёд «призраком»: белая пунктирная линия
+            draw_path(img, trail, lambda P: project_points(cam, P), STYLES_VIDEO)
+            # Прогноз вперёд «призраком»: белая пунктирная линия
             if forecast:
                 try:
                     u0, v0 = project(cam, forecast[0])
                     u1, v1 = project(cam, forecast[-1])
-                    self._dashed_line(img, (int(u0), int(v0)),
-                                      (int(u1), int(v1)), (245, 245, 245), 2,
-                                      dash=8, step=16)
+                    dashed_line(img, (int(u0), int(v0)), (int(u1), int(v1)),
+                                (245, 245, 245), 2, dash=8, step=16)
                 except Exception:
                     pass
         if position is not None and cam is not None:
@@ -429,21 +208,7 @@ class Tracker:
         cv2.rectangle(img, (0, 0), (620, 52), (0, 0, 0), -1)
         cv2.putText(img, f"{name}  f={self.frame_idx}  t={t:6.2f} s  det={len(dets)}",
                     (8, 21), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (240, 240, 240), 1, cv2.LINE_AA)
-        # легенда: что означают линии
-        cv2.line(img, (10, 42), (38, 42), (60, 200, 60), 2)
-        cv2.putText(img, "измерено", (44, 46), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
-                    (200, 200, 200), 1, cv2.LINE_AA)
-        cv2.line(img, (120, 42), (148, 42), (0, 160, 255), 2)
-        cv2.putText(img, "прогноз", (154, 46), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
-                    (200, 200, 200), 1, cv2.LINE_AA)
-        cv2.line(img, (225, 42), (253, 42), (230, 230, 230), 1)
-        cv2.putText(img, "вперёд", (259, 46), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
-                    (200, 200, 200), 1, cv2.LINE_AA)
-        for x0 in range(330, 360, 8):
-            cv2.line(img, (x0, 42), (min(x0 + 4, 360), 42), (145, 145, 145), 1,
-                     cv2.LINE_AA)
-        cv2.putText(img, "разрыв", (366, 46), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
-                    (200, 200, 200), 1, cv2.LINE_AA)
+        draw_legend(img)
         return img
 
     def _apply_azimuth(self, last_points):
@@ -475,48 +240,10 @@ class Tracker:
             p.position = P - (basis(wrap_angle(bearing - heading)) @ coef)
             p.azimuth_applied = True
 
-    def _measured_run(self):
-        """Последний непрерывный отрезок ИЗМЕРЕНИЙ (прогнозы и достройки — мимо)."""
-        measured = [h for h in self.history if h[2] == "MEASURED"]
-        if len(measured) < 5:
-            return None
-        run = [measured[-1]]
-        for prev in reversed(measured[:-1]):
-            if run[-1][0] - prev[0] > 0.2:      # разрыв > ~3 кадров при 15 fps
-                break
-            run.append(prev)
-        run.reverse()
-        if len(run) < 5:
-            return None
-        t0, p0, _ = run[0]
-        t1, p1, _ = run[-1]
-        if t1 - t0 <= 0.05:
-            return None
-        return t0, np.asarray(p0, dtype=float), t1, np.asarray(p1, dtype=float)
-
-    def _mean_velocity(self):
-        """Средняя скорость по последнему непрерывному участку измерений."""
-        run = self._measured_run()
-        if run is None:
-            return None
-        t0, p0, t1, p1 = run
-        v = (p1 - p0) / (t1 - t0)
-        if float(np.hypot(v[0], v[1])) < 0.3:
-            return None
-        return v, t1, p1
-
     def _forecast(self) -> list | None:
         """«Призрак» будущего: продолжение по средней скорости измерений."""
-        horizon = float(self.args.forecast_s)
-        mv = self._mean_velocity()
-        if horizon <= 0 or mv is None or not self.history:
-            return None
-        v, t_last, _ = mv
-        if self.history[-1][0] - t_last > float(self.args.bridge_s):
-            return None
-        start = np.asarray(self.history[-1][1], dtype=float)
-        steps = 16
-        return [start + v * (horizon * i / steps) for i in range(1, steps + 1)]
+        return build_forecast(self.history, float(self.args.forecast_s),
+                              float(self.args.bridge_s))
 
     def _push_history(self, t: float, position, status: str) -> None:
         self.history.append((float(t), np.asarray(position, dtype=float), str(status)))
@@ -525,52 +252,13 @@ class Tracker:
             del self.history[: len(self.history) - limit]
 
     def _extrapolate(self, t: float):
-        """Достроить путь после пропадания: строго от последнего измерения.
-
-        Точка отсчёта — последняя ИЗМЕРЕННАЯ позиция, а не предыдущая
-        достройка, иначе линия уезжала бы бесконечно. Не дальше ``bridge_s``.
-        """
-        mv = self._mean_velocity()
-        if mv is None:
-            return None
-        v, t_last, p_last = mv
-        dt = float(t) - t_last
-        if dt <= 0 or dt > float(self.args.bridge_s):
-            return None
-        return np.asarray(p_last, dtype=float) + v * dt
+        """Достроить путь после пропадания: строго от последнего измерения."""
+        return extrapolate(self.history, t, float(self.args.bridge_s))
 
     def _build_trail(self, n: int):
         """История → линия: разрывы при пропаданиях и сглаживание SG."""
-        n = max(int(n), 2)
-        h = self.history[-n:]
-        if not h:
-            return None
-        seq: list = []
-        for i, (t, p, st) in enumerate(h):
-            gap = i and (t - h[i - 1][0]) > 0.2
-            jump = i and float(np.linalg.norm(np.asarray(p) - np.asarray(h[i - 1][1]))) > 25.0
-            if gap:
-                seq.append(None)                    # пропадание: пунктир-соединитель
-            elif jump:
-                seq.append(_JUMP)                   # скачок трека: рвём без соединителя
-            seq.append((np.asarray(p, dtype=float), st))
-        out: list = []
-        i = 0
-        k = int(getattr(self.args, "smooth", 0))
-        while i < len(seq):
-            if seq[i] is None:
-                out.append(None)
-                i += 1
-                continue
-            j = i
-            while j < len(seq) and seq[j] is not None:
-                j += 1
-            run = seq[i:j]
-            arr = np.stack([p for p, _ in run])
-            sm = _smooth_run(arr, k)
-            out.extend([(sm[m], run[m][1]) for m in range(len(run))])
-            i = j
-        return out
+        return build_trail(self.history, n,
+                           int(getattr(self.args, "smooth", 0)))
 
     def loop(self):
         last_t = time.perf_counter()
@@ -589,7 +277,7 @@ class Tracker:
                         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                     self.frame_idx = 0
                     self.history = []
-                    self._map_span = None
+                    self._map_view = None
                     self._make_pipeline()
                     continue
                 self.finished = True

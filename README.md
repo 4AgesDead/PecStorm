@@ -1,4 +1,4 @@
-# multiview3d — 3D-координаты и траектории по нескольким камерам
+﻿# multiview3d — 3D-координаты и траектории по нескольким камерам
 
 Проект для задачи «по видеопотокам с нескольких калиброванных камер определять
 3D-координаты движущегося объекта и восстанавливать траекторию во времени».
@@ -8,7 +8,7 @@
 > **Статус: работает, доведено до чисел.** Финальная конфигурация на «Пеленге»:
 > **MAE 1.98 м** (медиана 1.42 м), покрытие **82.3 %** кадров, на отложенных
 > кадрах 700..1000 — **1.98 м / 67.4 %**; у базовой COCO-модели было 4.28 м и
-> 61.3 %. Тесты: **83**, все зелёные. Есть веб-пульт с трекингом в реальном
+> 61.3 %. Тесты: **89**, все зелёные. Есть веб-пульт с трекингом в реальном
 > времени (~10.5–12 fps на 5 камер).
 >
 > **Быстрый гайд «что запускать» → [docs/QUICKSTART.md](docs/QUICKSTART.md)**
@@ -37,11 +37,11 @@ py -m pip install -r requirements.txt
 pecstorm --help
 pecstorm launch                 # веб-пульт: http://127.0.0.1:8000/
 pecstorm launch --stop
-pecstorm test                   # 74 теста
+pecstorm test                   # 89 тестов
 
 # проверка ядра и тестов (~5 с)
 py tools/smoke_check.py
-py -m unittest discover -s tests          # 74 теста
+py -m unittest discover -s tests          # 89 тестов
 
 # полный офлайн-цикл на «Пеленге» (детекция уже посчитана в results/)
 py apps/import_truck_dataset.py
@@ -77,7 +77,7 @@ py tools/make_report.py
 | Якоря: постоянный 3D, 2D по камерам, по наборам видов, по азимуту | `tools/anchor_fit_*.py` | ✅ (первые два отвергнуты, см. RESULTS §5) |
 | Оценка MAE/RMSE/P95/P99 + покрытие по статусам | `apps/evaluate_truck.py` | ✅ |
 | Графики «эталон vs оценка», траектория, покрытие, сравнение конфигураций | `tools/plot_components.py`, `make_report.py`, `make_comparison_charts.py` | ✅ |
-| Видео с наложением трекинга | `tools/render_tracking_video.py` | ✅ 5 MP4 |
+| Видео с наложением трекинга | `tools/render_tracking_video.py` | ✅ 5 MP4 + план X–Y |
 | Веб-пульт: 5 MJPEG-потоков, план X–Y, пауза, conf ±, статистика | `apps/dashboard.py` | ✅ 10.5–12.0 fps (путь, карта, сглаживание) |
 | Дообучение на псевдо-разметке (GT + 3D-модель) | `tools/make_pseudo_labels.py`, `train_truck_detector.py` | ✅ MAE 4.28 → 1.55 м у одиночной модели |
 | Синтетика с критерием приёмки (2 трека, ≤30 мм) | `apps/sim_dataset.py` | ✅ 10.1 мм |
@@ -155,7 +155,7 @@ evaluate_truck: MAE/RMSE/P95/P99 по MEASURED + покрытие по стат�
 | `tools/run_finetuned_eval.py` | полный цикл оценки модели: детекция → якоря → 3D → метрики |
 | `tools/merge_detections.py` | ансамбль моделей (объединение боксов по IoU) |
 | `tools/make_comparison_charts.py` | сравнительные графики всех конфигураций |
-| `tools/render_tracking_video.py` | MP4 с боксами, 3D-маркером и HUD |
+| `tools/render_tracking_video.py` | MP4 в стиле пульта: путь, прогноз, план X–Y |
 | `tools/make_report.py`, `plot_components.py` | сводка и графики «эталон vs оценка» |
 | `experiments/*.py` | видимость, проекция bbox↔pivot, свип порогов, робастность, бенчмарк |
 
@@ -246,7 +246,7 @@ results/truck/        зафиксированные артефакты прог
 docs/                 QUICKSTART, RESULTS, TRUCK_DATASET, DETECTION, OPEN_QUESTIONS
 experiments/          видимость, проекция, свипы, робастность, бенчмарк
 tools/                калибровки, псевдо-разметка, обучение, отчёты, видео
-tests/                74 теста unittest
+tests/                89 тестов unittest
 requirements.txt      проверенные версии пакетов
 HANDOFF.md            история работ и грабли инструментов
 ```

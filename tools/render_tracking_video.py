@@ -1,22 +1,33 @@
-"""Видео с наложением трекинга: боксы детекций + проекция 3D-оценки + GT.
+"""Видео с наложением трекинга — в стиле веб-пульта.
 
 Для каждой камеры пишется MP4, где на кадр наложены:
 
-* **боксы детекций** (голубые) — то, что нашёл детектор;
-* **проекция 3D-оценки** (зелёный квадрат/крест) — куда конвейер поставил
-  грузовик; подпись со статусом (`MEASURED`/`PREDICTED_ONLY`) и числом видов;
-* **GT-пивот** (жёлтый крест) — эталон, если он есть в кадре;
-* HUD: кадр, время, число детекций, покрытие.
+* **боксы детекций** (голубые);
+* **сглаженный путь** — зелёный (измерения) / оранжевый (прогноз и достройка),
+  толстая линия с ореолом, как на пульте;
+* **белый пунктир** — прогноз вперёд по средней скорости;
+* **серый пунктир** — пропадание данных (путь не рвётся);
+* **3D-маркер** со статусом (`MEASURED` / `PREDICTED_ONLY` / `EXTRAPOLATED`);
+* **GT-пивот** (жёлтый крест) — только с флагом ``--gt``;
+* HUD + легенда линий.
+
+Дополнительно пишется ``map_plan.mp4`` — панель «план X–Y (мир)» (её можно
+отключить флагом ``--no-map``).
 
 Запуск:
-    python tools/render_tracking_video.py --detections out/truck/detections_ens.csv `
-        --estimates out/truck/est_ens.csv --out out/truck/videos
-    python tools/render_tracking_video.py ... --step 2 --fps 15 --cameras cam3,cam5
+    py tools/render_tracking_video.py `
+        --detections out/truck/det_ens_v4b_v2v1.csv `
+        --estimates out/truck/est_ens_v4b_v2v1.csv `
+        --out out/truck/videos
+
+Флаги стиля: ``--trail 160 --smooth 5 --forecast-s 3 --bridge-s 3``,
+панель X–Y: ``--map-trail 0`` (вся история).
 """
 
 from __future__ import annotations
 
 import argparse
+import bisect
 import csv
 import sys
 from pathlib import Path
@@ -28,11 +39,13 @@ if hasattr(sys.stdout, "reconfigure"):
 import cv2
 import numpy as np
 
-from multiview3d.camera import project_point
+from multiview3d.camera import project_point, project_points
+from multiview3d.trail_render import (build_trail, dashed_line, draw_legend,
+                                      draw_path, extrapolate, forecast,
+                                      render_map_panel)
 from multiview3d.truck_dataset import DEFAULT_REPAIRS, DEFAULT_ROOT, TruckDataset
 
 COLOR_BOX = (255, 190, 0)        # BGR: голубой
-COLOR_EST = (60, 200, 60)        # зелёный
 COLOR_GT = (0, 220, 255)         # жёлтый
 COLOR_TEXT = (255, 255, 255)
 
@@ -64,8 +77,47 @@ def load_estimates(path: str | Path) -> dict[int, dict]:
     return {f: v["row"] for f, v in best.items()}
 
 
+def row_position(row: dict | None):
+    """x,y,z из строки CSV; None, если координат нет."""
+    if row is None:
+        return None
+    try:
+        p = np.array([float(row["x"]), float(row["y"]), float(row["z"])])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return p if np.all(np.isfinite(p)) else None
+
+
+def build_history(ests: dict[int, dict], fps: float, start: int, end: int,
+                  bridge_s: float) -> list:
+    """История трека по кадрам с достройкой после потери измерения."""
+    hist: list = []
+    for f in range(start, end + 1):
+        t = f / fps
+        row = ests.get(f)
+        p = row_position(row)
+        if p is not None:
+            hist.append((t, p, str(row.get("status") or "MEASURED")))
+        elif bridge_s > 0:
+            q = extrapolate(hist, t, bridge_s)
+            if q is not None:
+                hist.append((t, q, "EXTRAPOLATED"))
+    return hist
+
+
+def state_at(hist: list, times: list[float], f: int, fps: float):
+    """Текущая точка и её статус на кадре f (или None)."""
+    t = f / fps
+    k = bisect.bisect_right(times, t)
+    if k and abs(times[k - 1] - t) < 1e-9:
+        _, p, st = hist[k - 1]
+        return np.asarray(p, dtype=float), st, k
+    return None, None, k
+
+
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="Видео с наложением трекинга")
+    ap = argparse.ArgumentParser(
+        description="Видео с наложением трекинга в стиле веб-пульта")
     ap.add_argument("--root", default=str(DEFAULT_ROOT))
     ap.add_argument("--repairs", default=str(DEFAULT_REPAIRS))
     ap.add_argument("--detections", required=True)
@@ -79,9 +131,23 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--fps", type=float, default=None,
                     help="FPS выходного видео (по умолчанию fps/step)")
     ap.add_argument("--codec", default="mp4v")
-    ap.add_argument("--draw-gt", action="store_true", default=True)
+    ap.add_argument("--gt", dest="draw_gt", action="store_true",
+                    help="рисовать GT-пивот (по умолчанию нет, как на пульте)")
     ap.add_argument("--no-gt", dest="draw_gt", action="store_false")
+    ap.set_defaults(draw_gt=False)
     ap.add_argument("--scale", type=float, default=1.0, help="уменьшить кадр (например 0.5)")
+    ap.add_argument("--trail", type=int, default=160,
+                    help="сколько точек пути рисовать на видео (как на пульте)")
+    ap.add_argument("--map-trail", type=int, default=0,
+                    help="точек на панели X–Y (0 — вся история, как на пульте)")
+    ap.add_argument("--smooth", type=int, default=5,
+                    help="полуокно сглаживания SG, точек (0 — выключить)")
+    ap.add_argument("--forecast-s", type=float, default=3.0,
+                    help="горизонт прогноза вперёд, с (0 — выключить)")
+    ap.add_argument("--bridge-s", type=float, default=3.0,
+                    help="достройка после пропадания, с (0 — выключить)")
+    ap.add_argument("--no-map", action="store_true",
+                    help="не писать map_plan.mp4")
     args = ap.parse_args(argv)
 
     ds = TruckDataset.discover(args.root, repairs_path=args.repairs or None)
@@ -93,7 +159,36 @@ def main(argv: list[str] | None = None) -> int:
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     fps = args.fps or max(ds.fps / max(args.step, 1), 1.0)
+    hist = build_history(ests, ds.fps, args.start, args.end, args.bridge_s)
+    times = [h[0] for h in hist]
+    print(f"история: {len(hist)} точек, видео: {args.start}..{args.end} "
+          f"(шаг {args.step}), {fps:.1f} fps")
 
+    # ---- панель плана X–Y ----
+    if not args.no_map:
+        map_path = out_dir / "map_plan.mp4"
+        writer = cv2.VideoWriter(str(map_path), cv2.VideoWriter_fourcc(*args.codec),
+                                 fps, (900, 640))
+        if not writer.isOpened():
+            print(f"не создать {map_path}", file=sys.stderr)
+        else:
+            view = None
+            written = 0
+            for f in range(args.start, args.end + 1, max(args.step, 1)):
+                pos, status, k = state_at(hist, times, f, ds.fps)
+                sub = hist[:k]
+                n_map = args.map_trail if args.map_trail > 0 else len(sub)
+                trail = build_trail(sub, n_map, args.smooth)
+                fc = forecast(sub, args.forecast_s, args.bridge_s) if pos is not None else None
+                canvas, view = render_map_panel(trail, fc, pos, status, f / ds.fps,
+                                                f, view)
+                writer.write(canvas)
+                written += 1
+            writer.release()
+            size_mb = map_path.stat().st_size / 1024 ** 2 if map_path.exists() else 0.0
+            print(f"map_plan: {written} кадров -> {map_path} ({size_mb:.1f} МБ)")
+
+    # ---- камеры ----
     for cam in ds.cameras:
         if cam.name not in wanted:
             continue
@@ -103,6 +198,13 @@ def main(argv: list[str] | None = None) -> int:
             continue
         w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) * args.scale)
         h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) * args.scale)
+        ui = max(1.0, h / 540.0)      # как на пульте при 960×540, но крупнее
+        styles = {
+            "measured": ((20, 90, 20), max(2, int(round(8 * ui))),
+                         (80, 255, 80), max(2, int(round(4 * ui)))),
+            "predicted": ((0, 80, 140), max(2, int(round(6 * ui))),
+                          (0, 175, 255), max(2, int(round(3 * ui)))),
+        }
         path = out_dir / f"{cam.name}_tracking.mp4"
         writer = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*args.codec),
                                  fps, (w, h))
@@ -132,21 +234,41 @@ def main(argv: list[str] | None = None) -> int:
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLOR_BOX, 1, cv2.LINE_AA)
                 n_det += 1
 
-            if calib is not None and f in ests:
-                row = ests[f]
-                P = np.array([float(row["x"]), float(row["y"]), float(row["z"])])
-                try:
-                    u, v = project_point(calib, P)
-                except ValueError:
-                    u = v = None
-                if u is not None and np.isfinite(u) and np.isfinite(v):
-                    uu, vv = int(u * args.scale), int(v * args.scale)
-                    s = 9
-                    cv2.rectangle(frame, (uu - s, vv - s), (uu + s, vv + s), COLOR_EST, 2)
-                    cv2.drawMarker(frame, (uu, vv), COLOR_EST, cv2.MARKER_CROSS, 18, 1)
-                    label = f"3D {row['status']} ({row.get('views') or '-'})"
-                    cv2.putText(frame, label, (uu + 14, vv - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.55, COLOR_EST, 2, cv2.LINE_AA)
+            pos, status, k = state_at(hist, times, f, ds.fps)
+            sub = hist[:k]
+            trail = build_trail(sub, args.trail, args.smooth)
+            fc = forecast(sub, args.forecast_s, args.bridge_s) if pos is not None else None
+            if calib is not None:
+                if trail:
+                    draw_path(frame, trail,
+                              lambda P: project_points(calib, P) * args.scale,
+                              styles, gap_thick=max(2, int(round(2 * ui))))
+                if fc:
+                    try:
+                        u0, v0 = project_point(calib, fc[0])
+                        u1, v1 = project_point(calib, fc[-1])
+                        dashed_line(frame,
+                                    (int(u0 * args.scale), int(v0 * args.scale)),
+                                    (int(u1 * args.scale), int(v1 * args.scale)),
+                                    (245, 245, 245), max(2, int(round(2 * ui))),
+                                    dash=int(round(8 * ui)),
+                                    step=int(round(16 * ui)))
+                    except ValueError:
+                        pass
+                if pos is not None:
+                    try:
+                        u, v = project_point(calib, pos)
+                        uu, vv = int(u * args.scale), int(v * args.scale)
+                        col = (60, 200, 60) if status == "MEASURED" else (0, 175, 255)
+                        cv2.drawMarker(frame, (uu, vv), col, cv2.MARKER_SQUARE,
+                                       int(round(18 * ui)), max(2, int(round(2 * ui))))
+                        cv2.putText(frame, f"3D {status}",
+                                    (uu + int(round(12 * ui)), vv - int(round(10 * ui))),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.55 * ui, col,
+                                    max(1, int(round(2 * ui))), cv2.LINE_AA)
+                    except ValueError:
+                        pass
+
             if args.draw_gt and f in gt and calib is not None:
                 try:
                     gu, gv = project_point(calib, gt[f])
@@ -154,13 +276,15 @@ def main(argv: list[str] | None = None) -> int:
                     gu = gv = None
                 if gu is not None and 0 <= gu < calib.width and 0 <= gv < calib.height:
                     cv2.drawMarker(frame, (int(gu * args.scale), int(gv * args.scale)),
-                                   COLOR_GT, cv2.MARKER_CROSS, 22, 2)
+                                   COLOR_GT, cv2.MARKER_CROSS,
+                                   int(round(22 * ui)), max(1, int(round(2 * ui))))
 
             hud = f"{cam.name}  f={f}  t={f / ds.fps:6.2f} s  det={n_det}"
-            cv2.rectangle(frame, (0, 0), (int(430 * args.scale), int(28 * args.scale)),
+            cv2.rectangle(frame, (0, 0), (int(round(620 * ui)), int(round(52 * ui))),
                           (0, 0, 0), -1)
-            cv2.putText(frame, hud, (8, int(20 * args.scale)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, COLOR_TEXT, 1, cv2.LINE_AA)
+            cv2.putText(frame, hud, (int(round(8 * ui)), int(round(21 * ui))),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6 * ui, COLOR_TEXT, 1, cv2.LINE_AA)
+            draw_legend(frame, ui)
             writer.write(frame)
             written += 1
             f += 1
