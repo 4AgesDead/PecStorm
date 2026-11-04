@@ -63,11 +63,13 @@ HTML = """<!doctype html>
 </header>
 <div class="grid" id="grid"></div>
 <script>
-const cams = ["cam1","cam2","cam3","cam4","cam5"];
+const cams = ["map","cam1","cam2","cam3","cam4","cam5"];
+const titles = {map:"план X–Y (мир), зелёный — измерения, оранжевый — прогноз, белый — вперёд"};
 const grid = document.getElementById('grid');
 for (const c of cams) {
   const d = document.createElement('div'); d.className='cell';
-  d.innerHTML = `<img src="/stream/${c}" alt="${c}"><div class="cap">${c}</div>`;
+  const cap = titles[c] || c;
+  d.innerHTML = `<img src="/stream/${c}" alt="${c}"><div class="cap">${cap}</div>`;
   grid.appendChild(d);
 }
 async function ctl(action){ await fetch('/api/control?action='+action); }
@@ -128,6 +130,108 @@ class Tracker:
         self.pipe = MultiViewPipeline(self._pipe_cfg.cameras, config=self._pipe_cfg,
                                       camera_provider=self.ds.provider, fps=self.ds.fps)
 
+    def _render_map(self, trail, forecast, position, status, t):
+        """Отдельная панель: путь объекта в мировых координатах X–Y (план)."""
+        W, H = 900, 640
+        canvas = np.full((H, W, 3), (18, 20, 24), np.uint8)
+
+        pts = []
+        if trail:
+            pts += [np.asarray(p[:2], dtype=float) for p, _ in trail]
+        if forecast:
+            pts += [np.asarray(q[:2], dtype=float) for q in forecast]
+        if position is not None:
+            pts.append(np.asarray(position[:2], dtype=float))
+
+        if pts:
+            P = np.vstack(pts)
+            xmin, ymin = P.min(axis=0)
+            xmax, ymax = P.max(axis=0)
+        else:
+            xmin = ymin = -100.0
+            xmax = ymax = 100.0
+        cx, cy = (xmin + xmax) / 2, (ymin + ymax) / 2
+        span = max(xmax - xmin, ymax - ymin, 60.0) * 1.25
+
+        # плавное расширение окна, чтобы карта не «дёргалась»
+        if getattr(self, "_map_span", None) is None:
+            self._map_span = span
+            self._map_cx, self._map_cy = cx, cy
+        else:
+            self._map_span = max(self._map_span, span)
+            self._map_cx = 0.7 * self._map_cx + 0.3 * cx
+            self._map_cy = 0.7 * self._map_cy + 0.3 * cy
+
+        scale = min((W - 80) / self._map_span, (H - 80) / self._map_span)
+
+        def to_px(p):
+            x = (float(p[0]) - self._map_cx) * scale + W / 2
+            y = H / 2 - (float(p[1]) - self._map_cy) * scale
+            return int(round(x)), int(round(y))
+
+        # сетка с шагом, зависящим от масштаба
+        step = 50.0 if self._map_span > 300 else (25.0 if self._map_span > 120 else 10.0)
+        x0 = np.floor((self._map_cx - self._map_span / 2) / step) * step
+        x1 = self._map_cx + self._map_span / 2
+        while x0 <= x1:
+            p0, p1 = to_px((x0, self._map_cy - self._map_span)), \
+                to_px((x0, self._map_cy + self._map_span))
+            cv2.line(canvas, p0, p1, (40, 44, 50), 1)
+            cv2.putText(canvas, f"{x0:.0f}", (p0[0] + 2, H - 8),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (120, 130, 140), 1, cv2.LINE_AA)
+            x0 += step
+        y0 = np.floor((self._map_cy - self._map_span / 2) / step) * step
+        y1 = self._map_cy + self._map_span / 2
+        while y0 <= y1:
+            p0, p1 = to_px((self._map_cx - self._map_span, y0)), \
+                to_px((self._map_cx + self._map_span, y0))
+            cv2.line(canvas, p0, p1, (40, 44, 50), 1)
+            cv2.putText(canvas, f"{y0:.0f}", (6, p0[1] - 2),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (120, 130, 140), 1, cv2.LINE_AA)
+            y0 += step
+        cv2.line(canvas, (W // 2, 0), (W // 2, H), (60, 66, 74), 1)
+        cv2.line(canvas, (0, H // 2), (W, H // 2), (60, 66, 74), 1)
+        cv2.putText(canvas, "X, м", (W - 60, H // 2 - 8),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (150, 160, 170), 1, cv2.LINE_AA)
+        cv2.putText(canvas, "Y, м", (W // 2 + 8, 18),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (150, 160, 170), 1, cv2.LINE_AA)
+
+        # путь
+        if trail:
+            prev = None
+            for p, st in trail:
+                cur = to_px(p)
+                if prev is not None:
+                    if st == "MEASURED":
+                        cv2.line(canvas, prev, cur, (20, 90, 20), 7, cv2.LINE_AA)
+                        cv2.line(canvas, prev, cur, (80, 255, 80), 3, cv2.LINE_AA)
+                    else:
+                        cv2.line(canvas, prev, cur, (0, 80, 140), 5, cv2.LINE_AA)
+                        cv2.line(canvas, prev, cur, (0, 175, 255), 2, cv2.LINE_AA)
+                prev = cur
+            cv2.circle(canvas, to_px(trail[0][0]), 5, (200, 200, 200), -1)
+            cv2.putText(canvas, "старт", (to_px(trail[0][0])[0] + 8,
+                                          to_px(trail[0][0])[1] + 4),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, (200, 200, 200), 1, cv2.LINE_AA)
+        if forecast:
+            prev = to_px(forecast[0])
+            for i, q in enumerate(forecast):
+                cur = to_px(q)
+                if i % 2 == 0:
+                    cv2.line(canvas, prev, cur, (245, 245, 245), 2, cv2.LINE_AA)
+                prev = cur
+        if position is not None:
+            p = to_px(position)
+            cv2.drawMarker(canvas, p, (80, 255, 80), cv2.MARKER_SQUARE, 16, 2)
+            cv2.putText(canvas, f"({position[0]:.0f}, {position[1]:.0f})  {status}",
+                        (p[0] + 12, p[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                        (80, 255, 80), 1, cv2.LINE_AA)
+
+        cv2.rectangle(canvas, (0, 0), (W, 30), (0, 0, 0), -1)
+        cv2.putText(canvas, f"план X–Y (мир)   f={self.frame_idx}  t={t:6.2f} s",
+                    (8, 21), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (235, 235, 235), 1, cv2.LINE_AA)
+        return canvas
+
     def _render(self, name, img, dets, position, status, views, t,
                 trail=None, forecast=None):
         for d in dets:
@@ -139,7 +243,7 @@ class Tracker:
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 190, 0), 1, cv2.LINE_AA)
         cam = self.ds.provider.calibrations_at(self.frame_idx, nearest=True).get(name)
         if cam is not None and trail:
-            # Траектория: зелёная — измеренные точки, оранжевая — прогноз Калмана
+            # Траектория: толстая зелёная — измерения, оранжевая — прогноз
             prev = None
             for p, st in trail:
                 try:
@@ -149,21 +253,25 @@ class Tracker:
                     continue
                 cur = (int(uv[0]), int(uv[1]))
                 if prev is not None:
-                    color = (60, 200, 60) if st == "MEASURED" else (0, 160, 255)
-                    cv2.line(img, prev, cur, color, 2, cv2.LINE_AA)
+                    if st == "MEASURED":
+                        cv2.line(img, prev, cur, (20, 90, 20), 8, cv2.LINE_AA)
+                        cv2.line(img, prev, cur, (80, 255, 80), 4, cv2.LINE_AA)
+                    else:
+                        cv2.line(img, prev, cur, (0, 80, 140), 6, cv2.LINE_AA)
+                        cv2.line(img, prev, cur, (0, 175, 255), 3, cv2.LINE_AA)
                 prev = cur
             # Прогноз вперёд «призраком»: белая пунктирная линия
             if forecast:
                 prev = None
-                for q in forecast:
+                for i, q in enumerate(forecast):
                     try:
                         uv = project(cam, q)
                     except Exception:
                         prev = None
                         continue
                     cur = (int(uv[0]), int(uv[1]))
-                    if prev is not None:
-                        cv2.line(img, prev, cur, (230, 230, 230), 1, cv2.LINE_AA)
+                    if prev is not None and i % 2 == 0:
+                        cv2.line(img, prev, cur, (245, 245, 245), 2, cv2.LINE_AA)
                     prev = cur
         if position is not None and cam is not None:
             try:
@@ -288,6 +396,14 @@ class Tracker:
                 if ok:
                     with self.lock:
                         self.frames[cam.name] = buf.tobytes()
+            try:
+                mp = self._render_map(trail, forecast, position, status, t)
+                ok, buf = cv2.imencode(".jpg", mp, [cv2.IMWRITE_JPEG_QUALITY, 82])
+                if ok:
+                    with self.lock:
+                        self.frames["map"] = buf.tobytes()
+            except Exception as exc:
+                print(f"карта: {exc}", file=sys.stderr)
             dt = time.perf_counter() - t0
             self.fps_now = 1.0 / max(dt, 1e-6)
             self.frame_idx += 1
