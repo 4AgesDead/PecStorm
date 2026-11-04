@@ -261,6 +261,7 @@ HANDOFF.md            история работ и грабли инструме
 | [docs/QUICKSTART.md](docs/QUICKSTART.md) | пошагово: что запускать, где смотреть, как читать числа |
 | [docs/RESULTS.md](docs/RESULTS.md) | все измерения, эксперименты, отрицательные результаты |
 | [docs/DEFENSE_QA.md](docs/DEFENSE_QA.md) | вопросы и ответы для защиты, шпаргалка чисел |
+| [docs/DEFENSE_QUESTIONS.md](docs/DEFENSE_QUESTIONS.md) | 88 вопросов без ответов — для тренировки |
 | [docs/TRUCK_DATASET.md](docs/TRUCK_DATASET.md) | формат датасета, конверсия координат, ограничения |
 | [docs/DETECTION.md](docs/DETECTION.md) | детектор: модель, пороги, замеры |
 | [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) | 15 вопросов организаторам (ответов нет) |
