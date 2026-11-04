@@ -6,16 +6,15 @@
 
 ## 0. Окружение
 
-* Python: запускать через лаунчер **`py`** — он указывает на
-  `C:\Users\BeGraphics\AppData\Local\Programs\Python\Python314\python.exe`
-  (проверено: `py -V` → 3.14.10; `py -0p` показывает этот путь как основной).
-  Явный вариант — `py -3.14`. Команду `python` не использовать: на PATH стоит
-  заглушка Microsoft Store (`WindowsApps\python.exe`), она падает.
+* Python: запускать через лаунчер **`py`** — он уже указывает на нужный
+  интерпретатор (проверено: `py -V` → 3.14.10; какой именно путь — покажет
+  `py -0p`). Явный вариант — `py -3.14`. Команду `python` не использовать: на
+  PATH может стоять заглушка Microsoft Store (`WindowsApps\python.exe`), она падает.
 * Зависимости: `py -m pip install -r requirements.txt` (пины проверены: numpy 2.5.4,
   opencv 5.0.0, scipy 1.18.1, matplotlib 3.11.2, ultralytics 8.4.201, torch 2.15.0).
 * Веса `yolov8x.pt` / `yolov8n.pt` лежат в корне и в git не входят
   (`.gitignore`); при отсутствии ultralytics скачает их сам.
-* Все команды — из корня репозитория (`C:\Users\BeGraphics\hahaton-1`).
+* Все команды — из корня репозитория (каталог, где лежит `pecstorm.cmd`).
 
 Проверка, что ядро живо (≈3 с):
 
@@ -69,8 +68,8 @@ pecstorm test                   # все тесты
 Чтобы `pecstorm` работал из любого каталога, добавьте корень репозитория в PATH:
 
 ```powershell
-setx PATH "$env:PATH;C:\Users\BeGraphics\hahaton-1"
-# новое окно cmd после этого
+setx PATH "$env:PATH;<путь к репозиторию>"
+# подставьте каталог, где лежит pecstorm.cmd; новое окно cmd после этого
 ```
 
 ## 2. Полный цикл (5 стадий + отчёт)
