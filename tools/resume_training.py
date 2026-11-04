@@ -1,5 +1,12 @@
 """Продолжение обучения ultralytics с чекпойнта (resume).
 
+ВАЖНО (проверено на практике): ``resume=True`` работает только если в чекпойнте
+сохранились аргументы обучения (``train_args``). У нас ``last.pt`` их не содержал,
+и ultralytics молча создал **новый** прогон с ``data=coco8.yaml`` — 90 эпох на
+4 картинках за 3.3 мин (мусор). Поэтому скрипт печатает предупреждение, а для
+дообучения используйте ``tools/train_truck_detector.py --model <best.pt>``
+с явными ``--data`` и ``--lr0``.
+
 Запуск:
     python tools/resume_training.py --weights runs/.../weights/last.pt --epochs 90
 """
