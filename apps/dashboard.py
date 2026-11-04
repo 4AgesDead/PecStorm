@@ -117,6 +117,7 @@ class Tracker:
         self.frame_idx = 0
         self.paused = False
         self.stop = False
+        self.finished = False
         self.conf = float(args.conf)
         self.fps_now = 0.0
         self.conf_history = []
@@ -183,9 +184,8 @@ class Tracker:
                 ok, img = cap.read()
                 imgs.append(img if ok else None)
             if any(im is None for im in imgs):
-                for cap in self.caps:
-                    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                continue
+                self.finished = True
+                break
             t = self.frame_idx / self.ds.fps
             dets_by_cam = {}
             for cam, img in zip(self.ds.cameras, imgs):
@@ -233,6 +233,7 @@ class Tracker:
                 pos = [round(float(v), 3) for v in pts[-1].position]
         return {"frame": self.frame_idx, "fps_now": round(self.fps_now, 2),
                 "conf": self.conf, "paused": self.paused,
+                "finished": self.finished,
                 "measured_share": round(float(cov.get("measured", 0)) / frames, 3),
                 "measured_frames": int(cov.get("measured", 0)),
                 "position": pos}
@@ -273,7 +274,8 @@ def make_handler(tracker: Tracker):
                         self.wfile.write(f"Content-Length: {len(buf)}\r\n\r\n".encode())
                         self.wfile.write(buf + b"\r\n")
                         time.sleep(1.0 / max(tracker.fps_now, 1.0))
-                except (BrokenPipeError, ConnectionResetError):
+                except (BrokenPipeError, ConnectionResetError,
+                        ConnectionAbortedError, OSError):
                     return
             elif u.path == "/api/stats":
                 body = json.dumps(tracker.stats()).encode()
