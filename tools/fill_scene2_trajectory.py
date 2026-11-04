@@ -25,7 +25,7 @@ from scipy.interpolate import PchipInterpolator
 from scipy.signal import savgol_filter
 
 
-def read_measured(path: Path) -> list[dict]:
+def read_measured(path: Path, min_track_points: int = 1) -> list[dict]:
     rows = []
     with path.open(encoding="utf-8") as fh:
         for r in csv.DictReader(fh):
@@ -38,10 +38,16 @@ def read_measured(path: Path) -> list[dict]:
             if not all(np.isfinite(v) for v in (x, y, z)):
                 continue
             rows.append({"frame": int(r["frame"]), "x": x, "y": y, "z": z,
+                         "track_id": r.get("track_id", ""),
                          "views": r.get("views", ""),
                          "confidence": r.get("confidence", ""),
                          "mean_reproj_px": r.get("mean_reproj_px", "")})
     rows.sort(key=lambda r: r["frame"])
+    if min_track_points > 1:
+        counts = {}
+        for r in rows:
+            counts[r["track_id"]] = counts.get(r["track_id"], 0) + 1
+        rows = [r for r in rows if counts.get(r["track_id"], 0) >= min_track_points]
     # одна точка на кадр
     out = []
     for r in rows:
@@ -60,9 +66,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--start", type=int, default=0)
     ap.add_argument("--end", type=int, default=1931)
     ap.add_argument("--smooth-window", type=int, default=31)
+    ap.add_argument("--min-track-points", type=int, default=0,
+                    help="отбросить короткие треки (0 — не фильтровать)")
+    ap.add_argument("--trim-quantile", type=float, default=0.01,
+                    help="срезать крайние q по X/Y (0 — выключить)")
     args = ap.parse_args(argv)
 
-    pts = read_measured(Path(args.estimates))
+    pts = read_measured(Path(args.estimates), args.min_track_points)
+    if args.trim_quantile and len(pts) >= 20:
+        xs = np.array([p["x"] for p in pts])
+        ys = np.array([p["y"] for p in pts])
+        x0, x1 = np.quantile(xs, [args.trim_quantile, 1 - args.trim_quantile])
+        y0, y1 = np.quantile(ys, [args.trim_quantile, 1 - args.trim_quantile])
+        before = len(pts)
+        pts = [p for p in pts if x0 <= p["x"] <= x1 and y0 <= p["y"] <= y1]
+        print(f"trim {args.trim_quantile:.3f}: {before} -> {len(pts)} точек")
     if len(pts) < 3:
         print("мало MEASURED-точек", file=sys.stderr)
         return 2
@@ -125,10 +143,18 @@ def main(argv: list[str] | None = None) -> int:
 
     # минимальный вариант: только frame,x,y,z — на случай строгого парсера
     min_out = out.with_name(out.stem + "_xyz.csv")
-    with min_out.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=["frame", "x", "y", "z"])
-        writer.writeheader()
-        writer.writerows([{k: r[k] for k in ("frame", "x", "y", "z")} for r in rows])
+    try:
+        with min_out.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.DictWriter(fh, fieldnames=["frame", "x", "y", "z"])
+            writer.writeheader()
+            writer.writerows([{k: r[k] for k in ("frame", "x", "y", "z")} for r in rows])
+    except PermissionError:
+        alt = min_out.with_name(min_out.stem + "_new.csv")
+        with alt.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.DictWriter(fh, fieldnames=["frame", "x", "y", "z"])
+            writer.writeheader()
+            writer.writerows([{k: r[k] for k in ("frame", "x", "y", "z")} for r in rows])
+        print(f"ВНИМАНИЕ: {min_out} занят (Excel?); записан {alt}", file=sys.stderr)
 
     d_xy = np.linalg.norm(np.diff(interp[:, :2], axis=0), axis=1)
     meta = {
@@ -138,7 +164,7 @@ def main(argv: list[str] | None = None) -> int:
         "frames": len(rows),
         "frame_range": [args.start, args.end],
         "path_length_xy_m": round(float(d_xy.sum()), 2),
-        "method": "PCHIP по MEASURED + линейная экстраполяция краёв + SG-сглаживание",
+        "method": "PCHIP по MEASURED + константные края + SG-сглаживание",
         "warning": "INTERPOLATED — не измерение; GT в scene2 нет",
     }
     Path(args.out_json).write_text(json.dumps(meta, ensure_ascii=False, indent=2),

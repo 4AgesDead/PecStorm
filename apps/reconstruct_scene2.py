@@ -25,6 +25,42 @@ import numpy as np
 from multiview3d.detect import YoloDetector
 from multiview3d.fusion import FusionConfig, MultiViewTracker
 from multiview3d.scene2_dataset import Scene2Dataset
+from multiview3d.types import Detection2D
+
+
+def merge_detections(dets, iou_thr=0.5):
+    """NMS + среднее боксов одного объекта от нескольких моделей."""
+    if len(dets) <= 1:
+        return dets
+    dets = sorted(dets, key=lambda d: d.score, reverse=True)
+    used = [False] * len(dets)
+    out = []
+    for i, d in enumerate(dets):
+        if used[i]:
+            continue
+        group = [d]
+        used[i] = True
+        for j in range(i + 1, len(dets)):
+            if used[j]:
+                continue
+            a, b = d.bbox, dets[j].bbox
+            x1, y1 = max(a[0], b[0]), max(a[1], b[1])
+            x2, y2 = min(a[2], b[2]), min(a[3], b[3])
+            inter = max(0.0, x2 - x1) * max(0.0, y2 - y1)
+            ar = lambda q: max(0.0, q[2] - q[0]) * max(0.0, q[3] - q[1])
+            iou = inter / (ar(a) + ar(b) - inter + 1e-9)
+            if iou >= iou_thr:
+                group.append(dets[j])
+                used[j] = True
+        w = np.array([max(float(g.score), 1e-6) for g in group])
+        boxes = np.array([g.bbox for g in group], dtype=float)
+        box = (boxes * w[:, None]).sum(axis=0) / w.sum()
+        out.append(Detection2D(
+            camera=d.camera, timestamp=d.timestamp,
+            center=np.array([(box[0] + box[2]) / 2, (box[1] + box[3]) / 2]),
+            score=float(max(g.score for g in group)), bbox=tuple(box),
+            label=d.label))
+    return out
 
 
 def pick_track(tracks):
@@ -43,6 +79,9 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Scene2: 3D-траектория грузовика")
     ap.add_argument("--root", default="scene2")
     ap.add_argument("--model", default="yolov8x.pt")
+    ap.add_argument("--models", default="",
+                    help="ансамбль через запятую; если задан, --model игнорируется")
+    ap.add_argument("--merge-iou", type=float, default=0.5)
     ap.add_argument("--class-names", default="truck")
     ap.add_argument("--conf", type=float, default=0.25)
     ap.add_argument("--imgsz", type=int, default=960)
@@ -59,9 +98,14 @@ def main(argv: list[str] | None = None) -> int:
 
     ds = Scene2Dataset.discover(args.root)
     names = ds.names
-    det = YoloDetector(args.model, conf=args.conf, device=args.device,
-                       imgsz=args.imgsz,
-                       class_names=[c.strip() for c in args.class_names.split(",") if c.strip()])
+    model_paths = ([m.strip() for m in args.models.split(",") if m.strip()]
+                   if args.models else [args.model])
+    detectors = [YoloDetector(path, conf=args.conf, device=args.device,
+                              imgsz=args.imgsz,
+                              class_names=[c.strip() for c in args.class_names.split(",")
+                                           if c.strip()])
+                 for path in model_paths]
+    print(f"детекторы: {model_paths}")
     cfg = FusionConfig(association_mode="single_target", min_views=2,
                        max_reprojection_px=args.max_reprojection_px,
                        gate_mahalanobis=args.gate, max_missing=args.max_missing)
@@ -85,7 +129,10 @@ def main(argv: list[str] | None = None) -> int:
             break
         dets = []
         for name, img in zip(names, imgs):
-            d = det.detect(img)
+            raw = []
+            for det in detectors:
+                raw.extend(det.detect(img))
+            d = merge_detections(raw, args.merge_iou)
             for x in d:
                 x.camera = name
                 x.timestamp = f / ds.fps
