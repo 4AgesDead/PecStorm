@@ -48,6 +48,7 @@ pecstorm detect --start 0 --end 100 --step 20
 pecstorm reconstruct --detections out/truck/detections.csv
 pecstorm evaluate --estimates out/truck/estimates.csv
 pecstorm plot-gt                # график «оценка vs эталон» (GT)
+pecstorm dashboard-video --out out/truck/videos/dashboard_gt.mp4 --gt
 pecstorm visualize --estimates out/truck/estimates.csv --frames 400,600
 pecstorm video --detections out/truck/det_ens_v4b_v2v1.csv `
     --estimates out/truck/est_ens_v4b_v2v1.csv
@@ -186,6 +187,18 @@ py tools/render_tracking_video.py `
 вперёд, серый пунктир — пропадание данных, 3D-маркер со статусом, HUD и легенда.
 Стиль задаётся флагами `--trail 160 --smooth 5 --forecast-s 3 --bridge-s 3`
 (значения по умолчанию совпадают с пультом).
+
+Запись «как веб-пульт» — одним видео: 5 камер + план X–Y + таблица метрик:
+
+```powershell
+py tools/render_dashboard_video.py `
+    --out out/truck/videos/dashboard_gt.mp4 --gt
+```
+
+В таблице — **фактические** покрытие и MAE по накопленным кадрам (полный клип:
+82.3 % / 1.98 м). Цель 93 % рисуется отдельной жёлтой отметкой и не выдаётся за
+результат. Фрагмент 0..213 честно даёт 93.0 % покрытия (199/214 кадров), но
+MAE на нём 2.77 м — это фрагмент, а не весь клип.
 
 График сравнения с эталоном:
 

@@ -77,7 +77,7 @@ py tools/make_report.py
 | Якоря: постоянный 3D, 2D по камерам, по наборам видов, по азимуту | `tools/anchor_fit_*.py` | ✅ (первые два отвергнуты, см. RESULTS §5) |
 | Оценка MAE/RMSE/P95/P99 + покрытие по статусам | `apps/evaluate_truck.py` | ✅ |
 | Графики «эталон vs оценка», траектория, покрытие, сравнение конфигураций | `tools/plot_components.py`, `make_report.py`, `make_comparison_charts.py` | ✅ |
-| Видео с наложением трекинга | `tools/render_tracking_video.py` | ✅ 5 MP4 + план X–Y |
+| Видео с наложением трекинга | `tools/render_tracking_video.py` | ✅ 5 MP4 + план X–Y + запись пульта |
 | Веб-пульт: 5 MJPEG + план X–Y + эталон, пауза, conf ±, статистика | `apps/dashboard.py` | ✅ 9.2–9.5 fps (v4b; v1 — 10.5–12) |
 | Дообучение на псевдо-разметке (GT + 3D-модель) | `tools/make_pseudo_labels.py`, `train_truck_detector.py` | ✅ MAE 4.28 → 1.55 м у одиночной модели |
 | Синтетика с критерием приёмки (2 трека, ≤30 мм) | `apps/sim_dataset.py` | ✅ 10.1 мм |
