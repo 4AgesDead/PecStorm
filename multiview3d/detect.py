@@ -60,13 +60,14 @@ class YoloDetector:
     def __init__(self, model: str = "yolov8n.pt", *, conf: float = 0.35,
                  classes: list[int] | None = None, device: str = "cpu",
                  imgsz: int = 640, class_names: list[str] | None = None,
-                 agnostic_nms: bool = False):
+                 agnostic_nms: bool = False, tta: bool = False):
         from ultralytics import YOLO  # ленивый импорт: без torch не ломает пакет
         self.model = YOLO(model)
         self.conf = conf
         self.device = device
         self.imgsz = int(imgsz)
         self.agnostic_nms = bool(agnostic_nms)
+        self.tta = bool(tta)
         names = getattr(self.model, "names", {}) or {}
         if class_names:
             name_to_id = {str(v): int(k) for k, v in names.items()}
@@ -82,7 +83,8 @@ class YoloDetector:
     def detect(self, frame_bgr: np.ndarray) -> list[Detection2D]:
         results = self.model.predict(frame_bgr, conf=self.conf, verbose=False,
                                      classes=self.classes, device=self.device,
-                                     imgsz=self.imgsz, agnostic_nms=self.agnostic_nms)
+                                     imgsz=self.imgsz, agnostic_nms=self.agnostic_nms,
+                                     augment=self.tta)
         detections: list[Detection2D] = []
         for res in results:
             boxes = getattr(res, "boxes", None)
@@ -375,6 +377,7 @@ def build_detector(spec: dict) -> Detector:
             imgsz=int(spec.get("imgsz", 640)),
             class_names=spec.get("class_names"),
             agnostic_nms=bool(spec.get("agnostic_nms", False)),
+            tta=bool(spec.get("tta", False)),
         )
     if kind in ("yolo-onnx", "onnx-yolo"):
         return YoloOnnxDetector(

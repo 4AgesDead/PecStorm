@@ -52,6 +52,9 @@ def main(argv: list[str] | None = None) -> int:
                     choices=["auto", "cpu", "dml"],
                     help="провайдер onnxruntime для .onnx-модели: auto — dml, "
                          "если доступен (DirectML/AMD GPU)")
+    ap.add_argument("--tta", action="store_true",
+                    help="test-time augmentation (ultralytics augment=True): "
+                         "медленнее в ~3 раза, обычно +2–5 п.п. recall")
     ap.add_argument("--out", default="out/truck/detections.csv")
     ap.add_argument("--stats", default="out/truck/detect_stats.json")
     ap.add_argument("--log-every", type=int, default=50)
@@ -84,7 +87,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         spec = {"kind": "yolo", "model": args.model, "conf": args.conf,
                 "imgsz": args.imgsz, "device": args.device,
-                "class_names": names or None}
+                "class_names": names or None, "tta": bool(args.tta)}
     detector = build_detector(spec)
 
     print(f"Детектор: {args.model} (conf={args.conf}, imgsz={args.imgsz}, "
