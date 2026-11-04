@@ -134,17 +134,26 @@ def parse_track_csv(path: str | Path) -> ParsedCsv:
     return ParsedCsv(rows=rows, invalid_cells=invalid, partial=partial, source_path=str(path))
 
 
-def ue_rot_to_matrix(roll_deg: float, pitch_deg: float, yaw_deg: float) -> np.ndarray:
-    """UE axes matrix (columns = fwd/right/up). NOTE: with the empirical truck-fit
-    convention the CSV pitch enters sign-mirrored and `right` here is the UE-left
-    row of the FRotator formula; build_extrinsics restores the true right axis."""
+def ue_rot_to_matrix(roll_deg: float, pitch_deg: float, yaw_deg: float,
+                     legacy: bool = False) -> np.ndarray:
+    """Матрица осей UE (столбцы: fwd/right/up).
+
+    ``legacy=True`` — историческая формула с зеркальным ``up`` (используется
+    пайплайном scene1: его поправки `anchor_offset_views` подгонялись под неё).
+    ``legacy=False`` — ортонормированная матрица (det=+1); проверено на scene2:
+    даёт 5–7 px на уже измеренных кадрах и делает пригодной наклонную
+    аэрокамеру cam2 (pitch ≈ −45°).
+    """
     sp, cp = np.sin(np.radians(pitch_deg)), np.cos(np.radians(pitch_deg))
     sy, cy = np.sin(np.radians(yaw_deg)), np.cos(np.radians(yaw_deg))
     sr, cr = np.sin(np.radians(roll_deg)), np.cos(np.radians(roll_deg))
     fwd = np.array([cp * cy, cp * sy, sp])
-    left = np.array([-sr * sp * cy + cr * sy, -sr * sp * sy - cr * cy, sr * cp])
-    up = np.array([cr * sp * cy + sr * sy, cr * sp * sy - sr * cy, cr * cp])
-    return np.vstack((fwd, -left, up)).T  # columns: fwd, right, up (UE world basis)
+    right = np.array([sr * sp * cy - cr * sy, sr * sp * sy + cr * cy, -sr * cp])
+    if legacy:  # историческая (неортонормальная) формула
+        up = np.array([cr * sp * cy + sr * sy, cr * sp * sy - sr * cy, cr * cp])
+    else:
+        up = np.array([-cr * sp * cy - sr * sy, -cr * sp * sy + sr * cy, cr * cp])
+    return np.vstack((fwd, right, up)).T  # columns: fwd, right, up (UE world basis)
 
 
 # Flip of the UE left-handed world into a right-handed frame (det = -1).
@@ -156,17 +165,22 @@ def unreal_to_right(x_u: float, y_u: float, z_u: float) -> np.ndarray:
     return np.array([x_u, -y_u, z_u]) * CM_TO_M
 
 
-def build_extrinsics(row: UnrealRow) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """(R_w2c, t, C): OpenCV extrinsics from a UE CSV row, meters.
+def build_extrinsics(row: UnrealRow, legacy: bool = False
+                     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """(R_w2c, t, C): OpenCV extrinsics из строки UE-CSV, метры.
 
-    Empirical convention (validated by truck-blob pose fit, see
-    tools/pose_fit.py and docs/TRUCK_DATASET.md): the renderer uses the
-    pitch sign opposite to the CSV export. Camera axes OpenCV x=right,
-    y=down(-up), z=fwd, expressed in the right-handed world (S_FLIP applied);
-    det(R_w2c) = +1.
+    ``legacy=False`` (по умолчанию, scene2): корректная ортонормальная матрица
+    поворота (det=+1). ``legacy=True`` (scene1): историческая формула, где знак
+    pitch инвертировался, а у ``up`` была зеркальна горизонтальная часть — две
+    ошибки компенсировали друг друга при малых |pitch| (<10°), но ломали
+    наклонные камеры. Пайплайн scene1 оставлен на legacy, потому что его
+    поправки `anchor_offset_views`/`anchor_azimuth` подгонялись именно под неё.
     """
     roll, pitch, yaw = row.rot
-    axes = ue_rot_to_matrix(roll, -pitch, yaw)      # columns = fwd,right,up (UE)
+    if legacy:
+        axes = ue_rot_to_matrix(roll, -pitch, yaw, legacy=True)
+    else:
+        axes = ue_rot_to_matrix(roll, pitch, yaw)   # columns = fwd,right,up (UE)
     r_w2c = np.array([axes[:, 1], -axes[:, 2], axes[:, 0]]) @ S_FLIP
     c_w = unreal_to_right(*row.loc)
     t = -r_w2c @ c_w
@@ -187,9 +201,10 @@ def build_intrinsics(focal_mm: float, sensor_mm: tuple[float, float],
 
 
 def camera_from_row(row: UnrealRow, name: str, focal_mm: float,
-                    sensor_mm: tuple[float, float], width: int, height: int) -> CameraCalibration:
+                    sensor_mm: tuple[float, float], width: int, height: int,
+                    legacy: bool = False) -> CameraCalibration:
     """``CameraCalibration`` (метрическая) для одной строки UE-CSV."""
-    r_w2c, t, _ = build_extrinsics(row)
+    r_w2c, t, _ = build_extrinsics(row, legacy=legacy)
     return CameraCalibration(
         name=name,
         K=build_intrinsics(focal_mm, sensor_mm, width, height),

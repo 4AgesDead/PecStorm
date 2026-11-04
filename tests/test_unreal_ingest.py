@@ -206,6 +206,42 @@ class TestUnrealToOpenCvAxes(unittest.TestCase):
         self.assertEqual(t.shape, (3,))
 
 
+class TestCameraConvention(unittest.TestCase):
+    """Регрессия на баг знака: наклонная камера должна давать поворот, а не отражение.
+
+    Историческая формула (legacy, пайплайн scene1) зеркалила горизонтальную
+    часть ``up`` и инвертировала pitch; при |pitch| < 10° ошибки почти
+    компенсировались, но для аэрокамеры scene2 (pitch ≈ −45°) матрица
+    становилась неортонормальной (det ≈ 0.08) и проекция была неверной.
+    """
+
+    def test_downward_camera_is_rotation(self):
+        parsed = parse_camera_csv(CAM1_CSV)
+        row = UnrealRow(0, (0.0, 0.0, 25000.0), (0.0, -45.0, 100.0))
+        cam = camera_from_row(row, "down", 60.0, parsed.sensor_mm, 1920, 1080)
+        self.assertAlmostEqual(float(np.linalg.det(cam.R)), 1.0, places=9)
+        np.testing.assert_allclose(cam.R @ cam.R.T, np.eye(3), atol=1e-12)
+        # оптическая ось действительно смотрит вниз
+        axis = cam.R.T @ np.array([0.0, 0.0, 1.0])
+        self.assertAlmostEqual(float(axis[2]), -np.sin(np.radians(45.0)), places=9)
+        center = -cam.R.T @ cam.t
+        pixel = project_point(cam, center + 100.0 * axis)
+        np.testing.assert_allclose(pixel, [960.0, 540.0], atol=1e-6)
+
+    def test_legacy_convention_determinant(self):
+        parsed = parse_camera_csv(CAM1_CSV)
+        for pitch in (-10.0, 0.0, 7.0):
+            row = UnrealRow(0, (0.0, 0.0, 0.0), (0.0, pitch, 0.0))
+            r, _, _ = build_extrinsics(row, legacy=True)
+            # у старой формулы det = cos(2*pitch): при pitch=0 обе совпадают
+            self.assertAlmostEqual(float(np.linalg.det(r)),
+                                   float(np.cos(np.radians(2.0 * pitch))), places=9)
+            r_new, _, _ = build_extrinsics(row)
+            self.assertAlmostEqual(float(np.linalg.det(r_new)), 1.0, places=9)
+            if abs(pitch) < 1e-9:
+                np.testing.assert_allclose(r, r_new, atol=1e-12)
+
+
 class TestStaticCameraPose(unittest.TestCase):
     """§7.1 п.6: камеры 1–4 статичны по всей записи."""
 

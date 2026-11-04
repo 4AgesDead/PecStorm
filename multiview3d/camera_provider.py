@@ -50,7 +50,8 @@ class CameraStateProvider:
             loc_keys = {r.loc for r in parsed.rows}
             if len(rot_keys) == 1 and len(loc_keys) == 1:
                 self._static[spec.name] = camera_from_row(
-                    parsed.rows[0], spec.name, parsed.focal_mm, parsed.sensor_mm, w, h)
+                    parsed.rows[0], spec.name, parsed.focal_mm, parsed.sensor_mm, w, h,
+                    legacy=True)
 
     @property
     def names(self) -> list[str]:
@@ -91,7 +92,7 @@ class CameraStateProvider:
         if cam is None:
             row = self._rows[name][frame]
             focal_mm, sensor_mm, w, h = self._meta[name]
-            cam = camera_from_row(row, name, focal_mm, sensor_mm, w, h)
+            cam = camera_from_row(row, name, focal_mm, sensor_mm, w, h, legacy=True)
             self._cache[key] = cam
         return cam
 

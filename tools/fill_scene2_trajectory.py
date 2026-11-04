@@ -21,7 +21,8 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 import numpy as np
-from scipy.interpolate import PchipInterpolator
+from scipy.interpolate import PchipInterpolator, UnivariateSpline
+from scipy.ndimage import gaussian_filter1d
 from scipy.signal import savgol_filter
 
 
@@ -58,6 +59,45 @@ def read_measured(path: Path, min_track_points: int = 1) -> list[dict]:
     return out
 
 
+def local_consistency(frames: np.ndarray, arr: np.ndarray, window: int = 30,
+                      min_neighbors: int = 4) -> np.ndarray:
+    """Невязка точки относительно медианы соседей по времени (окно ±window).
+
+    Глобальный сплайн для отбраковки не годится: на резких поворотах он
+    отстаёт и «выбросом» выглядит честное измерение. Локальная медиана
+    повторяет поворот и ловит именно одиночные срывы трекера.
+    """
+    n = len(frames)
+    res = np.full(n, np.inf, dtype=float)
+    for i in range(n):
+        lo = int(np.searchsorted(frames, frames[i] - window, "left"))
+        hi = int(np.searchsorted(frames, frames[i] + window, "right"))
+        idx = [j for j in range(lo, hi) if j != i]
+        if len(idx) < min_neighbors:
+            continue
+        med = np.median(arr[idx], axis=0)
+        res[i] = float(np.linalg.norm(arr[i] - med))
+    return res
+
+
+def isolated_mask(frames: np.ndarray, arr: np.ndarray, frame_gap: int = 10,
+                  max_dist_m: float = 40.0) -> np.ndarray:
+    """Точки, у которых нет соседей дальше ±frame_gap кадров ближе max_dist_m.
+
+    Так отсекается сегмент, который целиком «улетел» на другой объект: он
+    связен сам с собой, но оторван от остальной траектории.
+    """
+    n = len(frames)
+    mask = np.ones(n, dtype=bool)
+    for i in range(n):
+        far = np.abs(frames - frames[i]) > frame_gap
+        if not far.any():
+            continue
+        d = np.linalg.norm(arr[far] - arr[i], axis=1).min()
+        mask[i] = d <= max_dist_m
+    return mask
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Заполнить траекторию scene2")
     ap.add_argument("--estimates", default="out/scene2/est_scene2_step2.csv")
@@ -65,11 +105,27 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out-json", default="out/scene2/submission_scene2.json")
     ap.add_argument("--start", type=int, default=0)
     ap.add_argument("--end", type=int, default=1931)
-    ap.add_argument("--smooth-window", type=int, default=31)
+    ap.add_argument("--smooth-window", type=int, default=0,
+                    help="окно Савицкого–Голея (0 — не применять)")
+    ap.add_argument("--smooth-sigma", type=float, default=16.0,
+                    help="сигма гауссова сглаживания по кадрам (0 — выключить)")
+    ap.add_argument("--avg-half-frames", type=int, default=2,
+                    help="усреднить измерения в окне ±N кадров (0 — не усреднять)")
     ap.add_argument("--min-track-points", type=int, default=0,
                     help="отбросить короткие треки (0 — не фильтровать)")
-    ap.add_argument("--trim-quantile", type=float, default=0.01,
+    ap.add_argument("--trim-quantile", type=float, default=0.0,
                     help="срезать крайние q по X/Y (0 — выключить)")
+    ap.add_argument("--robust", dest="robust", action="store_true", default=True,
+                    help="отбросить точки, не согласующиеся с соседями по времени")
+    ap.add_argument("--no-robust", dest="robust", action="store_false")
+    ap.add_argument("--isolated-max-dist", type=float, default=0.0,
+                    help="отсечь точки без соседей ближе N м (0 — выключить); "
+                         "по умолчанию выключено: проверено, что ранний кластер "
+                         "кадров 41..46 реален (аэрокамера cam2 видит там грузовик)")
+    ap.add_argument("--max-residual-m", type=float, default=6.0,
+                    help="порог локальной невязки, метры")
+    ap.add_argument("--window-frames", type=int, default=30,
+                    help="полуокно локальной проверки, кадры")
     args = ap.parse_args(argv)
 
     pts = read_measured(Path(args.estimates), args.min_track_points)
@@ -84,8 +140,35 @@ def main(argv: list[str] | None = None) -> int:
     if len(pts) < 3:
         print("мало MEASURED-точек", file=sys.stderr)
         return 2
+    if args.robust and len(pts) >= 20:
+        f0 = np.array([p["frame"] for p in pts], dtype=float)
+        a0 = np.array([[p["x"], p["y"], p["z"]] for p in pts], dtype=float)
+        keep = np.ones(len(pts), dtype=bool)
+        if args.isolated_max_dist > 0:
+            keep = isolated_mask(f0, a0, max_dist_m=args.isolated_max_dist)
+            print(f"isolated: отброшено {int((~keep).sum())} точек "
+                  f"(нет соседей ближе {args.isolated_max_dist:.0f} м)")
+        res = local_consistency(f0, a0, window=args.window_frames)
+        finite = np.isfinite(res)
+        if finite.any():
+            print(f"локальная невязка: медиана {np.median(res[finite]):.2f} м, "
+                  f"P90 {np.percentile(res[finite], 90):.2f} м")
+        keep &= ~(np.isfinite(res) & (res > args.max_residual_m))
+        dropped = int((~keep).sum())
+        if dropped:
+            print(f"robust: отброшено {dropped} точек из {len(pts)}")
+            pts = [p for p, k in zip(pts, keep) if k]
     frames = np.array([p["frame"] for p in pts], dtype=float)
     arr = np.array([[p["x"], p["y"], p["z"]] for p in pts], dtype=float)
+    if args.avg_half_frames > 0 and len(pts) >= 3:
+        raw = arr.copy()
+        arr = raw.copy()
+        for i in range(len(frames)):
+            sel = np.abs(frames - frames[i]) <= args.avg_half_frames
+            if int(sel.sum()) >= 2:
+                arr[i] = raw[sel].mean(axis=0)
+        print(f"усреднение ±{args.avg_half_frames} кадра: "
+              f"{int((np.abs(arr - raw).max(axis=1) > 0).sum())} точек сглажено")
     print(f"MEASURED: {len(pts)} точек, кадры {int(frames[0])}..{int(frames[-1])}")
 
     all_frames = np.arange(args.start, args.end + 1, dtype=float)
@@ -109,6 +192,11 @@ def main(argv: list[str] | None = None) -> int:
         win = min(args.smooth_window, len(all_frames) // 2 * 2 - 1)
         if win >= 5:
             interp = savgol_filter(interp, win, 2, axis=0)
+
+    if args.smooth_sigma and args.smooth_sigma > 0:
+        # гауссово сглаживание вместо SG: не даёт «звона» на изломах
+        interp = gaussian_filter1d(interp, args.smooth_sigma, axis=0, mode="nearest")
+        interp[:, 2] = np.clip(interp[:, 2], 0.5, 8.0)
 
     measured_frames = set(int(f) for f in frames)
     measured_by_frame = {p["frame"]: p for p in pts}
@@ -164,7 +252,8 @@ def main(argv: list[str] | None = None) -> int:
         "frames": len(rows),
         "frame_range": [args.start, args.end],
         "path_length_xy_m": round(float(d_xy.sum()), 2),
-        "method": "PCHIP по MEASURED + константные края + SG-сглаживание",
+        "method": ("PCHIP по MEASURED (устойчивый отсев выбросов) "
+                   "+ константные края + SG-сглаживание"),
         "warning": "INTERPOLATED — не измерение; GT в scene2 нет",
     }
     Path(args.out_json).write_text(json.dumps(meta, ensure_ascii=False, indent=2),

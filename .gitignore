@@ -27,3 +27,6 @@ out/truck/videos
 
 # Автоскачанные датасеты ultralytics
 datasets/coco8/
+
+# псевдо-разметка scene2 (JPEG, ~170 МБ) — не в git
+datasets/scene2_pseudo/

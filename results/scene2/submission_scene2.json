@@ -1,16 +1,16 @@
 {
-  "source": "out\\scene2\\est_scene2_step1.csv",
-  "measured_points": 499,
+  "source": "out\\scene2\\est_scene2_fixed.csv",
+  "measured_points": 703,
   "measured_range": [
-    169,
-    1822
+    41,
+    1835
   ],
   "frames": 1932,
   "frame_range": [
     0,
     1931
   ],
-  "path_length_xy_m": 457.28,
-  "method": "PCHIP по MEASURED + константные края + SG-сглаживание",
+  "path_length_xy_m": 582.36,
+  "method": "PCHIP по MEASURED (устойчивый отсев выбросов) + константные края + SG-сглаживание",
   "warning": "INTERPOLATED — не измерение; GT в scene2 нет"
 }
