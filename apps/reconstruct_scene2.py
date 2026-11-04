@@ -92,6 +92,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--gate", type=float, default=10.0)
     ap.add_argument("--max-missing", type=int, default=5)
     ap.add_argument("--max-reprojection-px", type=float, default=50.0)
+    ap.add_argument("--px-offsets", default="",
+                    help="JSON camera -> [du,dv] для сдвига центров боксов")
     ap.add_argument("--out-csv", default="out/scene2/est_scene2.csv")
     ap.add_argument("--out-json", default="out/scene2/est_scene2.json")
     args = ap.parse_args(argv)
@@ -106,6 +108,12 @@ def main(argv: list[str] | None = None) -> int:
                                            if c.strip()])
                  for path in model_paths]
     print(f"детекторы: {model_paths}")
+    px_offsets = {}
+    if args.px_offsets and Path(args.px_offsets).exists():
+        px_offsets = json.loads(Path(args.px_offsets).read_text(encoding="utf-8"))
+        if "px_offsets_px" in px_offsets:
+            px_offsets = px_offsets["px_offsets_px"]
+        print(f"2D-сдвиги: {len(px_offsets)} камер")
     cfg = FusionConfig(association_mode="single_target", min_views=2,
                        max_reprojection_px=args.max_reprojection_px,
                        gate_mahalanobis=args.gate, max_missing=args.max_missing)
@@ -133,7 +141,13 @@ def main(argv: list[str] | None = None) -> int:
             for det in detectors:
                 raw.extend(det.detect(img))
             d = merge_detections(raw, args.merge_iou)
+            shift = px_offsets.get(name)
             for x in d:
+                if shift and x.bbox is not None:
+                    du, dv = float(shift[0]), float(shift[1])
+                    x.bbox = (x.bbox[0] + du, x.bbox[1] + dv,
+                              x.bbox[2] + du, x.bbox[3] + dv)
+                    x.center = np.asarray(x.center, dtype=float) + np.array([du, dv])
                 x.camera = name
                 x.timestamp = f / ds.fps
             dets.append(d)

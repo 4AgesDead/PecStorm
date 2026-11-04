@@ -1,0 +1,66 @@
+{
+  "model": "models/CargoTruck.fbx",
+  "model_size_m": {
+    "X": 1.6777,
+    "Y": 2.4238,
+    "Z": 6.6849
+  },
+  "axes": {
+    "up": "Y",
+    "forward": "Z",
+    "forward_sign": 1.0
+  },
+  "offset_m": [
+    -0.411,
+    -0.6123,
+    0.559
+  ],
+  "dyaw_deg": 41.608,
+  "scale": 2.69445,
+  "pivot_frac": 0.0068,
+  "iou_mean": 0.5483,
+  "iou_per_camera": {
+    "cam1": 0.061,
+    "cam3": 0.614,
+    "cam4": 0.493,
+    "cam5": 0.477,
+    "cam6": 0.561,
+    "cam7": 0.556,
+    "cam8": 0.511,
+    "cam9": 0.561
+  },
+  "px_offsets_px": {
+    "cam3": [
+      0.17,
+      -2.87
+    ],
+    "cam7": [
+      0.42,
+      3.42
+    ],
+    "cam8": [
+      3.32,
+      -16.47
+    ],
+    "cam4": [
+      4.54,
+      25.61
+    ],
+    "cam6": [
+      -2.36,
+      2.38
+    ],
+    "cam5": [
+      -0.03,
+      4.35
+    ],
+    "cam9": [
+      5.64,
+      0.86
+    ]
+  },
+  "observations": 161,
+  "pseudo_gt": "results/scene2/submission_scene2.csv",
+  "detections": "out/scene2/dets_fit.csv",
+  "note": "Калибровка модели по псевдо-GT scene2 (PCHIP) и COCO-боксам; GT нет."
+}
