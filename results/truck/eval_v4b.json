@@ -1,0 +1,216 @@
+{
+  "dataset": "pelenga_truck",
+  "estimates_csv": "out/truck/est_v4b.csv",
+  "frame_range": [
+    0,
+    1000
+  ],
+  "fps": 30.0,
+  "repairs_applied": false,
+  "measured": {
+    "n_points": 817,
+    "mean_mm": 1861.133,
+    "mae_mm": 1861.133,
+    "rmse_mm": 3241.779,
+    "median_mm": 1309.35,
+    "p95_mm": 4829.194,
+    "p99_mm": 8007.785,
+    "max_mm": 43125.04,
+    "per_axis_mae_mm": [
+      1450.89,
+      812.92,
+      362.157
+    ],
+    "per_axis_rmse_mm": [
+      2754.108,
+      1465.751,
+      880.679
+    ]
+  },
+  "predicted": {
+    "n_points": 23,
+    "mean_mm": 5269.705,
+    "mae_mm": 5269.705,
+    "rmse_mm": 6572.497,
+    "median_mm": 6394.064,
+    "p95_mm": 14003.41,
+    "p99_mm": 15195.46,
+    "max_mm": 15334.56,
+    "per_axis_mae_mm": [
+      4060.117,
+      2705.317,
+      563.479
+    ],
+    "per_axis_rmse_mm": [
+      5340.374,
+      3712.467,
+      946.414
+    ]
+  },
+  "coverage": {
+    "frames_total": 1001.0,
+    "frames_with_gt": 999.0,
+    "measured": 0.817,
+    "progress_predicted_only": 0.023,
+    "unobservable": 0.16,
+    "monocular_only": 0.0
+  },
+  "coverage_counts": {
+    "frames_total": 1001,
+    "frames_with_gt": 999,
+    "frames_measured": 818,
+    "frames_predicted_only": 23,
+    "frames_unobservable": 160,
+    "frames_monocular_only": 0
+  },
+  "per_camera_subset": {
+    "cam1|cam2": {
+      "n_points": 47,
+      "mean_mm": 541.755,
+      "mae_mm": 541.755,
+      "rmse_mm": 612.322,
+      "median_mm": 493.36,
+      "p95_mm": 1002.392,
+      "p99_mm": 1047.247,
+      "max_mm": 1047.524,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam1|cam2|cam5": {
+      "n_points": 86,
+      "mean_mm": 2478.509,
+      "mae_mm": 2478.509,
+      "rmse_mm": 2883.168,
+      "median_mm": 2322.587,
+      "p95_mm": 4801.698,
+      "p99_mm": 7050.189,
+      "max_mm": 8026.64,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam1|cam4|cam5": {
+      "n_points": 27,
+      "mean_mm": 460.012,
+      "mae_mm": 460.012,
+      "rmse_mm": 595.259,
+      "median_mm": 368.078,
+      "p95_mm": 1214.567,
+      "p99_mm": 1303.575,
+      "max_mm": 1327.079,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam1|cam5": {
+      "n_points": 20,
+      "mean_mm": 356.07,
+      "mae_mm": 356.07,
+      "rmse_mm": 537.917,
+      "median_mm": 210.428,
+      "p95_mm": 1415.756,
+      "p99_mm": 1569.719,
+      "max_mm": 1608.21,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam2|cam3|cam4|cam5": {
+      "n_points": 145,
+      "mean_mm": 724.023,
+      "mae_mm": 724.023,
+      "rmse_mm": 813.19,
+      "median_mm": 660.153,
+      "p95_mm": 1553.903,
+      "p99_mm": 1771.276,
+      "max_mm": 2261.677,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam2|cam3|cam5": {
+      "n_points": 125,
+      "mean_mm": 1530.364,
+      "mae_mm": 1530.364,
+      "rmse_mm": 2124.436,
+      "median_mm": 833.687,
+      "p95_mm": 5033.894,
+      "p99_mm": 6296.482,
+      "max_mm": 6651.048,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam2|cam4": {
+      "n_points": 2,
+      "mean_mm": 6115.086,
+      "mae_mm": 6115.086,
+      "rmse_mm": 6122.997,
+      "median_mm": 6115.086,
+      "p95_mm": 6395.112,
+      "p99_mm": 6420.004,
+      "max_mm": 6426.226,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam2|cam4|cam5": {
+      "n_points": 112,
+      "mean_mm": 2791.95,
+      "mae_mm": 2791.95,
+      "rmse_mm": 3207.972,
+      "median_mm": 2561.587,
+      "p95_mm": 5234.447,
+      "p99_mm": 7465.281,
+      "max_mm": 8429.934,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam2|cam5": {
+      "n_points": 74,
+      "mean_mm": 1960.473,
+      "mae_mm": 1960.473,
+      "rmse_mm": 2257.427,
+      "median_mm": 1808.894,
+      "p95_mm": 4399.396,
+      "p99_mm": 4632.046,
+      "max_mm": 4699.718,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam3|cam4": {
+      "n_points": 4,
+      "mean_mm": 14157.441,
+      "mae_mm": 14157.441,
+      "rmse_mm": 14274.118,
+      "median_mm": 13757.511,
+      "p95_mm": 16604.207,
+      "p99_mm": 16960.101,
+      "max_mm": 17049.074,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam3|cam4|cam5": {
+      "n_points": 48,
+      "mean_mm": 1724.942,
+      "mae_mm": 1724.942,
+      "rmse_mm": 2071.082,
+      "median_mm": 1602.449,
+      "p95_mm": 3974.119,
+      "p99_mm": 4621.696,
+      "max_mm": 4928.061,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    },
+    "cam4|cam5": {
+      "n_points": 127,
+      "mean_mm": 2808.509,
+      "mae_mm": 2808.509,
+      "rmse_mm": 5987.176,
+      "median_mm": 1761.742,
+      "p95_mm": 4897.994,
+      "p99_mm": 35111.472,
+      "max_mm": 43125.04,
+      "per_axis_mae_mm": null,
+      "per_axis_rmse_mm": null
+    }
+  },
+  "gt_invalid_frames": [
+    402,
+    691
+  ]
+}

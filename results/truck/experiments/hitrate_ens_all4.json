@@ -1,0 +1,65 @@
+{
+  "detections_csv": "out/truck/det_ens_all4.csv",
+  "frames_used": [
+    0,
+    1000,
+    1001
+  ],
+  "totals": {
+    "frames_pivot_in_view": 3255,
+    "frames_with_detection": 2625,
+    "frames_pivot_in_box": 2189,
+    "detections": 2825,
+    "recall_proxy": 0.6725,
+    "precision_proxy": 0.7865,
+    "dist_center_to_pivot_px_median": 81.01
+  },
+  "per_camera": {
+    "cam1": {
+      "frames_pivot_in_view": 159,
+      "frames_with_detection": 159,
+      "frames_pivot_in_box": 82,
+      "recall_proxy": 0.5157,
+      "precision_proxy": 0.5157,
+      "detections": 159,
+      "dist_center_to_pivot_px_median": 171.94
+    },
+    "cam2": {
+      "frames_pivot_in_view": 770,
+      "frames_with_detection": 650,
+      "frames_pivot_in_box": 606,
+      "recall_proxy": 0.787,
+      "precision_proxy": 0.9227,
+      "detections": 660,
+      "dist_center_to_pivot_px_median": 52.68
+    },
+    "cam3": {
+      "frames_pivot_in_view": 556,
+      "frames_with_detection": 406,
+      "frames_pivot_in_box": 323,
+      "recall_proxy": 0.5809,
+      "precision_proxy": 0.7956,
+      "detections": 406,
+      "dist_center_to_pivot_px_median": 83.91
+    },
+    "cam4": {
+      "frames_pivot_in_view": 771,
+      "frames_with_detection": 511,
+      "frames_pivot_in_box": 417,
+      "recall_proxy": 0.5409,
+      "precision_proxy": 0.7985,
+      "detections": 531,
+      "dist_center_to_pivot_px_median": 94.45
+    },
+    "cam5": {
+      "frames_pivot_in_view": 999,
+      "frames_with_detection": 899,
+      "frames_pivot_in_box": 761,
+      "recall_proxy": 0.7618,
+      "precision_proxy": 0.7334,
+      "detections": 1069,
+      "dist_center_to_pivot_px_median": 76.12
+    }
+  },
+  "note": "recall_proxy — верхняя оценка полезности детекций: пивот внутри bbox означает, что детекция соответствует объекту. 2D-разметки нет, поэтому «настоящий» recall/precision не измеряется."
+}
