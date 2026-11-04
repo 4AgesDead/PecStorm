@@ -47,6 +47,7 @@ pecstorm import-data            # manifest датасета
 pecstorm detect --start 0 --end 100 --step 20
 pecstorm reconstruct --detections out/truck/detections.csv
 pecstorm evaluate --estimates out/truck/estimates.csv
+pecstorm plot-gt                # график «оценка vs эталон» (GT)
 pecstorm visualize --estimates out/truck/estimates.csv --frames 400,600
 pecstorm video --detections out/truck/det_ens_v4b_v2v1.csv `
     --estimates out/truck/est_ens_v4b_v2v1.csv
@@ -185,6 +186,17 @@ py tools/render_tracking_video.py `
 вперёд, серый пунктир — пропадание данных, 3D-маркер со статусом, HUD и легенда.
 Стиль задаётся флагами `--trail 160 --smooth 5 --forecast-s 3 --bridge-s 3`
 (значения по умолчанию совпадают с пультом).
+
+График сравнения с эталоном:
+
+```powershell
+pecstorm plot-gt
+# -> results/truck/report_final/comparison_vs_gt.png (+ .json с числами)
+```
+
+Слева — траектория X–Y: чёрная линия GT и точки оценки, цвет — ошибка; справа —
+ошибка по кадрам, MAE и зона holdout. Числа берутся из
+`out/truck/eval_final/evalpf.csv` и `eval.json`, GT — из датасета.
 
 ## 4c. Веб-пульт и трекинг в реальном времени
 

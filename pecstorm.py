@@ -38,6 +38,7 @@ COMMANDS: dict[str, tuple[str, str]] = {
     "evaluate": ("apps/evaluate_truck.py", "MAE/RMSE/P95 и покрытие против GT"),
     "visualize": ("apps/visualize_truck.py", "проекции оценки и GT на кадры камер"),
     "video": ("tools/render_tracking_video.py", "MP4 в стиле пульта: путь, прогноз, план X–Y"),
+    "plot-gt": ("tools/plot_vs_gt.py", "график «оценка vs эталон» (GT)"),
     "report": ("tools/make_report.py", "сводка и графики по прогону"),
     "charts": ("tools/make_comparison_charts.py", "сравнительные графики конфигураций"),
     "labels": ("tools/make_pseudo_labels.py", "псевдо-разметка из GT + 3D-модели"),

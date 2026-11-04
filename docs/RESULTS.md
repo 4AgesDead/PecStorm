@@ -414,6 +414,13 @@ mAP50-95 0.126 (у v2 было 0.364 / 0.123 — то есть режим обу
 `comparison_mae.png`, `comparison_coverage.png`, `comparison_tradeoff.png`,
 `comparison_recall_precision.png`, `comparison.json`.
 
+График сравнения финальной конфигурации с эталоном —
+`results/truck/report_final/comparison_vs_gt.png` (`tools/plot_vs_gt.py`):
+слева траектория X–Y (чёрный GT, точки оценки окрашены по ошибке), справа ошибка
+по кадрам с MAE и зоной holdout 700..1000. Числа — рядом в
+`comparison_vs_gt.json`: n=823, MAE 1.9847 м, медиана 1.4207 м, P95 4.9788 м,
+покрытие 82.3 %, holdout 1.9813 м / 67.4 %.
+
 ### Покадровое уточнение модели для псевдо-разметки — тоже не дало выигрыша
 
 Проверка `tools/check_perframe_refinement.py` (честная схема: параметры

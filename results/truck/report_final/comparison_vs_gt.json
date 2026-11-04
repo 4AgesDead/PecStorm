@@ -1,0 +1,31 @@
+{
+  "per_frame_csv": "out/truck/eval_final/evalpf.csv",
+  "eval_json": "out/truck/eval_final/eval.json",
+  "gt_frames": [
+    0,
+    1000
+  ],
+  "fps": 30.0,
+  "measured": {
+    "n": 823,
+    "mae_m": 1.9846648562308546,
+    "median_m": 1.4207349447117177,
+    "p95_m": 4.978769932564818
+  },
+  "predicted": {
+    "n": 22,
+    "mae_m": 8.019105155402194,
+    "median_m": 6.581254531066347,
+    "p95_m": 18.25118127152825
+  },
+  "coverage_measured": 0.823,
+  "holdout": {
+    "start": 700,
+    "n": 203,
+    "mae_m": 1.981329375225713,
+    "median_m": 1.6007474857893733,
+    "p95_m": 3.6325626410367264,
+    "coverage_measured": 0.6744186046511628
+  },
+  "png": "results/truck/report_final/comparison_vs_gt.png"
+}
