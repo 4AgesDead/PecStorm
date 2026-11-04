@@ -28,7 +28,6 @@
 | `report/` | графики и сводка: `components_vs_time.png` (X/Y/Z эталон vs оценка), `components_error_vs_time.png` (+ ошибка по осям), `components_with_path.png` (+ траектория в плане), `components_vs_time_6lines.png` (6 линий, как в презентации), `trajectory_xy.png`, `error_vs_frame.png`, `coverage.png`, `summary.json` |
 
 ## Ключевые числа (источник — `truck/evaluation.json`)
-
 * покрытие: `MEASURED` 614 кадров (61.3 %), `PREDICTED_ONLY` 25 (2.5 %),
   `UNOBSERVABLE` 362 (36.2 %), `MONOCULAR` 0 %;
 * MAE по 612 измеренным точкам: 4.28 м; медиана 2.91 м; P95 11.18 м;
