@@ -96,7 +96,8 @@ class Tracker:
                                      imgsz=args.imgsz, class_names=names or None)
         cfg = FusionConfig(association_mode="single_target",
                            max_reprojection_px=args.max_reprojection_px,
-                           gate_mahalanobis=args.gate)
+                           gate_mahalanobis=args.gate,
+                           max_missing=args.max_missing)
         views = load_anchor_offset_views(args.anchor_views)
         if views:
             cfg.anchor_offset_views = {k: tuple(v) for k, v in views.items()}
@@ -127,7 +128,8 @@ class Tracker:
         self.pipe = MultiViewPipeline(self._pipe_cfg.cameras, config=self._pipe_cfg,
                                       camera_provider=self.ds.provider, fps=self.ds.fps)
 
-    def _render(self, name, img, dets, position, status, views, t):
+    def _render(self, name, img, dets, position, status, views, t,
+                trail=None, forecast=None):
         for d in dets:
             if d.bbox is None:
                 continue
@@ -135,20 +137,56 @@ class Tracker:
             cv2.rectangle(img, (x1, y1), (x2, y2), (255, 190, 0), 2)
             cv2.putText(img, f"{d.score:.2f}", (x1, max(y1 - 6, 12)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 190, 0), 1, cv2.LINE_AA)
-        if position is not None:
-            cam = self.ds.provider.calibrations_at(self.frame_idx, nearest=True).get(name)
-            if cam is not None:
+        cam = self.ds.provider.calibrations_at(self.frame_idx, nearest=True).get(name)
+        if cam is not None and trail:
+            # Траектория: зелёная — измеренные точки, оранжевая — прогноз Калмана
+            prev = None
+            for p, st in trail:
                 try:
-                    u, v = project(cam, position)
-                    cv2.drawMarker(img, (int(u), int(v)), (60, 200, 60),
-                                   cv2.MARKER_SQUARE, 18, 2)
-                    cv2.putText(img, f"3D {status}", (int(u) + 12, int(v) - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.55, (60, 200, 60), 2, cv2.LINE_AA)
+                    uv = project(cam, p)
                 except Exception:
-                    pass
-        cv2.rectangle(img, (0, 0), (520, 30), (0, 0, 0), -1)
+                    prev = None
+                    continue
+                cur = (int(uv[0]), int(uv[1]))
+                if prev is not None:
+                    color = (60, 200, 60) if st == "MEASURED" else (0, 160, 255)
+                    cv2.line(img, prev, cur, color, 2, cv2.LINE_AA)
+                prev = cur
+            # Прогноз вперёд «призраком»: белая пунктирная линия
+            if forecast:
+                prev = None
+                for q in forecast:
+                    try:
+                        uv = project(cam, q)
+                    except Exception:
+                        prev = None
+                        continue
+                    cur = (int(uv[0]), int(uv[1]))
+                    if prev is not None:
+                        cv2.line(img, prev, cur, (230, 230, 230), 1, cv2.LINE_AA)
+                    prev = cur
+        if position is not None and cam is not None:
+            try:
+                u, v = project(cam, position)
+                cv2.drawMarker(img, (int(u), int(v)), (60, 200, 60),
+                               cv2.MARKER_SQUARE, 18, 2)
+                cv2.putText(img, f"3D {status}", (int(u) + 12, int(v) - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.55, (60, 200, 60), 2, cv2.LINE_AA)
+            except Exception:
+                pass
+        cv2.rectangle(img, (0, 0), (620, 52), (0, 0, 0), -1)
         cv2.putText(img, f"{name}  f={self.frame_idx}  t={t:6.2f} s  det={len(dets)}",
                     (8, 21), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (240, 240, 240), 1, cv2.LINE_AA)
+        # легенда: что означают линии
+        cv2.line(img, (10, 42), (38, 42), (60, 200, 60), 2)
+        cv2.putText(img, "измерено", (44, 46), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
+                    (200, 200, 200), 1, cv2.LINE_AA)
+        cv2.line(img, (120, 42), (148, 42), (0, 160, 255), 2)
+        cv2.putText(img, "прогноз", (154, 46), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
+                    (200, 200, 200), 1, cv2.LINE_AA)
+        cv2.line(img, (225, 42), (253, 42), (230, 230, 230), 1)
+        cv2.putText(img, "вперёд", (259, 46), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
+                    (200, 200, 200), 1, cv2.LINE_AA)
         return img
 
     def _apply_azimuth(self, last_points):
@@ -176,6 +214,25 @@ class Tracker:
             P = np.asarray(p.position, dtype=float)
             bearing = float(np.arctan2(P[1] - C[1], P[0] - C[0]))
             p.position = P - (basis(wrap_angle(bearing - heading)) @ coef)
+
+    def _forecast(self, pts) -> list | None:
+        """«Призрак» будущей траектории: экстраполяция по последней скорости."""
+        horizon = float(self.args.forecast_s)
+        if horizon <= 0 or len(pts) < 2:
+            return None
+        last = pts[-1]
+        v = np.asarray(getattr(last, "velocity", np.zeros(3)), dtype=float)
+        if not np.all(np.isfinite(v)) or float(np.hypot(v[0], v[1])) < 0.1:
+            prev = np.asarray(pts[-2].position, dtype=float)
+            cur = np.asarray(last.position, dtype=float)
+            dt = max(float(last.timestamp) - float(pts[-2].timestamp), 1e-3)
+            v = (cur - prev) / dt
+        if float(np.hypot(v[0], v[1])) < 0.1:
+            return None
+        start = np.asarray(last.position, dtype=float)
+        t0 = float(last.timestamp)
+        steps = 12
+        return [start + v * (horizon * i / steps) for i in range(1, steps + 1)]
 
     def loop(self):
         last_t = time.perf_counter()
@@ -208,15 +265,20 @@ class Tracker:
             result = self.pipe.step(t, dets_by_cam, frame=self.frame_idx)
             self._apply_azimuth(None)
             position, status, views = None, "-", []
+            trail, forecast = None, None
             if result.tracks:
-                pts = result.tracks[0].points
+                pts = sorted(result.tracks[0].points, key=lambda p: p.timestamp)
                 if pts:
                     last = pts[-1]
                     position, status, views = (np.asarray(last.position), last.status,
                                                list(last.views))
+                    n = max(int(self.args.trail), 2)
+                    trail = [(np.asarray(p.position, dtype=float), p.status)
+                             for p in pts[-n:]]
+                    forecast = self._forecast(pts)
             for cam, img in zip(self.ds.cameras, imgs):
                 vis = self._render(cam.name, img, dets_by_cam.get(cam.name, []),
-                                   position, status, views, t)
+                                   position, status, views, t, trail, forecast)
                 if self.args.preview_scale != 1.0:
                     h, w = vis.shape[:2]
                     vis = cv2.resize(vis, (int(w * self.args.preview_scale),
@@ -338,6 +400,12 @@ def main(argv: list[str] | None = None) -> int:
                     help="масштаб превью (0.5 — вдвое меньше и быстрее кодирование)")
     ap.add_argument("--loop", action="store_true",
                     help="проигрывать видео по кругу (демо)")
+    ap.add_argument("--trail", type=int, default=80,
+                    help="сколько последних 3D-точек рисовать как траекторию")
+    ap.add_argument("--forecast-s", type=float, default=2.0,
+                    help="горизонт «призрачного» прогноза вперёд, с (0 — выключить)")
+    ap.add_argument("--max-missing", type=int, default=30,
+                    help="сколько кадров без измерения продолжать прогноз (Калман)")
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--host", default="127.0.0.1")
     args = ap.parse_args(argv)
