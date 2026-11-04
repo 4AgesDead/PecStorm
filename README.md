@@ -13,6 +13,7 @@
 >
 > **Быстрый гайд «что запускать» → [docs/QUICKSTART.md](docs/QUICKSTART.md)**
 > **Все числа и методика → [docs/RESULTS.md](docs/RESULTS.md)**
+> **Задание 2 (scene2, 9 камер) → [docs/SCENE2.md](docs/SCENE2.md)**
 
 ## Содержание
 
@@ -262,6 +263,7 @@ HANDOFF.md            история работ и грабли инструме
 | [docs/RESULTS.md](docs/RESULTS.md) | все измерения, эксперименты, отрицательные результаты |
 | [docs/DEFENSE_QA.md](docs/DEFENSE_QA.md) | вопросы и ответы для защиты, шпаргалка чисел |
 | [docs/DEFENSE_QUESTIONS.md](docs/DEFENSE_QUESTIONS.md) | 88 вопросов без ответов — для тренировки |
+| [docs/SCENE2.md](docs/SCENE2.md) | задание 2: 9 камер, 3D-координаты грузовика, CSV на 1932 кадра |
 | [docs/TRUCK_DATASET.md](docs/TRUCK_DATASET.md) | формат датасета, конверсия координат, ограничения |
 | [docs/DETECTION.md](docs/DETECTION.md) | детектор: модель, пороги, замеры |
 | [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) | 15 вопросов организаторам (ответов нет) |

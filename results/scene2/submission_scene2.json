@@ -1,0 +1,16 @@
+{
+  "source": "out/scene2/est_scene2_step2.csv",
+  "measured_points": 253,
+  "measured_range": [
+    170,
+    1834
+  ],
+  "frames": 1932,
+  "frame_range": [
+    0,
+    1931
+  ],
+  "path_length_xy_m": 456.2,
+  "method": "PCHIP по MEASURED + линейная экстраполяция краёв + SG-сглаживание",
+  "warning": "INTERPOLATED — не измерение; GT в scene2 нет"
+}
