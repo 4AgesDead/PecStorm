@@ -1,0 +1,203 @@
+{
+  "method": "median(estimate - gt) покоординатно по набору видов, знак инвертирован: offset_m прибавляется к оценке (переход к pivot); канонический ключ — отсортированные имена камер",
+  "offsets_m": {
+    "cam2|cam3|cam5": [
+      7.9449,
+      -6.7982,
+      0.3962
+    ],
+    "cam2|cam3|cam4|cam5": [
+      3.4634,
+      -9.2653,
+      0.3515
+    ],
+    "cam2|cam5": [
+      -0.7682,
+      1.1533,
+      1.569
+    ],
+    "cam4|cam5": [
+      3.0464,
+      -9.9766,
+      1.7236
+    ],
+    "cam1|cam2": [
+      10.2787,
+      -3.6363,
+      -0.9574
+    ],
+    "cam3|cam4|cam5": [
+      4.8543,
+      -9.4353,
+      0.8148
+    ],
+    "cam2|cam4|cam5": [
+      10.8127,
+      3.3851,
+      0.057
+    ],
+    "cam1|cam5": [
+      8.4635,
+      -7.4179,
+      -0.0426
+    ],
+    "cam1|cam2|cam5": [
+      9.1019,
+      -3.1757,
+      -2.4511
+    ]
+  },
+  "min_observations": 20,
+  "fit_frames": [
+    0,
+    700
+  ],
+  "test_frames": [
+    700,
+    1000
+  ],
+  "detections_csv": "out/truck/det_ens_v4v2v1.csv",
+  "per_views": {
+    "cam2|cam3|cam5": {
+      "n": 129,
+      "offset_m": [
+        7.9449,
+        -6.7982,
+        0.3962
+      ],
+      "mae_before_m": 10.181,
+      "mae_in_sample_m": 1.967,
+      "cv_parity_mae_m": 1.966,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    },
+    "cam2|cam3|cam4|cam5": {
+      "n": 119,
+      "offset_m": [
+        3.4634,
+        -9.2653,
+        0.3515
+      ],
+      "mae_before_m": 10.019,
+      "mae_in_sample_m": 0.61,
+      "cv_parity_mae_m": 0.613,
+      "cv_time_mae_m": 1.499,
+      "cv_time_before_m": 11.007,
+      "cv_time_n": 20
+    },
+    "cam2|cam5": {
+      "n": 107,
+      "offset_m": [
+        -0.7682,
+        1.1533,
+        1.569
+      ],
+      "mae_before_m": 3.536,
+      "mae_in_sample_m": 2.61,
+      "cv_parity_mae_m": 2.616,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    },
+    "cam4|cam5": {
+      "n": 98,
+      "offset_m": [
+        3.0464,
+        -9.9766,
+        1.7236
+      ],
+      "mae_before_m": 10.694,
+      "mae_in_sample_m": 1.944,
+      "cv_parity_mae_m": 1.945,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": 10.694,
+      "cv_time_n": 98
+    },
+    "cam1|cam2": {
+      "n": 90,
+      "offset_m": [
+        10.2787,
+        -3.6363,
+        -0.9574
+      ],
+      "mae_before_m": 12.075,
+      "mae_in_sample_m": 1.941,
+      "cv_parity_mae_m": 1.942,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    },
+    "cam3|cam4|cam5": {
+      "n": 90,
+      "offset_m": [
+        4.8543,
+        -9.4353,
+        0.8148
+      ],
+      "mae_before_m": 11.097,
+      "mae_in_sample_m": 1.957,
+      "cv_parity_mae_m": 1.958,
+      "cv_time_mae_m": 2.861,
+      "cv_time_before_m": 11.435,
+      "cv_time_n": 62
+    },
+    "cam2|cam4|cam5": {
+      "n": 85,
+      "offset_m": [
+        10.8127,
+        3.3851,
+        0.057
+      ],
+      "mae_before_m": 12.42,
+      "mae_in_sample_m": 3.302,
+      "cv_parity_mae_m": 3.3,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    },
+    "cam1|cam5": {
+      "n": 48,
+      "offset_m": [
+        8.4635,
+        -7.4179,
+        -0.0426
+      ],
+      "mae_before_m": 11.09,
+      "mae_in_sample_m": 0.58,
+      "cv_parity_mae_m": 0.581,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    },
+    "cam1|cam2|cam5": {
+      "n": 41,
+      "offset_m": [
+        9.1019,
+        -3.1757,
+        -2.4511
+      ],
+      "mae_before_m": 13.615,
+      "mae_in_sample_m": 4.676,
+      "cv_parity_mae_m": 4.73,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    },
+    "cam2|cam4": {
+      "n": 1,
+      "offset_m": [
+        6.0892,
+        4.1578,
+        -0.4247
+      ],
+      "mae_before_m": 7.386,
+      "mae_in_sample_m": 0.0,
+      "cv_parity_mae_m": null,
+      "cv_time_mae_m": null,
+      "cv_time_before_m": null,
+      "cv_time_n": 0
+    }
+  },
+  "note": "mae_in_sample_m — на тех же кадрах, что и фит (не оценка точности). Честная проверка переноса — cv_parity_mae_m и cv_time_mae_m; если они не лучше mae_before_m, сдвиг для этого набора видов не применять."
+}
