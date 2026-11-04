@@ -20,7 +20,7 @@
 Проверка, что ядро живо (≈3 с):
 
 ```powershell
-py -m unittest discover -s tests     # сейчас 70 тестов, OK
+py -m unittest discover -s tests     # сейчас 74 теста, OK
 ```
 
 ## 1. Данные
@@ -33,8 +33,47 @@ datasets/truck/                       manifest, калибровка якоря,
 
 Исходные файлы не изменяются: manifest только читает их и считает sha256.
 
-## 2. Полный цикл (5 стадий + отчёт)
+## 1a. Единая команда `pecstorm`
 
+В корне репозитория лежит `pecstorm.cmd`: одна команда вместо запоминания путей
+и интерпретаторов (сам выбирает `.venv-rocm`, если он есть).
+
+```powershell
+pecstorm --help                 # список всех команд
+pecstorm launch                 # веб-пульт, http://127.0.0.1:8000/
+pecstorm launch --stop          # остановить пульт
+pecstorm status                 # запущен ли пульт (код 0/1)
+
+pecstorm import-data            # manifest датасета
+pecstorm detect --start 0 --end 100 --step 20
+pecstorm reconstruct --detections out/truck/detections.csv
+pecstorm evaluate --estimates out/truck/estimates.csv
+pecstorm visualize --estimates out/truck/estimates.csv --frames 400,600
+pecstorm video --detections out/truck/detections_ens.csv `
+    --estimates out/truck/est_ens_v4b_v2v1.csv
+pecstorm report                 # сводка + графики
+pecstorm charts                 # сравнительные графики конфигураций
+pecstorm labels --extract-images
+pecstorm merge --inputs a.csv,b.csv --out merged.csv
+pecstorm train --model yolov8s.pt --epochs 30 --device 0
+pecstorm eval-model --model runs/.../best.pt --tag v5 --device 0
+pecstorm anchor-views --detections out/truck/detections.csv
+pecstorm anchor-azimuth --detections out/truck/detections.csv
+pecstorm smoke                  # проверка ядра
+pecstorm test                   # все тесты
+```
+
+Любая команда принимает свои флаги (они передаются исходному скрипту), и у
+каждой есть `--help`, например `pecstorm detect --help`.
+
+Чтобы `pecstorm` работал из любого каталога, добавьте корень репозитория в PATH:
+
+```powershell
+setx PATH "$env:PATH;C:\Users\BeGraphics\hahaton-1"
+# новое окно cmd после этого
+```
+
+## 2. Полный цикл (5 стадий + отчёт)
 ```powershell
 # 1. Инвентаризация: manifest, проверка кадров/CSV/GT (секунды)
 py apps/import_truck_dataset.py

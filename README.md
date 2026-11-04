@@ -33,9 +33,15 @@
 ```powershell
 py -m pip install -r requirements.txt
 
+# единая команда проекта (из корня репозитория)
+pecstorm --help
+pecstorm launch                 # веб-пульт: http://127.0.0.1:8000/
+pecstorm launch --stop
+pecstorm test                   # 74 теста
+
 # проверка ядра и тестов (~5 с)
 py tools/smoke_check.py
-py -m unittest discover -s tests          # 70 тестов
+py -m unittest discover -s tests          # 74 теста
 
 # полный офлайн-цикл на «Пеленге» (детекция уже посчитана в results/)
 py apps/import_truck_dataset.py
@@ -239,7 +245,7 @@ results/truck/        зафиксированные артефакты прог
 docs/                 QUICKSTART, RESULTS, TRUCK_DATASET, DETECTION, OPEN_QUESTIONS
 experiments/          видимость, проекция, свипы, робастность, бенчмарк
 tools/                калибровки, псевдо-разметка, обучение, отчёты, видео
-tests/                70 тестов unittest
+tests/                74 теста unittest
 requirements.txt      проверенные версии пакетов
 HANDOFF.md            история работ и грабли инструментов
 ```
