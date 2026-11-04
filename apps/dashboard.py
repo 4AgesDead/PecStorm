@@ -108,8 +108,8 @@ class Tracker:
         cams = [self.ds.calibration(n, frame0) for n in self.ds.names]
         pipe_cfg = PipelineConfig(cameras=cams, fusion=cfg, fps=self.ds.fps,
                                   frame_start=frame0)
-        self.pipe = MultiViewPipeline(cams, config=pipe_cfg,
-                                      camera_provider=self.ds.provider, fps=self.ds.fps)
+        self._pipe_cfg = pipe_cfg
+        self._make_pipeline()
 
         self.caps = [cv2.VideoCapture(str(c.video)) for c in self.ds.cameras]
         self.frames = {}
@@ -121,6 +121,11 @@ class Tracker:
         self.conf = float(args.conf)
         self.fps_now = 0.0
         self.conf_history = []
+
+    def _make_pipeline(self):
+        """Новый конвейер (нужен при перезапуске видео по кругу)."""
+        self.pipe = MultiViewPipeline(self._pipe_cfg.cameras, config=self._pipe_cfg,
+                                      camera_provider=self.ds.provider, fps=self.ds.fps)
 
     def _render(self, name, img, dets, position, status, views, t):
         for d in dets:
@@ -184,6 +189,12 @@ class Tracker:
                 ok, img = cap.read()
                 imgs.append(img if ok else None)
             if any(im is None for im in imgs):
+                if self.args.loop:
+                    for cap in self.caps:
+                        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                    self.frame_idx = 0
+                    self._make_pipeline()
+                    continue
                 self.finished = True
                 break
             t = self.frame_idx / self.ds.fps
@@ -325,6 +336,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="ограничение темпа (0 — без ограничения)")
     ap.add_argument("--preview-scale", type=float, default=1.0,
                     help="масштаб превью (0.5 — вдвое меньше и быстрее кодирование)")
+    ap.add_argument("--loop", action="store_true",
+                    help="проигрывать видео по кругу (демо)")
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--host", default="127.0.0.1")
     args = ap.parse_args(argv)
