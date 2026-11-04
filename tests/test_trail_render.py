@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 
 from multiview3d.trail_render import (JUMP, build_trail, forecast, map_window,
-                                      mean_velocity)
+                                      mean_velocity, render_map_panel)
 
 
 def _straight(n=30, dt=1 / 30, speed=15.0):
@@ -46,6 +46,21 @@ class TestForecast(unittest.TestCase):
     def test_too_short_history_has_no_velocity(self):
         self.assertIsNone(mean_velocity(_straight(3)))
         self.assertIsNone(forecast(_straight(3), 3.0, 3.0))
+
+
+class TestMapPanel(unittest.TestCase):
+    def test_gt_overlay_is_drawn(self):
+        trail = [(np.array([0.0, 0.0, 0.0]), "MEASURED"),
+                 (np.array([10.0, 0.0, 0.0]), "MEASURED")]
+        gt = [np.array([0.0, 0.0, 0.0]), np.array([10.0, 0.0, 0.0])]
+        canvas, _ = render_map_panel(
+            trail, None, np.array([10.0, 0.0, 0.0]), "MEASURED", 1.0, 10,
+            gt_points=gt, gt_position=np.array([10.0, 0.0, 0.0]))
+        self.assertEqual(canvas.shape, (640, 900, 3))
+        # жёлтый BGR (0, 220, 255): синий < 80, зелёный > 150, красный > 200
+        yellow = ((canvas[:, :, 0] < 80) & (canvas[:, :, 1] > 150)
+                  & (canvas[:, :, 2] > 200))
+        self.assertTrue(yellow.any())
 
 
 class TestMapWindow(unittest.TestCase):

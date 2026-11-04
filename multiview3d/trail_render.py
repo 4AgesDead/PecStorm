@@ -264,9 +264,11 @@ def map_window(points, view=None):
 
 
 def render_map_panel(trail, forecast_points, position, status, t, frame_idx,
-                     view=None, size=(900, 640)):
+                     view=None, size=(900, 640), gt_points=None,
+                     gt_position=None):
     """Панель «план X–Y (мир)»: сетка, путь, прогноз, текущая точка.
 
+    ``gt_points``/``gt_position`` — эталон (GT): жёлтая линия и крест.
     Возвращает ``(canvas, view)``; ``view`` нужно передать при следующем
     вызове, чтобы окно не дёргалось.
     """
@@ -274,6 +276,10 @@ def render_map_panel(trail, forecast_points, position, status, t, frame_idx,
     points = [item[0] for item in (trail or []) if isinstance(item, tuple)]
     if position is not None:
         points.append(position)
+    if gt_points:
+        points.extend(gt_points)
+    if gt_position is not None:
+        points.append(gt_position)
     span, cx, cy = map_window(points, view)
     scale = min((w - 80) / span, (h - 80) / span)
     canvas = np.full((h, w, 3), (18, 20, 24), np.uint8)
@@ -313,6 +319,26 @@ def render_map_panel(trail, forecast_points, position, status, t, frame_idx,
     cv2.putText(canvas, "Y, м", (w // 2 + 8, 18),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.45, (150, 160, 170), 1, cv2.LINE_AA)
 
+    # эталон: жёлтая линия под оценкой, чтобы не перекрывать её
+    if gt_points:
+        gp = np.asarray(gt_points, dtype=float)
+        if gp.size:
+            uv = to_px_batch(gp[:, :2])
+            ok = np.isfinite(uv).all(axis=1)
+            i = 0
+            while i < len(uv):
+                if not ok[i]:
+                    i += 1
+                    continue
+                j = i
+                while j < len(uv) and ok[j]:
+                    j += 1
+                if j - i >= 2:
+                    poly = np.round(uv[i:j]).astype(np.int32).reshape(-1, 1, 2)
+                    cv2.polylines(canvas, [poly], False, (0, 220, 255), 2,
+                                  cv2.LINE_AA)
+                i = j
+
     if trail:
         draw_path(canvas, trail, to_px_batch, STYLES_MAP)
         first = next((np.asarray(it[0]) for it in trail if isinstance(it, tuple)),
@@ -333,6 +359,12 @@ def render_map_panel(trail, forecast_points, position, status, t, frame_idx,
         cv2.putText(canvas, f"({position[0]:.0f}, {position[1]:.0f})  {status}",
                     (p[0] + 12, p[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     col, 1, cv2.LINE_AA)
+    if gt_position is not None:
+        g = to_px(gt_position)
+        cv2.drawMarker(canvas, g, (0, 220, 255), cv2.MARKER_CROSS, 18, 2)
+        cv2.putText(canvas, "эталон", (g[0] + 10, g[1] + 6),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 220, 255), 1,
+                    cv2.LINE_AA)
 
     cv2.rectangle(canvas, (0, 0), (w, 30), (0, 0, 0), -1)
     cv2.putText(canvas, f"план X–Y (мир)   f={frame_idx}  t={t:6.2f} s",
@@ -340,6 +372,9 @@ def render_map_panel(trail, forecast_points, position, status, t, frame_idx,
                 cv2.LINE_AA)
     cv2.putText(canvas, "серый пунктир — разрыв данных", (560, 21),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.45, (170, 170, 170), 1, cv2.LINE_AA)
+    if gt_points:
+        cv2.putText(canvas, "жёлтый — эталон", (390, 21),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 220, 255), 1, cv2.LINE_AA)
     return canvas, (span, cx, cy)
 
 

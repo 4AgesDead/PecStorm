@@ -8,8 +8,8 @@
 > **Статус: работает, доведено до чисел.** Финальная конфигурация на «Пеленге»:
 > **MAE 1.98 м** (медиана 1.42 м), покрытие **82.3 %** кадров, на отложенных
 > кадрах 700..1000 — **1.98 м / 67.4 %**; у базовой COCO-модели было 4.28 м и
-> 61.3 %. Тесты: **89**, все зелёные. Есть веб-пульт с трекингом в реальном
-> времени (~10.5–12 fps на 5 камер).
+> 61.3 %. Тесты: **90**, все зелёные. Есть веб-пульт с трекингом в реальном
+> времени (~9–9.5 fps на 5 камер, v4b) и кнопкой наложения эталона.
 >
 > **Быстрый гайд «что запускать» → [docs/QUICKSTART.md](docs/QUICKSTART.md)**
 > **Все числа и методика → [docs/RESULTS.md](docs/RESULTS.md)**
@@ -37,11 +37,11 @@ py -m pip install -r requirements.txt
 pecstorm --help
 pecstorm launch                 # веб-пульт: http://127.0.0.1:8000/
 pecstorm launch --stop
-pecstorm test                   # 89 тестов
+pecstorm test                   # 90 тестов
 
 # проверка ядра и тестов (~5 с)
 py tools/smoke_check.py
-py -m unittest discover -s tests          # 89 тестов
+py -m unittest discover -s tests          # 90 тестов
 
 # полный офлайн-цикл на «Пеленге» (детекция уже посчитана в results/)
 py apps/import_truck_dataset.py
@@ -52,9 +52,9 @@ py apps/reconstruct_truck.py --detections out/truck/detections.csv --max-reproje
 py apps/evaluate_truck.py --estimates out/truck/estimates.csv
 py tools/make_report.py
 
-# веб-пульт с трекингом в реальном времени
+# веб-пульт с трекингом в реальном времени (по умолчанию v4b)
 .\.venv-rocm\Scripts\python.exe apps\dashboard.py `
-    --model runs\detect\out\train\scene_v1\weights\best.pt `
+    --model runs\detect\out\train\scene_v4b_ft\weights\best.pt `
     --device 0 --imgsz 960 --preview-scale 0.5 --port 8000
 # открыть http://127.0.0.1:8000/
 ```
@@ -78,7 +78,7 @@ py tools/make_report.py
 | Оценка MAE/RMSE/P95/P99 + покрытие по статусам | `apps/evaluate_truck.py` | ✅ |
 | Графики «эталон vs оценка», траектория, покрытие, сравнение конфигураций | `tools/plot_components.py`, `make_report.py`, `make_comparison_charts.py` | ✅ |
 | Видео с наложением трекинга | `tools/render_tracking_video.py` | ✅ 5 MP4 + план X–Y |
-| Веб-пульт: 5 MJPEG-потоков, план X–Y, пауза, conf ±, статистика | `apps/dashboard.py` | ✅ 10.5–12.0 fps (путь, карта, сглаживание) |
+| Веб-пульт: 5 MJPEG + план X–Y + эталон, пауза, conf ±, статистика | `apps/dashboard.py` | ✅ 9.2–9.5 fps (v4b; v1 — 10.5–12) |
 | Дообучение на псевдо-разметке (GT + 3D-модель) | `tools/make_pseudo_labels.py`, `train_truck_detector.py` | ✅ MAE 4.28 → 1.55 м у одиночной модели |
 | Синтетика с критерием приёмки (2 трека, ≤30 мм) | `apps/sim_dataset.py` | ✅ 10.1 мм |
 
@@ -234,8 +234,9 @@ evaluate_truck: MAE/RMSE/P95/P99 по MEASURED + покрытие по стат�
 * Единицы мира не подтверждены: подгонка 3D-модели даёт масштаб ≈3.06, то есть
   «метр» датасета может быть не физическим метром (вопросы №4/№5).
 * Синхронность по номеру кадра не подтверждена PTS (вопрос №6).
-* В реальном времени — 11–13 fps на 5 камер (одна модель); ансамбль из трёх
-  моделей только для офлайна.
+* В реальном времени — 9.2–9.5 fps на 5 камер (одна модель **v4b**); ансамбль
+  из трёх моделей (82.3 % / 1.98 м) только для офлайна. Пульт на v4b даёт
+  покрытие заметно выше, чем прежний v1, но 30 fps не держит.
 
 ## Структура репозитория
 
@@ -248,7 +249,7 @@ results/truck/        зафиксированные артефакты прог
 docs/                 QUICKSTART, RESULTS, TRUCK_DATASET, DETECTION, OPEN_QUESTIONS
 experiments/          видимость, проекция, свипы, робастность, бенчмарк
 tools/                калибровки, псевдо-разметка, обучение, отчёты, видео
-tests/                89 тестов unittest
+tests/                90 тестов unittest
 requirements.txt      проверенные версии пакетов
 HANDOFF.md            история работ и грабли инструментов
 ```

@@ -6,6 +6,7 @@
   (`MultiViewPipeline.step`), применяет якоря по наборам видов и азимутальную
   поправку к последней точке трека;
 * отдаёт в браузер MJPEG-потоки по камерам, панель плана X–Y и JSON-статистику;
+* по кнопке «Эталон» накладывает GT: жёлтую линию на плане и крест на камерах;
 * рисует сглаженный путь (Савицкий–Голей), достраивает короткие пропадания и
   показывает прогноз вперёд;
 * позволяет ставить паузу/продолжить и менять conf на лету (кнопки в UI).
@@ -67,6 +68,7 @@ HTML = """<!doctype html>
   <button onclick="ctl('toggle')">Пауза / продолжить</button>
   <button class="alt" onclick="ctl('conf_down')">conf −</button>
   <button class="alt" onclick="ctl('conf_up')">conf +</button>
+  <button class="alt" id="gtbtn" onclick="ctl('gt_toggle')">Эталон: выкл</button>
   <span id="stats">…</span>
 </header>
 <div class="grid" id="grid"></div>
@@ -89,6 +91,9 @@ async function tick(){
       `измерено ${(100*s.measured_share).toFixed(1)}% · ` +
       (s.position ? `X=${s.position[0].toFixed(2)} Y=${s.position[1].toFixed(2)} Z=${s.position[2].toFixed(2)} м` : 'нет 3D') +
       (s.paused ? ' · ПАУЗА' : '');
+    const gt = document.getElementById('gtbtn');
+    gt.textContent = s.gt ? 'Эталон: вкл' : 'Эталон: выкл';
+    gt.style.background = s.gt ? '#1b7f3b' : '#444';
   }catch(e){}
 }
 setInterval(tick, 700); tick();
@@ -131,6 +136,8 @@ class Tracker:
         self.finished = False
         self.history: list = []
         self._map_view = None
+        self.show_gt = False
+        self.gt = self.ds.ground_truth_by_frame()
         self.conf = float(args.conf)
         self.fps_now = 0.0
         self.conf_history = []
@@ -168,13 +175,18 @@ class Tracker:
 
     def _render_map(self, trail, forecast, position, status, t):
         """Отдельная панель: путь объекта в мировых координатах X–Y (план)."""
+        gt_points = gt_pos = None
+        if self.show_gt:
+            gt_points = [p for _, p in sorted(self.gt.items())]
+            gt_pos = self.gt.get(self.frame_idx)
         canvas, self._map_view = render_map_panel(
             trail, forecast, position, status, t, self.frame_idx,
-            getattr(self, "_map_view", None))
+            getattr(self, "_map_view", None),
+            gt_points=gt_points, gt_position=gt_pos)
         return canvas
 
     def _render(self, name, img, dets, position, status, views, t,
-                trail=None, forecast=None):
+                trail=None, forecast=None, gt_position=None):
         for d in dets:
             if d.bbox is None:
                 continue
@@ -203,6 +215,16 @@ class Tracker:
                                cv2.MARKER_SQUARE, 18, 2)
                 cv2.putText(img, f"3D {status}", (int(u) + 12, int(v) - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.55, col, 2, cv2.LINE_AA)
+            except Exception:
+                pass
+        if gt_position is not None and cam is not None:
+            try:
+                gu, gv = project(cam, gt_position)
+                cv2.drawMarker(img, (int(gu), int(gv)), (0, 220, 255),
+                               cv2.MARKER_CROSS, 20, 2)
+                cv2.putText(img, "GT", (int(gu) + 12, int(gv) - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 220, 255), 2,
+                            cv2.LINE_AA)
             except Exception:
                 pass
         cv2.rectangle(img, (0, 0), (620, 52), (0, 0, 0), -1)
@@ -318,8 +340,10 @@ class Tracker:
             map_trail = trail if n_map <= int(self.args.trail) else self._build_trail(n_map)
             forecast = self._forecast() if updated else None
             for cam, img in zip(self.ds.cameras, imgs):
+                gt_pos = self.gt.get(self.frame_idx) if self.show_gt else None
                 vis = self._render(cam.name, img, dets_by_cam.get(cam.name, []),
-                                   shown_pos, shown_status, views, t, trail, forecast)
+                                   shown_pos, shown_status, views, t, trail, forecast,
+                                   gt_position=gt_pos)
                 if self.args.preview_scale != 1.0:
                     h, w = vis.shape[:2]
                     vis = cv2.resize(vis, (int(w * self.args.preview_scale),
@@ -357,6 +381,7 @@ class Tracker:
         return {"frame": self.frame_idx, "fps_now": round(self.fps_now, 2),
                 "conf": self.conf, "paused": self.paused,
                 "finished": self.finished,
+                "gt": self.show_gt,
                 "measured_share": round(float(cov.get("measured", 0)) / frames, 3),
                 "measured_frames": int(cov.get("measured", 0)),
                 "position": pos}
@@ -411,6 +436,8 @@ def make_handler(tracker: Tracker):
                 action = parse_qs(u.query).get("action", [""])[0]
                 if action == "toggle":
                     tracker.paused = not tracker.paused
+                elif action == "gt_toggle":
+                    tracker.show_gt = not tracker.show_gt
                 elif action == "conf_up":
                     tracker.conf = min(tracker.conf + 0.05, 0.95)
                     tracker.detector.conf = tracker.conf
@@ -434,14 +461,17 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Веб-пульт трекинга «Пеленга»")
     ap.add_argument("--root", default=str(DEFAULT_ROOT))
     ap.add_argument("--repairs", default=str(DEFAULT_REPAIRS))
-    ap.add_argument("--model", default="runs/detect/out/train/scene_v1/weights/best.pt")
+    ap.add_argument("--model",
+                    default="runs/detect/out/train/scene_v4b_ft/weights/best.pt")
     ap.add_argument("--device", default="0")
     ap.add_argument("--conf", type=float, default=0.25)
     ap.add_argument("--imgsz", type=int, default=960)
     ap.add_argument("--class-names", default="truck",
                     help="для дообученных моделей — 'truck'; для COCO — 'truck,car,bus,train'")
-    ap.add_argument("--anchor-views", default="datasets/truck/anchor_offset_views.json")
-    ap.add_argument("--anchor-azimuth", default="datasets/truck/anchor_azimuth.json")
+    ap.add_argument("--anchor-views",
+                    default="datasets/truck/anchor_offset_views_v4b.json")
+    ap.add_argument("--anchor-azimuth",
+                    default="datasets/truck/anchor_azimuth_v4b.json")
     ap.add_argument("--max-reprojection-px", type=float, default=50.0)
     ap.add_argument("--gate", type=float, default=10.0)
     ap.add_argument("--target-fps", type=float, default=15.0,
@@ -459,9 +489,9 @@ def main(argv: list[str] | None = None) -> int:
                          "(0 — выключить)")
     ap.add_argument("--forecast-s", type=float, default=3.0,
                     help="горизонт «призрачного» прогноза вперёд, с (0 — выключить)")
-    ap.add_argument("--max-missing", type=int, default=30,
+    ap.add_argument("--max-missing", type=int, default=5,
                     help="сколько кадров без измерения продолжать прогноз (Калман)")
-    ap.add_argument("--bridge-s", type=float, default=3.0,
+    ap.add_argument("--bridge-s", type=float, default=2.0,
                     help="достраивать путь после пропадания до N секунд "
                          "от последнего измерения (0 — не достраивать)")
     ap.add_argument("--port", type=int, default=8000)
