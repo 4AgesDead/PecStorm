@@ -1,273 +1,259 @@
-# multiview3d — 3D-координаты и траектории объектов по нескольким камерам
+# multiview3d — 3D-координаты и траектории по нескольким камерам
 
-Библиотека на Python: по видеопотокам с нескольких **калиброванных** камер находит
-движущиеся объекты, восстанавливает их 3D-координаты (триангуляция по нескольким
-видам) и ведёт траектории во времени фильтром Калмана.
+Проект для задачи «по видеопотокам с нескольких калиброванных камер определять
+3D-координаты движущегося объекта и восстанавливать траекторию во времени».
+Реализован полный конвейер и проверен на реальном наборе «Пеленга» (5 камер,
+1001 кадр) и на синтетике с точно известной геометрией.
 
-Задача сформулирована так: «по видеопотокам с нескольких калиброванных камер
-определять 3D-координаты движущегося объекта (объектов) в режиме реального времени
-и восстанавливать его траекторию во времени».
+> **Статус: работает, доведено до чисел.** Финальная конфигурация на «Пеленге»:
+> **MAE 1.98 м** (медиана 1.42 м), покрытие **82.3 %** кадров, на отложенных
+> кадрах 700..1000 — **1.98 м / 67.4 %**; у базовой COCO-модели было 4.28 м и
+> 61.3 %. Тесты: **70**, все зелёные. Есть веб-пульт с трекингом в реальном
+> времени (~11–13 fps на 5 камер).
+>
+> **Быстрый гайд «что запускать» → [docs/QUICKSTART.md](docs/QUICKSTART.md)**
+> **Все числа и методика → [docs/RESULTS.md](docs/RESULTS.md)**
 
-> **Статус: проект завершён, сквозной прогон работает.** Реализованы и проверены
-> запуском все модули ядра (12), конвейер `pipeline.py`, метрики, визуализация,
-> CLI-приложения (`apps/`), конфиг и тесты (70 тестов `unittest`, все зелёные).
-> Критерий приёмки выполнен: синтетика 3 камеры / 2 объекта / 25 fps → ровно
-> 2 трека, средняя ошибка 3D после RTS-сглаживания ≤ 30 мм (факт. 10.1 мм).
-> Исторический разбор исходного состояния — в [HANDOFF.md](HANDOFF.md).
-> Быстрый гайд «что запускать» — [docs/QUICKSTART.md](docs/QUICKSTART.md).
+## Содержание
 
-## Что проверено запуском (2026-11-03)
+- [Быстрый старт](#быстрый-старт)
+- [Что уже работает](#что-уже-работает)
+- [Архитектура](#архитектура)
+- [Как это сделано (по шагам)](#как-это-сделано-по-шагам)
+- [Результаты](#результаты)
+- [Ограничения и честные оговорки](#ограничения-и-честные-оговорки)
+- [Структура репозитория](#структура-репозитория)
+- [Документация](#документация)
 
-| Проверка | Результат |
-|---|---|
-| Импорт всех 12 модулей `multiview3d` | успешно (`tools/smoke_check.py`, rc=0) |
-| Рендер синтетической сцены (3 камеры, 1280×720) | кадр `(720, 1280, 3) uint8` |
-| Детектор цветных меток на синтетическом кадре | 2 метки, макс. отклонение центра 0.45 px |
-| `FrameReader` + `close()/closed` на синтетическом источнике | кадр и детекции получены, источник закрыт |
-| Калибровка по синтетической шахматной доске (8 ракурсов, OpenCV 5) | RMS 0.07 px; fx/fy восстановлены в пределах 0.3%, cx/cy — в 2 px |
-| Сквозной офлайн-прогон (oracle-детектор, 3 камеры, 2 объекта, 2 с, seed=7) | 2 трека, ID-switch 0, среднее 10.14 мм, p95 27.3 мм, max 42.8 мм (90 точек) |
-| Демо-прогон `apps.sim_dataset` (blob-детектор, 3 камеры, 2 объекта, 6 с, seed=7) | 2 трека, полнота 1.0/1.0, ID-switch 0, среднее 7.48 мм (300 точек), ~260 fps обработки |
-| `python -m unittest discover -s tests` | 70 тестов, OK |
+## Быстрый старт
 
-Эталонный критерий приёмки (HANDOFF, P0): **3 камеры, 2 объекта, 25 fps →
-2 трека, средняя ошибка ≤ 30 мм** — выполнен с запасом.
-
-## Установка
-
-Проверено на Windows, Python **3.14.10**, интерпретатор
-Фактически установленные и проверенные версии:
-
-| Пакет | Версия |
-|---|---|
-| numpy | 2.5.4 |
-| opencv-python-headless (`cv2`) | 5.0.0 |
-| scipy | 1.18.1 |
-| matplotlib | 3.11.2 |
-| onnxruntime | 1.31.1 |
-
-ML-бэкенды: `YoloDetector` требует `ultralytics` (+ `torch`) — **не установлены**;
-`OnnxDetector` требует только `onnxruntime` (установлен). Пакет `onnx` (для
-генерации тестовых моделей) отсутствует. Рабочие детекторы без ML —
-`ColorBlobDetector` и `OracleDetector` (по ground truth, только для валидации).
-
-## Быстрый старт (то, что работает сейчас)
-
-Проверка ядра одной командой:
+Окружение: Windows, Python 3.14 (`py`), зависимости из `requirements.txt`.
+Установка и все флаги — в [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
 ```powershell
-& path python tools\smoke_check.py
+py -m pip install -r requirements.txt
+
+# проверка ядра и тестов (~5 с)
+py tools/smoke_check.py
+py -m unittest discover -s tests          # 70 тестов
+
+# полный офлайн-цикл на «Пеленге» (детекция уже посчитана в results/)
+py apps/import_truck_dataset.py
+py apps/detect_truck.py --start 0 --end 1000 --step 1 `
+    --model yolov8x.pt --conf 0.25 --imgsz 960
+py tools/anchor_fit_views.py --detections out/truck/detections.csv --max-reprojection-px 50
+py apps/reconstruct_truck.py --detections out/truck/detections.csv --max-reprojection-px 50
+py apps/evaluate_truck.py --estimates out/truck/estimates.csv
+py tools/make_report.py
+
+# веб-пульт с трекингом в реальном времени
+.\.venv-rocm\Scripts\python.exe apps\dashboard.py `
+    --model runs\detect\out\train\scene_v1\weights\best.pt `
+    --device 0 --imgsz 960 --preview-scale 0.5 --port 8000
+# открыть http://127.0.0.1:8000/
 ```
 
-Скрипт печатает статус импорта всех модулей, проверяет рендер синтетики,
-совпадение детекций с точной проекцией, работу `FrameReader` и сквозной
-офлайн-прогон (критерий приёмки: 2 трека, средняя ошибка ≤ 30 мм);
-код возврата 1 — если обязательная проверка провалена.
+Готовые артефакты прогона (детекции, оценки, метрики, графики) лежат в
+[`results/`](results/) — их не нужно пересчитывать, чтобы посмотреть числа.
 
-Синтетическая сцена с точно известной калибровкой + детектор меток:
+> Примечание: команды выше — базовый цикл на одной модели (`yolov8x`). Финальные
+> числа (MAE 1.98 м / покрытие 82.3 %) получены ансамблем из трёх дообученных
+> моделей с якорями по видам и азимуту; полный рецепт — `docs/RESULTS.md` §8d
+> и `tools/merge_detections.py` + `tools/run_finetuned_eval.py`.
 
-```python
-import numpy as np
-from multiview3d.sim import make_sim_setup, SimCameraStream, SimSource
-from multiview3d.detect import ColorBlobDetector
+## Что уже работает
 
-dataset = make_sim_setup(num_cameras=3, num_objects=2, fps=25, duration_s=2.0)
-stream = SimCameraStream(dataset, camera_index=0)
-t, frame, _ = stream.read()                 # (таймкод, кадр BGR, детекции|None)
-
-detector = ColorBlobDetector(dataset.ball_colors[:len(dataset.paths)])
-detections = detector.detect(frame)         # list[Detection2D]
-print(t, frame.shape, [(d.label, np.round(d.center, 1)) for d in detections])
-print(dataset.truth_at(t))                  # ground truth 3D, метры
-
-source = SimSource(stream, detector)        # источник для FrameReader
-print(source.name)
-```
-
-Ручная проверка геометрии одной камеры:
-
-```python
-from multiview3d.camera import project_points, back_project_ray
-from multiview3d.types import CameraCalibration
-
-cam = dataset.cameras[0]
-pixels = project_points(cam, dataset.truth_at(t))   # мировые точки -> пиксели
-ray = back_project_ray(cam, pixels[0])              # пиксель -> единичный луч
-```
+| Возможность | Где | Статус |
+|---|---|---|
+| Детекция YOLO на 5 камерах (CPU, ONNX+DirectML, ROCm GPU) | `apps/detect_truck.py` | ✅ 5005 камеро-кадров: 53 мин CPU / 3.5 мин DML / 1 мин GPU |
+| Слияние видов (эпиполярное или single-target), триангуляция + LM | `multiview3d/fusion.py` | ✅ |
+| Трекинг Калмана, RTS-сглаживание, статусы MEASURED/PREDICTED_ONLY | `fusion.py`, `pipeline.py` | ✅ |
+| Якоря: постоянный 3D, 2D по камерам, по наборам видов, по азимуту | `tools/anchor_fit_*.py` | ✅ (первые два отвергнуты, см. RESULTS §5) |
+| Оценка MAE/RMSE/P95/P99 + покрытие по статусам | `apps/evaluate_truck.py` | ✅ |
+| Графики «эталон vs оценка», траектория, покрытие, сравнение конфигураций | `tools/plot_components.py`, `make_report.py`, `make_comparison_charts.py` | ✅ |
+| Видео с наложением трекинга | `tools/render_tracking_video.py` | ✅ 5 MP4 |
+| Веб-пульт: 5 MJPEG-потоков, пауза, conf ±, статистика | `apps/dashboard.py` | ✅ 10.8–13.0 fps |
+| Дообучение на псевдо-разметке (GT + 3D-модель) | `tools/make_pseudo_labels.py`, `train_truck_detector.py` | ✅ MAE 4.28 → 1.55 м у одиночной модели |
+| Синтетика с критерием приёмки (2 трека, ≤30 мм) | `apps/sim_dataset.py` | ✅ 10.1 мм |
 
 ## Архитектура
 
+### Поток данных (truck-workflow)
+
 ```
-видео / RTSP ─┐
-              ├─ capture.FrameReader (поток на камеру, буфер «последний кадр»)
-синтетика ────┘        │
-                       ▼
-             detect.Detector.detect(frame)  -> Detection2D (пиксели)
-                       │
-                       ▼
-   fusion: эпиполярные стоимости -> венгерское сопоставление видов
-           -> DLT-триангуляция -> уточнение по репроекции (LM)
-                       │
-                       ▼
-   fusion.MultiViewTracker: ассоциация по махаланобису + KalmanFilter (CV-модель)
-                       │
-                       ▼
-   trajectory / metrics / visualize: траектории, ошибки в мм, CSV/JSON, 3D-графики
+huniashahatona/zadania/                     (5 MP4 1920×1080 + camera CSV + GT CSV)
+        │
+        ├─ TruckDataset.discover  ──►  datasets/truck/dataset_manifest.json (sha256, допущения)
+        │        │
+        │        ├─ CameraStateProvider: поза камеры на КАЖДЫЙ кадр (cam5 вращается)
+        │        └─ GT: pivot актора, битые ячейки 402/691 исключаются
+        ▼
+TruckVideoSource ──► Detector (YOLOv8 / ONNX-DML)
+        │                    │
+        │                    ▼
+        │            Detection2D (bbox, score, класс) ──► out/truck/detections*.csv
+        ▼
+MultiViewPipeline.step(frame):
+    FusionConfig (single_target, max_reproj=50 px, gate=10σ)
+        ├─ триангуляция по видам + LM-уточнение
+        ├─ якорь по набору видов (anchor_offset_views)  ← постоянный 3D-сдвиг
+        └─ MultiViewTracker: ассоциация по махаланибису + Калман (CV)
+        ▼
+после трекинга: азимутальный якорь (anchor_azimuth)
+    поправка по углу «камера→объект» минус курс объекта (курс — из соседних точек трека)
+        ▼
+estimates.csv / .json (DTO §11: status, method, views, confidence)
+        ▼
+evaluate_truck: MAE/RMSE/P95/P99 по MEASURED + покрытие по статусам
 ```
 
-### Модули (`multiview3d/`)
+Ключевая идея: **2D-якорь детектора не равен GT-точке**. Центр bbox (середина
+кузова) и pivot актора расходятся на 57–229 px по камерам, поэтому вводится
+калибруемая поправка. Она зависит от набора видов и от ракурса — это и дало
+основной прирост точности.
 
-| Файл | Назначение | Состояние |
+### Модули
+
+| Файл | Назначение |
+|---|---|
+| `multiview3d/types.py` | `CameraCalibration`, `Detection2D`, `TrackPoint`, `Track` |
+| `camera.py` | проекция/обратные лучи, DLT-триангуляция, LM-уточнение, эпиполярные расстояния |
+| `calibration.py` | калибровка по шахматной доске, `solvePnP`, bundle adjustment, JSON |
+| `detect.py` | `YoloDetector` (ultralytics), `YoloOnnxDetector` (ONNX, DirectML), `ColorBlobDetector`, `OracleDetector` |
+| `fusion.py` | сопоставление видов, триангуляция, `MultiViewTracker` (Калман + гейт), якоря |
+| `anchor_azimuth.py` | азимутальная поправка: ряд Фурье по углу «камера→объект − курс» |
+| `kalman.py` | 6D CV-фильтр, махаланобисов гейт, `rts_smooth` |
+| `pipeline.py` | оркестрация, `PipelineConfig`, офлайн/реалтайм, история состояний |
+| `metrics.py` | ошибки в мм, ID-switch, полнота; `evaluate_truck` — MAE/P95 + покрытие |
+| `visualize.py` | 3D-графики, наложение на кадр, `plot_components_vs_time` |
+| `capture.py`, `sources.py` | `FrameReader`, `LatestFrameBuffer`, `DetectingFrameSource` |
+| `truck_dataset.py` | датасет «Пеленга»: discover, manifest, GT, `TruckVideoSource` |
+| `camera_provider.py` | поза камеры по номеру кадра (статика cam1–4, вращение cam5) |
+| `unreal_camera.py` | импорт CSV Unreal (CP1251), единицы/оси, sidecar-репары GT |
+| `truck_pipeline.py` | стадии: детекция → CSV → реконструкция → экспорт оценок |
+
+### Приложения и инструменты
+
+| Команда | Что делает |
+|---|---|
+| `apps/import_truck_dataset.py` | инвентаризация, manifest, проверка кадров/CSV/GT |
+| `apps/detect_truck.py` | детекция (`.pt` или `.onnx`, `--provider dml`, `--tta`) |
+| `apps/reconstruct_truck.py` | слияние + трекинг + якоря → `estimates.csv/.json` |
+| `apps/evaluate_truck.py` | MAE/RMSE/P95/P99 + покрытие, по кадрам и по подмножествам видов |
+| `apps/visualize_truck.py` | проекции оценки/GT на кадры камер |
+| `apps/dashboard.py` | веб-пульт: MJPEG-потоки, пауза, conf ±, `/api/stats` |
+| `tools/anchor_fit_views.py` | калибровка 3D-сдвига по наборам видов + CV |
+| `tools/anchor_fit_azimuth.py` | калибровка поправки по азимуту (ракурсу) |
+| `tools/make_pseudo_labels.py` | псевдо-разметка из GT + 3D-модели → YOLO-датасет |
+| `tools/train_truck_detector.py` | обучение/дообучение детектора (GPU/CPU) |
+| `tools/run_finetuned_eval.py` | полный цикл оценки модели: детекция → якоря → 3D → метрики |
+| `tools/merge_detections.py` | ансамбль моделей (объединение боксов по IoU) |
+| `tools/make_comparison_charts.py` | сравнительные графики всех конфигураций |
+| `tools/render_tracking_video.py` | MP4 с боксами, 3D-маркером и HUD |
+| `tools/make_report.py`, `plot_components.py` | сводка и графики «эталон vs оценка» |
+| `experiments/*.py` | видимость, проекция bbox↔pivot, свип порогов, робастность, бенчмарк |
+
+## Как это сделано (по шагам)
+
+1. **Аудит данных.** Разобраны 5 MP4 (1920×1080, 30 fps, кадры 0..1000), 5 CSV
+   камер (Unreal, CP1251) и GT (1000 строк). Найдены и исключены битые ячейки
+   Excel (кадры 402 и 691), исходные файлы не изменялись; manifest с sha256.
+2. **Геометрия.** Позы камер читаются **на каждый кадр** (cam5 вращается),
+   статичные cam1–4 кэшируются. Проверено, что GT-пивот проецируется в кадр
+   (видимость ≥2 камер в 97 % кадров).
+3. **Детекция.** ML-детектор YOLOv8 (классы `truck/car/bus/train`), сравнение
+   поколений: `yolo26x` на наших данных не лучше `yolov8x` (30.5 % против 31.4 %
+   detection rate), поэтому остались на v8. Для скорости сделан путь
+   ONNX + DirectML (AMD RX 7900 XT): полный прогон 209 с вместо 3200 с на CPU
+   при паритете боксов (медиана IoU 0.997).
+4. **Главная проблема — якорь.** Измерено расхождение «центр bbox ↔ проекция
+   GT-пивота»: медиана 140 px (57–229 px по камерам). Введены калибровки:
+   постоянный 3D-сдвиг (отвергнут: не переносится на камеру без данных),
+   2D-сдвиг по камерам (отвергнут: на holdout хуже), **3D-сдвиг по наборам
+   видов** (принят) и **азимутальная поправка** (принята: MAE 2.02 → 1.48 м).
+5. **Трекинг.** Найдено, что при `gate=3σ` трек пересоздавался почти каждый
+   второй кадр (486 треков на 780 точек, 48 % нулевых скоростей). Свип показал
+   `gate=10σ`: фрагментация падает до 49 треков, прогнозы точнее (5.35 → 4.05 м),
+   MAE измерений не меняется.
+6. **Дообучение.** Из GT и 3D-модели `CargoTruck.fbx` сгенерирована псевдо-разметка
+   (3077 боксов) — подгонка модели к детекциям дала IoU 0.64 (cam1 0.91).
+   На ней обучены модели v1/v2/v4/v4b (ROCm GPU: 15–55 мин на прогон).
+   Итог — ансамбль из трёх моделей с якорями по видам и азимуту.
+7. **Проверки.** Каждый шаг проверялся на отложенных кадрах 700..1000 и
+   parity-CV (чётные/нечётные), а не только in-sample. Отрицательные результаты
+   (общий 3D-сдвиг, 2D по камерам, hard-negative, покадровое уточнение меток, TTA)
+   зафиксированы в `docs/RESULTS.md` — чтобы не выдавать их за успех.
+8. **Приложение.** Веб-пульт на стандартной библиотеке: 5 MJPEG-потоков с
+   боксами/3D-маркером/HUD, пауза, изменение conf, JSON-статистика.
+
+## Результаты
+
+Финальная конфигурация: **v1 (yolov8s) + v2 (yolov8m) + v4b (fine-tune) + якоря
+по видам + азимутальный якорь**.
+
+| метрика | база (yolov8x, COCO) | финал (v1+v2+v4b) |
 |---|---|---|
-| `types.py` | `CameraCalibration`, `Detection2D`, `Observation3D`, `TrackPoint`, `Track` | готово |
-| `camera.py` | проекция с искажениями, обратные лучи, DLT-триангуляция, уточнение точки, эпиполярные расстояния, фундаментальная матрица | готово |
-| `calibration.py` | калибровка по шахматной доске/кругам (`cv2.calibrateCamera`), внешние параметры через `solvePnP` в системе полигона, `bundle_adjust` (scipy LM), отчёт качества, сохранение/загрузка JSON | готово |
-| `detect.py` | протокол `Detector`, `YoloDetector`, `OnnxDetector` (+ свой NMS), `ColorBlobDetector`, `OracleDetector`, `build_detector` | готово (ML-бэкенды не запускались — `ultralytics` не установлен) |
-| `kalman.py` | `KalmanFilter` (6D: позиция + скорость, махаланобисов гейт), `rts_smooth` | готово |
-| `trajectory.py` | признаки траектории, сглаживание, ресемплинг, сопоставление треков с эталоном | готово |
-| `capture.py` | `FrameSource`, `FrameReader` (поток), `LatestFrameBuffer`, `OpenCvFrameSource`, `read_aligned`, `read_all_offline`, `read_first_aligned` | готово (дефекты из HANDOFF исправлены) |
-| `sim.py` | синтетический полигон: камеры с известными K/R/t/дисторсией, рендер, ground truth, `SimSource`, `OracleSimSource` | готово |
-| `fusion.py` | сопоставление видов (венгерский алгоритм по эпиполярным стоимостям), триангуляция + уточнение LM, 3D-трекинг | готово, проверено сквозными тестами |
-| `pipeline.py` | оркестрация, JSON-конфиг (`PipelineConfig`), офлайн/реалтайм режимы, история состояний для RTS | готово |
-| `metrics.py` | ошибки в мм, полнота/точность треков, ID-switch, частота обработки; `evaluate_truck` — MAE/RMSE/P95/P99 + покрытие по статусам | готово |
-| `visualize.py` | 3D-графики траекторий, наложение треков на кадр, CSV/JSON экспорт-импорт; `plot_components_vs_time` — график X/Y/Z «эталон vs оценка» | готово |
-| `sources.py` | `DetectingFrameSource` — детектор поверх любого `FrameSource` (дефект P0.3) | готово |
-| `detect.py` | `YoloDetector` (ultralytics YOLOv8, классы COCO `truck/car/bus/train`) | готово, полный прогон 5005 кадро-камер |
-| `unreal_camera.py` | импорт CSV Unreal (CP1251), конверсия единиц/осей, GT с `invalid_cells` и sidecar-репарами | готово |
-| `camera_provider.py` | `CameraStateProvider`: поза камеры по номеру кадра, статичные cam1–4, вращение cam5 | готово |
-| `truck_dataset.py` | датасет «Пеленга»: discover/manifest/общая область кадров/`TruckVideoSource` | готово |
-| `truck_pipeline.py` | стадии truck-workflow: детекция → CSV → реконструкция → CSV/JSON оценок | готово |
+| MAE по MEASURED | 4.28 м | **1.98 м** |
+| медиана ошибки | 2.91 м | 1.42 м |
+| покрытие кадров | 61.3 % | **82.3 %** |
+| MAE на holdout 700..1000 | — | **1.98 м** |
+| покрытие на holdout | — | **67.4 %** |
+| recall-прокси (пивот в bbox) | 0.377 | **0.676** |
+| precision-прокси | 0.775 | 0.790 |
 
-## Команды (реализованы, проверены)
+Для сравнения: вариант «точность прежде всего» (`v1+v2+v4`) даёт MAE 1.55 м
+(holdout 1.61), но покрытие 80.8 % / 59.8 %. Потолок при идеальных боксах,
+измеренный «оракульным» детектором, — 95.5 % покрытия при MAE 1.29 м.
 
-```
-py tools/smoke_check.py                                # быстрая проверка ядра
-py -m unittest discover -s tests                       # тесты (pytest не требуется)
-py -m apps.sim_dataset --config config/demo.json --out out          # синтетика -> треки/метрики/графики
-py -m apps.evaluate  --tracks out/tracks.csv --truth out/truth.csv  # оценка по CSV
-py -m apps.calibrate --images data/board --pattern 9x6 --square 30 --out config/calib.json
-py -m apps.live      --config config/demo.json --record out/tracks.csv
-```
+Полные таблицы, методика и отрицательные результаты — [docs/RESULTS.md](docs/RESULTS.md).
+Сравнительные графики — `results/truck/report_compare/`.
 
-`apps.sim_dataset` пишет `tracks.csv`, `tracks.json`, `truth.csv`, `metrics.json`
-и `trajectories.png`; `apps.evaluate` читает эти CSV и печатает отчёт.
-Проверено: `sim_dataset` + `evaluate` на `config/demo.json` (rc=0),
-`calibrate`/`live` — запуск с `--help` (импорт и аргументы валидны; для
-полного прогона нужны реальные изображения полигона / камеры).
+**Оговорка о честности:** 1.98 м — это MAE по кадрам, где измерение получено
+(82.3 % кадров); на отложенных кадрах — отдельная цифра 1.98 м / 67.4 %.
+Калибровка якорей использует GT всего клипа (так же, как и исходная задача
+предоставляет GT); parity-CV и holdout приведены отдельно, чтобы видеть перенос.
 
-## Реальные данные «Пеленга» (truck-workflow)
+## Ограничения и честные оговорки
 
-Помимо синтетики, пакет обрабатывает выданный набор: 5 MP4 (1920×1080, 30 fps,
-кадры 0..1000), 5 camera CSV (Unreal, CP1251) и GT-траектория цели.
-Подробности формата, конверсии и ограничений — [docs/TRUCK_DATASET.md](docs/TRUCK_DATASET.md);
-вопросы организаторам — [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md).
-
-```
-py apps/import_truck_dataset.py                        # manifest + отчёт о расхождениях
-py apps/detect_truck.py --start 0 --end 1000 --step 1 `
-    --model yolov8x.pt --conf 0.25 --imgsz 960             # ML-детектор (YOLO, класс truck)
-py tools/anchor_fit_views.py --detections out/truck/detections.csv `
-    --max-reprojection-px 50                               # калибровка якоря по наборам видов
-py apps/reconstruct_truck.py --detections out/truck/detections.csv
-py apps/evaluate_truck.py --estimates out/truck/estimates.csv
-py apps/visualize_truck.py --estimates out/truck/estimates.csv `
-    --frames 83,190,400,600,834,924 --out out/truck/viz --video
-py tools/plot_components.py --estimates out/truck/estimates.csv  # график X/Y/Z: эталон vs оценка
-py tools/make_report.py                                # сводка + все графики
-```
-
-Графики: `out/truck/report/components_vs_time.png` («Итоговый результат»:
-`X_t`/`Y_t`/`Z_t` сплошными, `X_det`/`Y_det`/`Z_det` штриховыми),
-`components_error_vs_time.png` (то же + расхождение «оценка − эталон» по осям),
-`error_vs_frame.png`, `trajectory_xy.png`, `coverage.png`.
-
-Итоговые числа полного прогона — [docs/RESULTS.md](docs/RESULTS.md)
-(детекция 93.7 % кадров, покрытие 61.3 %, MAE 4.28 м при медиане 2.9 м;
-in-sample по калибровке якоря, parity-CV — 4.5 м).
-
-Что важно знать перед чтением результатов:
-
-* позы камер обновляются **на каждом кадре** (cam5 вращается), статичные
-  cam1–4 кэшируются;
-* детектор — ML (YOLOv8, класс COCO `truck`), фоновое вычитание как основной
-  детектор не используется;
-* 2D-якорь (центр bbox) не равен GT-pivot: расхождение 57–229 px по камерам.
-  Компенсируется 3D-сдвигом **на набор видов** (`anchor_offset_views`,
-  `tools/anchor_fit_views.py`); он проверен разбиением чётные/нечётные кадры и
-  по времени. Общий сдвиг `anchor_offset_m` и 2D-сдвиг по камерам
-  (`anchor_offset_px`) реализованы, но на holdout не переносятся — см. §5
-  `docs/RESULTS.md`;
-* оценки 3D содержат `status`/`method`/`camera_ids` (DTO §11), а ошибка и
-  покрытие считаются раздельно (§7.6): «точность только на лёгких кадрах» не
-  выдаётся за общий результат;
-* GT-кадры 402 и 691 исключены (испорченные Excel-ячейки), исходные файлы не
-  изменяются.
-
-Эксперименты: `experiments/visibility_analysis.py` (видимость по камерам),
-`projection_sanity.py` (проекция GT-пивота vs детекции),
-`detector_benchmark.py` (модель/imgsz → detection rate и время),
-`geometry_sweep.py` (пороги слияния → MAE vs coverage),
-`robustness_benchmark.py` (шум 2D, ошибки калибровки, сдвиг времени).
-
-## Как измеряется точность
-
-* **Синтетика** — единственный режим, где возможна ошибка в миллиметрах: 3D-пути
-  объектов заданы аналитически, камеры имеют точные K/R/t и дисторсию, кадры
-  рендерятся той же моделью проекции. Сравнение восстановленных траекторий с
-  ground truth даёт среднюю/максимальную ошибку в метрах.
-* **Реальные видео** без разметки — ground truth нет, поэтому доступны только
-  косвенные метрики: ошибка репроекции в пикселях, эпиполярные невязки,
-  стабильность трека, частота и задержка обработки.
-* **Датасет «Пеленга»** — GT есть (pivot актора, `xyzpowcameta`), поэтому MAE
-  считается в метрах; но он ограничен расхождением «центр bbox ↔ pivot»
-  (140 px медиана), см. `docs/RESULTS.md`.
-
-Синтетика проверяет геометрию, сопоставление видов и фильтр, но **не** заменяет
-проверку на реальном оборудовании: она ничего не говорит о качестве реального
-детектора и о реальных шумах калибровки.
-
-## Ограничения и допущения
-
-* Мировая система координат — система калибровочного полигона; все камеры решаются
-  в ней одной задачей, поэтому внешние параметры согласованы между собой.
-* `CameraCalibration.unit` — числовой множитель перевода мировых единиц в метры;
-  валидируется как float в `__post_init__` (строка вызывает `ValueError`).
-  Калибрация по полигону переводит мм в метры сама (`square_size_mm * 0.001`),
-  поэтому `unit = 1.0` и мир — метры. Дефект 8 из HANDOFF исправлен.
-* Триангуляция устойчива только при достаточном базисе и некомпланарном
-  расположении камер; объекты должны быть видны минимум с двух камер.
-  Проверено прогонами: при 3 камерах треки стабильны (2 трека, ID-switch 0 при
-  seeds 7/42/3-камеры); при 2 камерах потеря видимости ≥2 видов дробит трек на
-  фрагменты (замер seed=11: 10 треков) — это ограничение архитектуры
-  «минимум 2 вида», а не дефект кода.
-* `workspace_bounds` отсекает кандидатов вне объёма; треки объектов, выходящих
-  за границы, рвутся (в `config/demo.json` z-границы расширены до ±3 м).
-* В реалтайм-режиме (`apps.live`) `FrameReader` пропускает кадры при медленной
-  обработке и есть guard `stall_seconds` на остановку потоков; точность
-  реалтайм-прогона по синтетике ниже офлайн (замер: 21.8 мм против 7.5 мм) —
-  эффект пропуска кадров, а не геометрии.
-* Детекция — только ML/специализированный детектор (`Detector`), фоновое
-  вычитание как основной метод не используется.
-* OpenCV 5.0: `calibrateCamera` возвращает 5 значений (без RMS) и требует
-  float32-точки; RMS считается в `calibration.py` самостоятельно по rvecs/tvecs.
+* Метрическая точность ограничена расхождением «центр bbox ↔ pivot»: даже с
+  азимутальной поправкой остаётся ~1.4 м медианы; идеально ровной линии на
+  графике не будет без 3D-модели на рантайме.
+* 90 % покрытия не достигнуто (82.3 %): упирается в recall детектора 0.62 при
+  нужных ~0.9; потолок с идеальными боксами — 95.5 %.
+* Все числа получены на одном клипе (0..1000). На скрытом наборе другой сцены
+  выигрыш будет меньше; численный target организаторами не задан (вопрос №10).
+* Единицы мира не подтверждены: подгонка 3D-модели даёт масштаб ≈3.06, то есть
+  «метр» датасета может быть не физическим метром (вопросы №4/№5).
+* Синхронность по номеру кадра не подтверждена PTS (вопрос №6).
+* В реальном времени — 11–13 fps на 5 камер (одна модель); ансамбль из трёх
+  моделей только для офлайна.
 
 ## Структура репозитория
 
 ```
-multiview3d/          библиотека (ядро + truck-workflow: detect, truck_dataset,
-                      truck_pipeline, camera_provider, unreal_camera, sources)
-apps/                 CLI: import/detect/reconstruct/evaluate/visualize_truck,
-                      плюс sim_dataset, evaluate, calibrate, live (синтетика)
-config/truck.json     конфиг truck-workflow (5 камер, детектор, пороги слияния)
-datasets/truck/       manifest, калибровка якоря, sidecar-репары GT
-docs/                 QUICKSTART, TRUCK_DATASET, RESULTS, DETECTION, OPEN_QUESTIONS
-experiments/          видимость, проекция, свип порогов, робастность, бенчмарк
-tools/                калибровки якоря, отчёт и графики, вспомогательные скрипты
-tests/                70 тестов unittest (геометрия, калибровка, fusion,
-                      pipeline, truck-workflow, экспорт, графики)
-requirements.txt      зафиксированные версии проверенных пакетов
-README.md             этот файл
-HANDOFF.md            состояние работ, история, грабли инструментов
+multiview3d/          библиотека (ядро + truck-workflow)
+apps/                 CLI: import/detect/reconstruct/evaluate/visualize/dashboard
+config/truck.json     конфиг truck-workflow
+datasets/truck/       manifest, калибровки якорей, sidecar-репары GT
+results/truck/        зафиксированные артефакты прогонов: детекции, метрики, графики
+docs/                 QUICKSTART, RESULTS, TRUCK_DATASET, DETECTION, OPEN_QUESTIONS
+experiments/          видимость, проекция, свипы, робастность, бенчмарк
+tools/                калибровки, псевдо-разметка, обучение, отчёты, видео
+tests/                70 тестов unittest
+requirements.txt      проверенные версии пакетов
+HANDOFF.md            история работ и грабли инструментов
 ```
+
+## Документация
+
+| Документ | О чём |
+|---|---|
+| [docs/QUICKSTART.md](docs/QUICKSTART.md) | пошагово: что запускать, где смотреть, как читать числа |
+| [docs/RESULTS.md](docs/RESULTS.md) | все измерения, эксперименты, отрицательные результаты |
+| [docs/TRUCK_DATASET.md](docs/TRUCK_DATASET.md) | формат датасета, конверсия координат, ограничения |
+| [docs/DETECTION.md](docs/DETECTION.md) | детектор: модель, пороги, замеры |
+| [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) | 15 вопросов организаторам (ответов нет) |
+| [HANDOFF.md](HANDOFF.md) | состояние работ по сессиям, история дефектов |
 
 ## Лицензия и авторство
 
