@@ -17,7 +17,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 from multiview3d.unreal_camera import parse_camera_csv, parse_track_csv, CM_TO_M  # noqa: E402
 
-DATA = Path("huniashahatona/zadania")
+DATA = Path("scene1/zadania")
 S = np.diag([1.0, -1.0, 1.0])          # UE -> правая мировая (на пиксели не влияет)
 F2M = lambda xyz: np.array(xyz) * CM_TO_M
 

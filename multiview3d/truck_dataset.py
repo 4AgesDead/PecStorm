@@ -30,7 +30,7 @@ import numpy as np
 from .camera_provider import CameraSpec, CameraStateProvider
 from .unreal_camera import GroundTruth, load_ground_truth
 
-DEFAULT_ROOT = Path("huniashahatona/zadania")
+DEFAULT_ROOT = Path("scene1/zadania")
 CAMERA_VIDEO_GLOB = "camera/Way1.FinalImage.CineCameraActor{index}.mp4"
 CAMERA_CSV_GLOB = "xyzpowcameta/object_transform_CineCameraActor{index}.csv"
 GT_CSV = "xyzpowcameta/object_transform_SM_AA_track.csv"

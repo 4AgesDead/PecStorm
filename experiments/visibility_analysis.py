@@ -31,7 +31,7 @@ from multiview3d.truck_dataset import TruckDataset
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Видимость цели по камерам")
-    ap.add_argument("--root", default="huniashahatona/zadania")
+    ap.add_argument("--root", default="scene1/zadania")
     ap.add_argument("--step", type=int, default=5)
     ap.add_argument("--out", default="out/experiments")
     args = ap.parse_args(argv)

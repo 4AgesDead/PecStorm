@@ -1,6 +1,6 @@
 {
   "truck": {
-    "root": "huniashahatona/zadania",
+    "root": "scene1/zadania",
     "repairs": "datasets/truck/ground_truth_repairs.json",
     "fps": 30.0,
     "frame_start": 0,

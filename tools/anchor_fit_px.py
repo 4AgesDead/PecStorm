@@ -72,7 +72,7 @@ def stats(arr: np.ndarray) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="2D-сдвиг центра детекции по камерам")
-    ap.add_argument("--root", default="huniashahatona/zadania")
+    ap.add_argument("--root", default="scene1/zadania")
     ap.add_argument("--detections", default="out/truck/detections.csv")
     ap.add_argument("--train-start", type=int, default=0)
     ap.add_argument("--train-end", type=int, default=500)

@@ -85,7 +85,7 @@ def mae(rows: list[dict], offset: np.ndarray | None) -> float | None:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="3D-сдвиг якоря по наборам видов")
-    ap.add_argument("--root", default="huniashahatona/zadania")
+    ap.add_argument("--root", default="scene1/zadania")
     ap.add_argument("--repairs", default=None)
     ap.add_argument("--detections", default="out/truck/detections.csv")
     ap.add_argument("--fit-start", type=int, default=0)

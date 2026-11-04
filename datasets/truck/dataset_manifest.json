@@ -1,6 +1,6 @@
 {
   "dataset": "pelenga_truck",
-  "root": "huniashahatona/zadania",
+  "root": "scene1/zadania",
   "fps": 30.0,
   "width": 1920,
   "height": 1080,
@@ -8,8 +8,8 @@
     {
       "name": "cam1",
       "index": 1,
-      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor1.mp4",
-      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor1.csv",
+      "video": "scene1/zadania/camera/Way1.FinalImage.CineCameraActor1.mp4",
+      "camera_csv": "scene1/zadania/xyzpowcameta/object_transform_CineCameraActor1.csv",
       "width": 1920,
       "height": 1080,
       "fps": 30.0,
@@ -26,8 +26,8 @@
     {
       "name": "cam2",
       "index": 2,
-      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor2.mp4",
-      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor2.csv",
+      "video": "scene1/zadania/camera/Way1.FinalImage.CineCameraActor2.mp4",
+      "camera_csv": "scene1/zadania/xyzpowcameta/object_transform_CineCameraActor2.csv",
       "width": 1920,
       "height": 1080,
       "fps": 30.0,
@@ -44,8 +44,8 @@
     {
       "name": "cam3",
       "index": 3,
-      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor3.mp4",
-      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor3.csv",
+      "video": "scene1/zadania/camera/Way1.FinalImage.CineCameraActor3.mp4",
+      "camera_csv": "scene1/zadania/xyzpowcameta/object_transform_CineCameraActor3.csv",
       "width": 1920,
       "height": 1080,
       "fps": 30.0,
@@ -62,8 +62,8 @@
     {
       "name": "cam4",
       "index": 4,
-      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor4.mp4",
-      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor4.csv",
+      "video": "scene1/zadania/camera/Way1.FinalImage.CineCameraActor4.mp4",
+      "camera_csv": "scene1/zadania/xyzpowcameta/object_transform_CineCameraActor4.csv",
       "width": 1920,
       "height": 1080,
       "fps": 30.0,
@@ -80,8 +80,8 @@
     {
       "name": "cam5",
       "index": 5,
-      "video": "huniashahatona/zadania/camera/Way1.FinalImage.CineCameraActor5.mp4",
-      "camera_csv": "huniashahatona/zadania/xyzpowcameta/object_transform_CineCameraActor5.csv",
+      "video": "scene1/zadania/camera/Way1.FinalImage.CineCameraActor5.mp4",
+      "camera_csv": "scene1/zadania/xyzpowcameta/object_transform_CineCameraActor5.csv",
       "width": 1920,
       "height": 1080,
       "fps": 30.0,
@@ -97,7 +97,7 @@
     }
   ],
   "ground_truth": {
-    "path": "huniashahatona/zadania/xyzpowcameta/object_transform_SM_AA_track.csv",
+    "path": "scene1/zadania/xyzpowcameta/object_transform_SM_AA_track.csv",
     "frames": 1000,
     "first": 0,
     "last": 1001,

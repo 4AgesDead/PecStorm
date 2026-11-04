@@ -85,7 +85,7 @@ def benchmark(ds: TruckDataset, model: str, imgsz: int, conf: float,
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Бенчмарк YOLO на датасете «Пеленга»")
-    ap.add_argument("--root", default="huniashahatona/zadania")
+    ap.add_argument("--root", default="scene1/zadania")
     ap.add_argument("--step", type=int, default=100)
     ap.add_argument("--models", default="yolov8n.pt,yolov8x.pt")
     ap.add_argument("--imgsz", default="640,960")

@@ -1,7 +1,7 @@
 """Импорт датасета «Пеленга»: проверка файлов, manifest, отчёт о расхождениях.
 
 Запуск:
-    python apps/import_truck_dataset.py [--root huniashahatona/zadania]
+    python apps/import_truck_dataset.py [--root scene1/zadania]
         [--manifest datasets/truck/dataset_manifest.json] [--no-hashes]
 
 Что делает:

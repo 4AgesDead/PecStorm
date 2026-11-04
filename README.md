@@ -87,7 +87,7 @@ py tools/make_report.py
 ### Поток данных (truck-workflow)
 
 ```
-huniashahatona/zadania/                     (5 MP4 1920×1080 + camera CSV + GT CSV)
+scene1/zadania/                     (5 MP4 1920×1080 + camera CSV + GT CSV)
         │
         ├─ TruckDataset.discover  ──►  datasets/truck/dataset_manifest.json (sha256, допущения)
         │        │

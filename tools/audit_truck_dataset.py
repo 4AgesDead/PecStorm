@@ -1,6 +1,6 @@
 """Аудит датасета «Пеленга»: видео, CSV камер, GT-траектория -> manifest + отчёт.
 
-Запуск:  python tools/audit_truck_dataset.py [--root huniashahatona/zadania]
+Запуск:  python tools/audit_truck_dataset.py [--root scene1/zadania]
 
 Создаёт (не изменяя входные файлы):
   datasets/truck/dataset_manifest.json
@@ -102,7 +102,7 @@ def analyze_camera(name: str, parsed) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", default="huniashahatona/zadania")
+    ap.add_argument("--root", default="scene1/zadania")
     args = ap.parse_args()
     root = Path(args.root)
     cam_dir, gt_dir = root / "camera", root / "xyzpowcameta"

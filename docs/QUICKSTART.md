@@ -25,8 +25,8 @@ py -m unittest discover -s tests     # сейчас 90 тестов, OK
 ## 1. Данные
 
 ```
-huniashahatona/zadania/camera/        5 MP4 (1920×1080, 30 fps, кадры 0..1000)
-huniashahatona/zadania/xyzpowcameta/  5 camera CSV (CP1251) + GT трека
+scene1/zadania/camera/        5 MP4 (1920×1080, 30 fps, кадры 0..1000)
+scene1/zadania/xyzpowcameta/  5 camera CSV (CP1251) + GT трека
 datasets/truck/                       manifest, калибровка якоря, sidecar-репары
 ```
 
@@ -304,7 +304,7 @@ dX/dY/dZ и ошибка. Кодировка UTF-8 с BOM — Excel открыв
 
 ## 5. Если данных станет больше / другая сцена
 
-1. Положить новые MP4 и camera CSV в те же подпапки `huniashahatona/zadania/`.
+1. Положить новые MP4 и camera CSV в те же подпапки `scene1/zadania/`.
 2. `py apps/import_truck_dataset.py` — проверить отчёт о расхождениях.
 3. `python apps/detect_truck.py ...` (полный прогон).
 4. `python tools/anchor_fit_views.py ...` — **обязательно** перекалибровать

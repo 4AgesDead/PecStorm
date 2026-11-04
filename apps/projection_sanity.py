@@ -25,7 +25,7 @@ from multiview3d.camera_provider import CameraSpec, CameraStateProvider  # noqa:
 from multiview3d.camera import project_point  # noqa: E402
 from multiview3d.unreal_camera import load_ground_truth  # noqa: E402
 
-DATA_ROOT = Path("huniashahatona/zadania")
+DATA_ROOT = Path("scene1/zadania")
 GT_PATH = DATA_ROOT / "xyzpowcameta/object_transform_SM_AA_track.csv"
 REPAIRS = Path("datasets/truck/ground_truth_repairs.json")
 

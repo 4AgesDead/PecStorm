@@ -36,7 +36,7 @@ from multiview3d.unreal_camera import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "huniashahatona/zadania"
+DATA = ROOT / "scene1/zadania"
 CAM5_CSV = DATA / "xyzpowcameta/object_transform_CineCameraActor5.csv"
 CAM1_CSV = DATA / "xyzpowcameta/object_transform_CineCameraActor1.csv"
 GT_CSV = DATA / "xyzpowcameta/object_transform_SM_AA_track.csv"

@@ -40,7 +40,7 @@ from multiview3d.truck_pipeline import (
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Свип порогов слияния на детекциях «Пеленги»")
-    ap.add_argument("--root", default="huniashahatona/zadania")
+    ap.add_argument("--root", default="scene1/zadania")
     ap.add_argument("--detections", default="out/truck/detections.csv")
     ap.add_argument("--anchor-offset", default="datasets/truck/anchor_offset.json")
     ap.add_argument("--anchor-px-offset", default="datasets/truck/anchor_px_offset.json")

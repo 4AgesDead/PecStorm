@@ -34,7 +34,7 @@ from multiview3d.truck_pipeline import load_detections
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="GT-пивот vs 2D-детекции: согласованность проекции")
-    ap.add_argument("--root", default="huniashahatona/zadania")
+    ap.add_argument("--root", default="scene1/zadania")
     ap.add_argument("--detections", default="out/truck/detections.csv")
     ap.add_argument("--step", type=int, default=10)
     ap.add_argument("--out", default="out/experiments")

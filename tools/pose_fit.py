@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.stdout.reconfigure(encoding="utf-8")
 from multiview3d.unreal_camera import parse_camera_csv, parse_track_csv, CM_TO_M
 
-DATA = Path("huniashahatona/zadania")
+DATA = Path("scene1/zadania")
 
 ANCHORS = {
     1: [(0, 330, 700), (120, 1306, 739)],

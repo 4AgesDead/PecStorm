@@ -118,7 +118,7 @@ class PipelineConfig:
             from .truck_dataset import TruckDataset
             truck_cfg = dict(d["truck"])
             dataset = TruckDataset.discover(
-                truck_cfg.get("root", "huniashahatona/zadania"),
+                truck_cfg.get("root", "scene1/zadania"),
                 repairs_path=truck_cfg.get("repairs", "datasets/truck/ground_truth_repairs.json"),
             )
             lo, hi = dataset.common_frame_range()
