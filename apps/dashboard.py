@@ -138,6 +138,9 @@ class Tracker:
         self._map_view = None
         self.show_gt = False
         self.gt = self.ds.ground_truth_by_frame()
+        self.err_sum = 0.0
+        self.err_n = 0
+        self.last_run = None
         self.conf = float(args.conf)
         self.fps_now = 0.0
         self.conf_history = []
@@ -282,6 +285,23 @@ class Tracker:
         return build_trail(self.history, n,
                            int(getattr(self.args, "smooth", 0)))
 
+    def _finish_run(self):
+        """Зафиксировать итог завершённого прохода (для отчёта)."""
+        cov = self.pipe.coverage or {}
+        frames = max(int(cov.get("frames", self.frame_idx)), 1)
+        measured = int(cov.get("measured", 0))
+        self.last_run = {
+            "run_id": time.time(),
+            "frames": frames,
+            "measured_frames": measured,
+            "measured_share": round(measured / frames, 3),
+            "mae_m": round(self.err_sum / self.err_n, 3) if self.err_n else None,
+            "n_err": self.err_n,
+            "fps_last": round(self.fps_now, 2),
+        }
+        self.err_sum = 0.0
+        self.err_n = 0
+
     def loop(self):
         last_t = time.perf_counter()
         while not self.stop:
@@ -294,6 +314,7 @@ class Tracker:
                 ok, img = cap.read()
                 imgs.append(img if ok else None)
             if any(im is None for im in imgs):
+                self._finish_run()
                 if self.args.loop:
                     for cap in self.caps:
                         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
@@ -329,6 +350,11 @@ class Tracker:
                 self._push_history(t, position, status)
                 shown_pos, shown_status = position, status
                 updated = True
+                if status == "MEASURED" and self.frame_idx in self.gt:
+                    g = np.asarray(self.gt[self.frame_idx], dtype=float)
+                    self.err_sum += float(np.linalg.norm(
+                        np.asarray(position, dtype=float) - g))
+                    self.err_n += 1
             elif self.history and float(self.args.bridge_s) > 0:
                 bridge = self._extrapolate(t)
                 if bridge is not None:
@@ -384,6 +410,13 @@ class Tracker:
                 "gt": self.show_gt,
                 "measured_share": round(float(cov.get("measured", 0)) / frames, 3),
                 "measured_frames": int(cov.get("measured", 0)),
+                "mae_m": round(self.err_sum / self.err_n, 3) if self.err_n else None,
+                "n_err": self.err_n,
+                "last_run": self.last_run,
+                "model": Path(self.args.model).as_posix(),
+                "imgsz": self.args.imgsz,
+                "max_missing": self.args.max_missing,
+                "bridge_s": self.args.bridge_s,
                 "position": pos}
 
 
