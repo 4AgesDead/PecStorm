@@ -246,7 +246,7 @@ apps/                 CLI: import/detect/reconstruct/evaluate/visualize/dashboar
 config/truck.json     конфиг truck-workflow
 datasets/truck/       manifest, калибровки якорей, sidecar-репары GT
 results/truck/        зафиксированные артефакты прогонов: детекции, метрики, графики
-docs/                 QUICKSTART, RESULTS, TRUCK_DATASET, DETECTION, OPEN_QUESTIONS
+docs/                 QUICKSTART, RESULTS, DEFENSE_QA, TRUCK_DATASET, DETECTION, OPEN_QUESTIONS
 experiments/          видимость, проекция, свипы, робастность, бенчмарк
 tools/                калибровки, псевдо-разметка, обучение, отчёты, видео
 tests/                90 тестов unittest
@@ -260,6 +260,7 @@ HANDOFF.md            история работ и грабли инструме
 |---|---|
 | [docs/QUICKSTART.md](docs/QUICKSTART.md) | пошагово: что запускать, где смотреть, как читать числа |
 | [docs/RESULTS.md](docs/RESULTS.md) | все измерения, эксперименты, отрицательные результаты |
+| [docs/DEFENSE_QA.md](docs/DEFENSE_QA.md) | вопросы и ответы для защиты, шпаргалка чисел |
 | [docs/TRUCK_DATASET.md](docs/TRUCK_DATASET.md) | формат датасета, конверсия координат, ограничения |
 | [docs/DETECTION.md](docs/DETECTION.md) | детектор: модель, пороги, замеры |
 | [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) | 15 вопросов организаторам (ответов нет) |
