@@ -19,7 +19,7 @@
 Проверка, что ядро живо (≈3 с):
 
 ```powershell
-py -m unittest discover -s tests     # сейчас 90 тестов, OK
+py -m unittest discover -s tests     # сейчас 92 теста, OK
 ```
 
 ## 1. Данные

@@ -8,7 +8,7 @@
 > **Статус: работает, доведено до чисел.** Финальная конфигурация на «Пеленге»:
 > **MAE 1.98 м** (медиана 1.42 м), покрытие **82.3 %** кадров, на отложенных
 > кадрах 700..1000 — **1.98 м / 67.4 %**; у базовой COCO-модели было 4.28 м и
-> 61.3 %. Тесты: **90**, все зелёные. Есть веб-пульт с трекингом в реальном
+> 61.3 %. Тесты: **92**, все зелёные. Есть веб-пульт с трекингом в реальном
 > времени (~9–9.5 fps на 5 камер, v4b) и кнопкой наложения эталона.
 >
 > **Быстрый гайд «что запускать» → [docs/QUICKSTART.md](docs/QUICKSTART.md)**
@@ -38,11 +38,11 @@ py -m pip install -r requirements.txt
 pecstorm --help
 pecstorm launch                 # веб-пульт: http://127.0.0.1:8000/
 pecstorm launch --stop
-pecstorm test                   # 90 тестов
+pecstorm test                   # 92 теста
 
 # проверка ядра и тестов (~5 с)
 py tools/smoke_check.py
-py -m unittest discover -s tests          # 90 тестов
+py -m unittest discover -s tests          # 92 теста
 
 # полный офлайн-цикл на «Пеленге» (детекция уже посчитана в results/)
 py apps/import_truck_dataset.py
@@ -250,7 +250,7 @@ results/truck/        зафиксированные артефакты прог
 docs/                 QUICKSTART, RESULTS, DEFENSE_QA, TRUCK_DATASET, DETECTION, OPEN_QUESTIONS
 experiments/          видимость, проекция, свипы, робастность, бенчмарк
 tools/                калибровки, псевдо-разметка, обучение, отчёты, видео
-tests/                90 тестов unittest
+tests/                92 теста unittest
 requirements.txt      проверенные версии пакетов
 HANDOFF.md            история работ и грабли инструментов
 ```
