@@ -1,7 +1,7 @@
 """Запись «как веб-пульт»: 5 камер + план X–Y + таблица метрик.
 
 Это честная запись: покрытие и MAE считаются по реальным оценкам и GT.
-Цель 93 % показывается отдельной отметкой, но факт не подменяется.
+Целевые отметки в таблицу не добавляются — только фактические числа.
 
 Запуск:
     py tools/render_dashboard_video.py `
@@ -93,7 +93,7 @@ def render_camera(frame, calib, dets, trail, fc, pos, status, gt_pos,
     return cv2.resize(img, (TILE_W, TILE_H), interpolation=cv2.INTER_AREA)
 
 
-def draw_table(canvas, f, end, fps, status, coverage, mae, n_err, target,
+def draw_table(canvas, f, end, fps, status, coverage, mae, n_err,
                label=""):
     cv2.rectangle(canvas, (0, BOTTOM), (W, H), (0, 0, 0), -1)
     cv2.line(canvas, (0, BOTTOM), (W, BOTTOM), (70, 70, 70), 2)
@@ -107,19 +107,13 @@ def draw_table(canvas, f, end, fps, status, coverage, mae, n_err, target,
                 (40, BOTTOM + 82), cv2.FONT_HERSHEY_SIMPLEX, 0.65,
                 (200, 200, 200), 1, cv2.LINE_AA)
 
-    # покрытие: факт + цель 93 %
+    # покрытие: только фактическое значение
     cv2.putText(canvas, f"покрытие: {coverage * 100:5.1f} %", (40, BOTTOM + 126),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (80, 255, 80), 2, cv2.LINE_AA)
-    cv2.putText(canvas, f"цель: {target:.0f} %", (430, BOTTOM + 126),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 220, 255), 1, cv2.LINE_AA)
     bx, by, bw, bh = 40, BOTTOM + 140, 760, 22
     cv2.rectangle(canvas, (bx, by), (bx + bw, by + bh), (70, 70, 70), 1)
     fill = int(round(bw * min(max(coverage, 0.0), 1.0)))
     cv2.rectangle(canvas, (bx, by), (bx + fill, by + bh), (70, 190, 70), -1)
-    tx = bx + int(round(bw * target / 100.0))
-    cv2.line(canvas, (tx, by - 6), (tx, by + bh + 6), (0, 220, 255), 3)
-    cv2.putText(canvas, f"{target:.0f} %", (tx + 6, by - 8),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 220, 255), 1, cv2.LINE_AA)
 
     cv2.putText(canvas, f"MAE: {mae:5.2f} м   (MEASURED, n={n_err})",
                 (40, BOTTOM + 205), cv2.FONT_HERSHEY_SIMPLEX, 0.75,
@@ -159,7 +153,6 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--smooth", type=int, default=5)
     ap.add_argument("--forecast-s", type=float, default=3.0)
     ap.add_argument("--bridge-s", type=float, default=3.0)
-    ap.add_argument("--target", type=float, default=93.0)
     ap.add_argument("--label", default="",
                     help="подпись отрезка, например 'фрагмент 0..213'")
     ap.add_argument("--gt", action="store_true",
@@ -251,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
             draw_tile_border(canvas, x, y, cam.name)
 
         draw_table(canvas, f, args.end, fps, status, coverage, mae, n_err,
-                   args.target, args.label)
+                   args.label)
         writer.write(canvas)
         if f % 100 == 0:
             print(f"  кадр {f}/{args.end}")
