@@ -22,3 +22,6 @@ runs/
 
 # Видео с наложением (большие MP4)
 out/truck/videos
+
+# Автоскачанные датасеты ultralytics
+datasets/coco8/
